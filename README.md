@@ -1,0 +1,5 @@
+-need go1.10
+-need $ go get bitbucket.org/liamstask/goose/cmd/goos
+- need go dep
+- run dep ensure
+- run goose up (change dbconf.yml + create a db in psql)

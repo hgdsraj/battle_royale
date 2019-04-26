@@ -1,0 +1,69 @@
+.side-by-side {
+    float: left;
+    margin-right: 10px;
+}
+
+.scoreboard {
+    width: 400px;
+    height: 900px;
+    min-height: 900px;
+    font-size: 18px;
+    padding: 10px;
+}
+
+
+#left, #down, #right, #up {
+    padding: 0.1em 0.6em;
+}
+#p, #q, #r, #enter {
+    padding:0.1em 0.1em;
+}
+#gl-canvas, .scoreboard, .mobile-controls{
+    border: 7px solid darkgreen;
+}
+
+body {
+    background-color: black;
+    color: white;
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+.title {
+    text-align: center;
+}
+
+#paused {
+    color: red;
+    animation: blinker 1s linear infinite;
+    text-align: center;
+}
+
+#legend-text-wrapper {
+    padding-left: 10px;
+    font-size: 25px;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+#controls-list {
+    list-style: none;
+    margin-top: 0;
+}
+
+#controls-header, #colors-select-name {
+    margin-bottom: 0;
+}
+
+#begin {
+    color: green;
+    text-align: center;
+    animation: blinker 1s linear infinite;
+}
+
+.controls-subheader {
+    font-size: 12px;
+}
