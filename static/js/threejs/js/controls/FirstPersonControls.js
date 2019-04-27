@@ -5,9 +5,9 @@
  * @author rmahey / http://rajmahey.com/
  */
 
-THREE.FirstPersonControls = function (object, domElement) {
+THREE.FirstPersonControls = function (camera, domElement) {
     const self = this;
-    self.object = object;
+    self.camera = camera;
     self.euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
 
     var PI_2 = Math.PI / 2;
@@ -228,24 +228,6 @@ THREE.FirstPersonControls = function (object, domElement) {
 
     };
 
-    self.lookAt = function (x, y, z) {
-
-        if (x.isVector3) {
-
-            target.copy(x);
-
-        } else {
-
-            target.set(x, y, z);
-
-        }
-
-        self.object.lookAt(target);
-        setOrientation(self);
-
-        return self;
-
-    };
 
     self.update = function () {
 
@@ -256,7 +238,7 @@ THREE.FirstPersonControls = function (object, domElement) {
 
             if (self.heightSpeed) {
 
-                var y = THREE.Math.clamp(self.object.position.y, self.heightMin, self.heightMax);
+                var y = THREE.Math.clamp(self.camera.position.y, self.heightMin, self.heightMax);
                 var heightDelta = y - self.heightMin;
 
                 self.autoSpeedFactor = delta * (heightDelta * self.heightCoef);
@@ -269,9 +251,9 @@ THREE.FirstPersonControls = function (object, domElement) {
             var actualMoveSpeed = delta * self.movementSpeed;
             if (self.jump) {
                 if (self.jumpStepsPosition < self.jumpSteps.length) {
-                    self.object.position.y += self.jumpSteps[self.jumpStepsPosition];
-                    if (self.object.position.y < self.initialY) {
-                        self.object.position.y = self.initialY;
+                    self.camera.position.y += self.jumpSteps[self.jumpStepsPosition];
+                    if (self.camera.position.y < self.initialY) {
+                        self.camera.position.y = self.initialY;
                         self.jump = false;
                         self.jumpStepsPosition = 0;
 
@@ -284,28 +266,28 @@ THREE.FirstPersonControls = function (object, domElement) {
             }
 
             if (self.moveForward || (self.autoForward && !self.moveBackward)) {
-                self.object.translateZ(-(actualMoveSpeed + self.autoSpeedFactor));
+                self.camera.translateZ(-(actualMoveSpeed + self.autoSpeedFactor));
                 if (!self.jump) {
-                    self.object.position.y = self.initialY;
+                    self.camera.position.y = self.initialY;
                 }
             }
             if (self.moveBackward) {
-                self.object.translateZ(actualMoveSpeed);
+                self.camera.translateZ(actualMoveSpeed);
                 if (!self.jump) {
-                    self.object.position.y = self.initialY;
+                    self.camera.position.y = self.initialY;
                 }
             }
             if (self.jumpOver) {
-                self.object.position.y -= 10;
+                self.camera.position.y -= 10;
                 self.jumpOver = false;
 
             }
 
-            if (self.moveLeft) self.object.translateX(-actualMoveSpeed);
-            if (self.moveRight) self.object.translateX(actualMoveSpeed);
+            if (self.moveLeft) self.camera.translateX(-actualMoveSpeed);
+            if (self.moveRight) self.camera.translateX(actualMoveSpeed);
 
-            if (self.moveUp) self.object.translateY(actualMoveSpeed);
-            if (self.moveDown) self.object.translateY(-actualMoveSpeed);
+            if (self.moveUp) self.camera.translateY(actualMoveSpeed);
+            if (self.moveDown) self.camera.translateY(-actualMoveSpeed);
         };
 
     }();
@@ -357,7 +339,7 @@ THREE.FirstPersonControls = function (object, domElement) {
 
     function setOrientation(controls) {
 
-        var quaternion = controls.object.quaternion;
+        var quaternion = controls.camera.quaternion;
 
         lookDirection.set(0, 0, -1).applyQuaternion(quaternion);
         spherical.setFromVector3(lookDirection);
