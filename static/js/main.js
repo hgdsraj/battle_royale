@@ -419,7 +419,7 @@ class UserHandler {
         var self = this;
         this.others = [];
         console.log(window.location.host);
-        this.ws = new WebSocket('ws://' + window.location.host + '/ws');
+        this.ws = new WebSocket('wss://' + window.location.host + '/ws');
         this.ws.addEventListener('message', function(e) {
             var msg = JSON.parse(e.data);
             self.others = msg;
@@ -467,7 +467,7 @@ class ChatHandler {
         var self = this;
         this.messages = [];
         console.log(window.location.host);
-        this.ws = new WebSocket('ws://' + window.location.host + '/chat');
+        this.ws = new WebSocket('wss://' + window.location.host + '/chat');
         this.ws.addEventListener('message', function(e) {
             var msg = JSON.parse(e.data);
             if (self.messages.length === 5) {
