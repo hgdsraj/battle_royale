@@ -1,80 +1,116 @@
-THREE.PointerLockControls = function ( camera ) {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author Mugen87 / https://github.com/Mugen87
+ */
+
+THREE.PointerLockControls = function ( camera, domElement ) {
 
     var scope = this;
 
-    camera.rotation.set( 0, 0, 0 );
+    this.domElement = domElement || document.body;
+    this.isLocked = false;
 
-    var pitchObject = new THREE.Object3D();
-    pitchObject.add( camera );
-
-    var yawObject = new THREE.Object3D();
-    yawObject.position.y = 10;
-    yawObject.add( pitchObject );
+    var euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
 
     var PI_2 = Math.PI / 2;
 
-    // Using a vector http://threejs.org/docs/api/math/Vector2.html
-    // for virtual rotation. Basically we directly modify this vector
-    // instead of applying the movement to the rotation
-    var virtualRotation = THREE.Vector2(pitchObject.rotation.x, yawObject.rotation.y);
-    // Just a temporary vector
-    var tmp = THREE.Vector2(0, 0);
+    function onMouseMove( event ) {
 
-    var onMouseMove = function ( event ) {
-
-        if ( scope.enabled === false ) return;
+        if ( scope.isLocked === false ) return;
 
         var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
         var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-        // Modify the virtual rotation instead of the real one
-        virtualRotation.y -= movementX * 0.002;
-        virtualRotation.x -= movementY * 0.002;
-        virtualRotation.x = Math.max( - PI_2, Math.min( PI_2, virtualRotation.x ) );
+        euler.setFromQuaternion( camera.quaternion );
 
-        // Set the movement direction
-        tmp.set(pitchObject.rotation.x - virtualRotation.x, yawObject.rotation.y - virtualRotation.y);
-        // Let's set its length to 1
-        tmp.normalize();
+        euler.y -= movementX * 0.002;
+        euler.x -= movementY * 0.002;
 
-        // Now apply the virtual rotation
-        yawObject.rotation.y += tmp.y * 0.002;
-        pitchObject.rotation.x += tmp.x * 0.002;
+        euler.x = Math.max( - PI_2, Math.min( PI_2, euler.x ) );
+
+        camera.quaternion.setFromEuler( euler );
+
+    }
+
+    function onPointerlockChange() {
+
+        if ( document.pointerLockElement === self.domElement ) {
+
+            self.dispatchEvent( { type: 'lock' } );
+
+            self.isLocked = true;
+
+        } else {
+
+            self.dispatchEvent( { type: 'unlock' } );
+
+            self.isLocked = false;
+
+        }
+
+    }
+
+    function onPointerlockError() {
+
+        console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
+
+    }
+
+    this.connect = function () {
+
+        document.addEventListener( 'mousemove', onMouseMove, false );
+        document.addEventListener( 'pointerlockchange', onPointerlockChange, false );
+        document.addEventListener( 'pointerlockerror', onPointerlockError, false );
+
     };
 
-    this.dispose = function() {
+    this.disconnect = function () {
 
         document.removeEventListener( 'mousemove', onMouseMove, false );
+        document.removeEventListener( 'pointerlockchange', onPointerlockChange, false );
+        document.removeEventListener( 'pointerlockerror', onPointerlockError, false );
 
     };
 
-    document.addEventListener( 'mousemove', onMouseMove, false );
+    this.dispose = function () {
 
-    this.enabled = false;
-
-    this.getObject = function () {
-
-        return yawObject;
+        this.disconnect();
 
     };
 
-    this.getDirection = function() {
+    this.getObject = function () { // retaining this method for backward compatibility
 
-        // assumes the camera itself is not rotated
+        return camera;
+
+    };
+
+    this.getDirection = function () {
 
         var direction = new THREE.Vector3( 0, 0, - 1 );
-        var rotation = new THREE.Euler( 0, 0, 0, "YXZ" );
 
-        return function( v ) {
+        return function ( v ) {
 
-            rotation.set( pitchObject.rotation.x, yawObject.rotation.y, 0 );
-
-            v.copy( direction ).applyEuler( rotation );
-
-            return v;
+            return v.copy( direction ).applyQuaternion( camera.quaternion );
 
         };
 
     }();
 
+    this.lock = function () {
+
+        document.requestPointerLock();
+
+    };
+
+    this.unlock = function () {
+
+        document.exitPointerLock();
+
+    };
+
+    this.connect();
+
 };
+
+THREE.PointerLockControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+THREE.PointerLockControls.prototype.constructor = THREE.PointerLockControls;

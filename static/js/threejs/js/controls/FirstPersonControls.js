@@ -8,12 +8,16 @@
 THREE.FirstPersonControls = function (object, domElement) {
     const self = this;
     self.object = object;
+    self.euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
 
+    var PI_2 = Math.PI / 2;
+
+    self.isLocked = false;
 
     self.domElement = (domElement !== undefined) ? domElement : document;
     self.targetPosition = {};
     self.position = {};
-    self.enabled = true;
+    self.enabled = false;
 
     self.movementSpeed = 1.0;
     self.lookSpeed = 0.005;
@@ -117,22 +121,37 @@ THREE.FirstPersonControls = function (object, domElement) {
 
     self.onMouseMove = function (event) {
 
-        if (self.domElement === document) {
+        if ( self.isLocked === false ) return;
 
-            self.mouseX = event.pageX - self.viewHalfX;
-            self.mouseY = event.pageY - self.viewHalfY;
+        var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+        var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-        } else {
+        self.euler.setFromQuaternion( camera.quaternion );
 
-            self.mouseX = event.pageX - self.domElement.offsetLeft - self.viewHalfX;
-            self.mouseY = event.pageY - self.domElement.offsetTop - self.viewHalfY;
+        self.euler.y -= movementX * 0.002;
+        self.euler.x -= movementY * 0.002;
 
-        }
+        self.euler.x = Math.max( - PI_2, Math.min( PI_2, self.euler.x ) );
+
+        camera.quaternion.setFromEuler( self.euler );
+
 
     };
+    function onPointerlockChange() {
+        self.isLocked = document.pointerLockElement === domElement;
+        self.enabled = self.isLocked;
+        console.log("wuddup", self.isLocked);
+
+    }
+
+    function onPointerlockError() {
+
+        console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
+
+    }
+
 
     self.onKeyDown = function (event) {
-
         //event.preventDefault();
 
         switch (event.keyCode) {
@@ -166,14 +185,7 @@ THREE.FirstPersonControls = function (object, domElement) {
             case 32: /*space*/
                 self.jump = true;
                 break;
-            case 27: /*escape*/
-                self.activeLook = !self.activeLook;
-                self.enabled = !self.enabled;
-                break;
-            case 13: /*enter*/
-                self.activeLook = !self.activeLook;
-                self.enabled = !self.enabled;
-                break;
+
 
         }
 
@@ -237,7 +249,6 @@ THREE.FirstPersonControls = function (object, domElement) {
 
     self.update = function () {
 
-        var targetPosition = new THREE.Vector3();
 
         return function update(delta) {
 
@@ -295,43 +306,6 @@ THREE.FirstPersonControls = function (object, domElement) {
 
             if (self.moveUp) self.object.translateY(actualMoveSpeed);
             if (self.moveDown) self.object.translateY(-actualMoveSpeed);
-
-            var actualLookSpeed = delta * self.lookSpeed;
-
-            if (!self.activeLook) {
-                actualLookSpeed = 0;
-
-            }
-
-            var verticalLookRatio = 1;
-
-            if (self.constrainVertical) {
-
-                verticalLookRatio = Math.PI / (self.verticalMax - self.verticalMin);
-
-            }
-
-            lon -= self.mouseX * actualLookSpeed;
-            if (self.lookVertical) lat -= self.mouseY * actualLookSpeed * verticalLookRatio;
-
-            lat = Math.max(-85, Math.min(85, lat));
-
-            var phi = THREE.Math.degToRad(90 - lat);
-            var theta = THREE.Math.degToRad(lon);
-
-            if (self.constrainVertical) {
-
-                phi = THREE.Math.mapLinear(phi, 0, Math.PI, self.verticalMin, self.verticalMax);
-
-            }
-
-            var position = self.object.position;
-            self.position = position;
-            self.targetPosition = targetPosition;
-
-            self.targetPosition = targetPosition.setFromSphericalCoords(1, phi, theta).add(position);
-            self.object.lookAt(targetPosition);
-
         };
 
     }();
@@ -341,13 +315,14 @@ THREE.FirstPersonControls = function (object, domElement) {
         event.preventDefault();
 
     }
-
     self.dispose = function () {
 
         self.domElement.removeEventListener('contextmenu', contextmenu, false);
         self.domElement.removeEventListener('mousedown', _onMouseDown, false);
         self.domElement.removeEventListener('mousemove', _onMouseMove, false);
         self.domElement.removeEventListener('mouseup', _onMouseUp, false);
+        document.removeEventListener( 'pointerlockchange', onPointerlockChange, false );
+        document.removeEventListener( 'pointerlockerror', onPointerlockError, false );
 
         window.removeEventListener('keydown', _onKeyDown, false);
         window.removeEventListener('keyup', _onKeyUp, false);
@@ -364,6 +339,8 @@ THREE.FirstPersonControls = function (object, domElement) {
     self.domElement.addEventListener('mousemove', _onMouseMove, false);
     self.domElement.addEventListener('mousedown', _onMouseDown, false);
     self.domElement.addEventListener('mouseup', _onMouseUp, false);
+    document.addEventListener( 'pointerlockchange', onPointerlockChange, false );
+    document.addEventListener( 'pointerlockerror', onPointerlockError, false );
 
     window.addEventListener('keydown', _onKeyDown, false);
     window.addEventListener('keyup', _onKeyUp, false);
@@ -389,6 +366,7 @@ THREE.FirstPersonControls = function (object, domElement) {
         lon = THREE.Math.radToDeg(spherical.theta);
 
     }
+
 
     self.handleResize();
 

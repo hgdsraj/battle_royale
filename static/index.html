@@ -15,7 +15,7 @@
         <div class="btn btn-primary" id="login-submit">Submit </div>
     </form>
 </div>
-<div class="hud" id = "chat-wrapper" hidden>
+<div class="hud" id = "chat-form-wrapper" hidden>
     <form  id = "chat-form" >
         Message:<br>
         <input type="text" id="message">
@@ -29,7 +29,7 @@
 <div class="hud" id="pause-menu" hidden>
     <ul>
         <li>
-            Press ESC to pause
+            Press p to pause (paused now)
         </li>
         <li>
             Press ENTER to chat
@@ -44,6 +44,11 @@
             Space to jump
         </li>
     </ul>
+</div>
+
+<div class ="hud" id="chat-wrapper">
+    <div id="chat-messages"></div>
+    Chat
 </div>
 
 <script type="text/javascript" src="js/threejs/min3.js"></script>

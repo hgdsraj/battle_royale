@@ -145,7 +145,6 @@ func handleUsers() {
 		users.Mutex.Unlock()
 		// Send it out to every client that is currently connected
 		for client := range userClients {
-			fmt.Println("user was: ", user)
 			err := client.WriteJSON(users.Users)
 			if err != nil {
 				log.Printf("user error: %v", err)

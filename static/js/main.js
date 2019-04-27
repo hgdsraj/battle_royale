@@ -13,7 +13,6 @@ window.onload = function init() {
         chatButton.click();
     });
 
-    window.addEventListener('keydown', keyDown, false);
     function loginClick(e) {
         e.preventDefault();
         username = document.getElementById('username').value;
@@ -23,14 +22,34 @@ window.onload = function init() {
         }
         document.getElementById('login-form').hidden = true;
         loginButton.removeEventListener('click', loginClick);
+        window.addEventListener('keydown', keyDown, false);
+
         beginGame(username)
     }
     loginButton.addEventListener('click', loginClick)
 };
 let mainSnowman;
 let camera;
+let domElement;
+let chatHandler;
+let userHandler;
+let controls;
 function beginGame(username) {
     let scene = new THREE.Scene();
+    document.getElementById('pause-menu').toggleAttribute('hidden');
+
+    let renderer = new THREE.WebGLRenderer({antialias: true});
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    renderer.setClearColor(0x000000);
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.domElement.id = "main-canvas";
+
+    document.body.appendChild(renderer.domElement);
+    domElement = document.getElementById("main-canvas");
 
     camera = new THREE.PerspectiveCamera(
         90,                                   // Field of view
@@ -42,7 +61,8 @@ function beginGame(username) {
     camera.position.set(0, 100, 200);
 
     camera.lookAt(new THREE.Vector3(0, 15, 0));
-    controls = new THREE.FirstPersonControls(camera);
+    controls = new THREE.FirstPersonControls(camera, domElement);
+
 
     controls.movementSpeed = 200;
     controls.lookSpeed = 0.2;
@@ -52,16 +72,6 @@ function beginGame(username) {
     controls.moveUp = false;
     controls.moveDown = false;
 
-    let renderer = new THREE.WebGLRenderer({antialias: true});
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    renderer.setClearColor(0x000000);
-
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    document.body.appendChild(renderer.domElement);
 
     let ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
@@ -257,16 +267,17 @@ function beginGame(username) {
     //     }
     //
     // };
-    let messageHandler = new MessageHandler(username);
+    chatHandler = new ChatHandler(username);
+    userHandler = new UserHandler(username);
     let clock = new THREE.Clock();
     let enemies = {};
     function handleEnemies() {
-        messageHandler.send(mainSnowman.position.x, mainSnowman.position.y, mainSnowman.position.z, mainSnowman.rotation.y);
+        userHandler.send(mainSnowman.position.x, mainSnowman.position.y, mainSnowman.position.z, mainSnowman.rotation.y);
 
         let usersSeen = {};
-        let othersKeys = Object.keys(messageHandler.others);
+        let othersKeys = Object.keys(userHandler.others);
         for (let i = 0; i < othersKeys.length; i++) {
-            enemy = messageHandler.others[othersKeys[i]];
+            enemy = userHandler.others[othersKeys[i]];
             if (enemy.username === username) {
                 continue
             }
@@ -289,6 +300,15 @@ function beginGame(username) {
         setTimeout(handleEnemies, 20);
     }
     handleEnemies();
+    function handleMessages() {
+        let txt = '';
+        for (let i = 0; i < chatHandler.messages.length; i++) {
+            txt += `<span class="username">` + chatHandler.messages[i].username + `:</span>  ` + chatHandler.messages[i].message + `<br>`;
+        }
+        document.getElementById('chat-messages').innerHTML = txt;
+        setTimeout(handleMessages, 20);
+    }
+    handleMessages();
     function loop() {
         camera.getWorldDirection( vector );
         theta = Math.atan2(vector.x,vector.z);
@@ -309,24 +329,51 @@ function beginGame(username) {
 
 
 function keyDown(event) {
-    if (event.key === 'Escape') {
-        document.getElementById('pause-menu').toggleAttribute('hidden')
+    if (event.key === 'p') {
+
+        let pauseMenu = document.getElementById('pause-menu');
+        pauseMenu.toggleAttribute('hidden')
+        if (pauseMenu.hidden === true) {
+            domElement.requestPointerLock();
+            console.log("Requested")
+        } else {
+            console.log("exit1")
+            document.exitPointerLock();
+        }
+        controls.activeLook = !controls.activeLook;
+        controls.enabled = !controls.enabled;
     }
-    if (event.key === 'Enter') {
-        chatWrapper = document.getElementById('chat-wrapper');
+    else if (event.key === 'Enter') {
+        let pauseMenu = document.getElementById('pause-menu');
+        if (pauseMenu.hidden === false) {
+            return
+        }
+        chatWrapper = document.getElementById('chat-form-wrapper');
         chatWrapper.toggleAttribute('hidden');
         const chatInput = document.getElementById('message');
 
         // if  hidden (after toggle), then blur, else focus on the input
         if (chatWrapper.hidden === true) {
-            chatInput.blur();
-            if (chatInput.value !== '') {
+            domElement.requestPointerLock();
+            controls.activeLook = true;
+            controls.enabled = true;
 
+            chatInput.blur();
+            if (chatInput.value === '' || chatInput.value.length > 120) {
+                alert("Must input a message of length 1 to 120.")
+                return
             }
+            chatHandler.send(chatInput.value)
         } else {
+            controls.activeLook = false;
+            controls.enabled = false;
+
             chatInput.value = '';
             chatInput.focus();
+            document.exitPointerLock();
+
         }
+
 
     }
 }
@@ -366,7 +413,7 @@ class Mirror extends THREE.Group {
     }
 }
 
-class MessageHandler {
+class UserHandler {
     constructor(username) {
         this.username = username;
         var self = this;
@@ -410,6 +457,54 @@ class MessageHandler {
                     y: y,
                     z: z,
                     theta: theta,
+                }
+            ));
+    }
+}
+class ChatHandler {
+    constructor(username) {
+        this.username = username;
+        var self = this;
+        this.messages = [];
+        console.log(window.location.host);
+        this.ws = new WebSocket('ws://' + window.location.host + '/chat');
+        this.ws.addEventListener('message', function(e) {
+            var msg = JSON.parse(e.data);
+            if (self.messages.length === 5) {
+                self.messages.shift()
+            }
+            self.messages.push(msg)
+
+        });
+
+
+        this.keepAlive()
+
+    }
+    gravatarURL(email) {
+        return 'http://www.gravatar.com/avatar/' + CryptoJS.MD5(email);
+    }
+
+    keepAlive() {
+        console.log("pinging");
+        if (this.ws.readyState === this.ws.OPEN) {
+            this.ws.send(JSON.stringify({
+                username: "ping"
+            }))
+        } else {
+            console.log("was not ready, was: ", this.ws.readyState)
+        }
+        setTimeout(this.keepAlive, 15000);
+    }
+    send(message) {
+        if (this.ws.readyState !== this.ws.OPEN) {
+            console.log("not ready");
+            return
+        }
+        this.ws.send(
+            JSON.stringify({
+                    username: this.username,
+                    message: message,
                 }
             ));
     }

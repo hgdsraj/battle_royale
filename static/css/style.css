@@ -75,3 +75,24 @@ html {
     z-index: 999;
 }
 
+#chat-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+#chat-form-wrapper {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
+#chat-messages {
+    width: 100px;
+    color: lightgrey;
+    font-size: 24px;
+
+}
+.username {
+    color: #062c33;
+}
