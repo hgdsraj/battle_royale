@@ -1,15 +1,44 @@
 window.onload = function init() {
+    const loginButton = document.getElementById('login-submit');
+    const chatButton = document.getElementById('chat-submit');
 
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        loginButton.click();
+    });
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        chatButton.click();
+    });
 
+    window.addEventListener('keydown', keyDown, false);
+    function loginClick(e) {
+        e.preventDefault();
+        username = document.getElementById('username').value;
+        if (username === '' || username === 'ping') {
+            alert("Username cannot be ping or empty")
+            return
+        }
+        document.getElementById('login-form').hidden = true;
+        loginButton.removeEventListener('click', loginClick);
+        beginGame(username)
+    }
+    loginButton.addEventListener('click', loginClick)
+};
+let mainSnowman;
+let camera;
+function beginGame(username) {
     let scene = new THREE.Scene();
 
-    let camera = new THREE.PerspectiveCamera(
+    camera = new THREE.PerspectiveCamera(
         90,                                   // Field of view
         window.innerWidth / window.innerHeight, // Aspect ratio
         0.1,                                  // Near clipping pane
         12000                                  // Far clipping pane
     );
-
+    var vector = new THREE.Vector3();
     camera.position.set(0, 100, 200);
 
     camera.lookAt(new THREE.Vector3(0, 15, 0));
@@ -74,16 +103,29 @@ window.onload = function init() {
     spotLight2.target = moon;
     scene.add(spotLight2);
 
-    let snowman1 = new Snowman();
+
+
+
+
+    mainSnowman = new Snowman(username, noFace = true);
+    mainSnowman.position.set(30, 15, 40);
+    scene.add(mainSnowman);
+
+
+
+
+
+
+    let snowman1 = new Snowman('');
     snowman1.position.y += 10;
     scene.add(snowman1);
 
-    let snowman2 = new Snowman();
+    let snowman2 = new Snowman('');
     snowman2.position.set(30, 15, -10);
     snowman2.scale.set(.8, .8, .8);
     scene.add(snowman2);
 
-    let snowman3 = new Snowman();
+    let snowman3 = new Snowman('');
     snowman3.position.set(-30, 20, -12);
     scene.add(snowman3);
 
@@ -95,7 +137,7 @@ window.onload = function init() {
 
     renderer.render(scene, camera);
 
-    let particleCount = 100000;
+    let particleCount = 50000;
     let pMaterial = new THREE.PointsMaterial({
         color: 0xFFFFFF,
         size: 4,
@@ -163,13 +205,9 @@ window.onload = function init() {
     treeGroup.rotation.y = 1;
     scene.add(treeGroup);
 
-    mainSnowman = new Snowman(noFace = true);
-    mainSnowman.position.set(30, 15, 40);
-    scene.add(mainSnowman);
 
     let box = new THREE.Box3().setFromObject(mainSnowman);
     console.log(box.min, box.max, box.getSize());
-
     camera.position.y = box.getSize().y;
     controls.initialY = camera.position.y;
     let verticalMirror = new Mirror();
@@ -181,62 +219,117 @@ window.onload = function init() {
 
 
     let npcs = [];
-    for (let i = 0; i < 20; i ++) {
-        let s = new Snowman();
-        s.position.set(-1000 + Math.random() * 2000, 15, -1000 + Math.random() * 2000);
-        npcs.push(s);
-        s.velocity = {'x': 0, 'z': 0};
-        s.velocity.z = -3 + Math.random() * 6;
-        s.velocity.x = -3 + Math.random() * 6;
+    // for (let i = 0; i < 20; i ++) {
+    //     let s = new Snowman('');
+    //     s.position.set(-1000 + Math.random() * 2000, 15, -1000 + Math.random() * 2000);
+    //     npcs.push(s);
+    //     s.velocity = {'x': 0, 'z': 0};
+    //     s.velocity.z = -3 + Math.random() * 6;
+    //     s.velocity.x = -3 + Math.random() * 6;
+    //
+    //     s.counter = 0;
+    //     scene.add(s);
+    //
+    // }
+    // console.log(npcs)
 
-        s.counter = 0;
-        scene.add(s);
-
-    }
-    console.log(npcs)
-
-    let moveNPCs = function () {
-        let nCount = npcs.length;
-        while (nCount--) {
-            let npc = npcs[nCount];
-            if (npc.position.z < 2000 && npc.position.z > -2000 && npc.position.x < 2000 && npc.position.x > -2000) {
-                if (npc.counter > 100) {
-                    npc.velocity.z = -5 + Math.random() * 10;
-                    npc.velocity.x = -5 + Math.random() * 10;
-                    npc.counter = 0;
-                } else {
-                    npc.counter = npc.counter + 1;
-                }
-            } else {
-                npc.position.z = 0;
-                npc.position.x = 0;
-            }
-
-            npc.position.z += npc.velocity.z;
-            npc.position.x += npc.velocity.x;
-            npc.verticesNeedUpdate = true;
-
-        }
-
-    };
-
-    let messageHandler = new MessageHandler();
+    // let moveNPCs = function () {
+    //     let nCount = npcs.length;
+    //     while (nCount--) {
+    //         let npc = npcs[nCount];
+    //         if (npc.position.z < 2000 && npc.position.z > -2000 && npc.position.x < 2000 && npc.position.x > -2000) {
+    //             if (npc.counter > 100) {
+    //                 npc.velocity.z = -5 + Math.random() * 10;
+    //                 npc.velocity.x = -5 + Math.random() * 10;
+    //                 npc.counter = 0;
+    //             } else {
+    //                 npc.counter = npc.counter + 1;
+    //             }
+    //         } else {
+    //             npc.position.z = 0;
+    //             npc.position.x = 0;
+    //         }
+    //
+    //         npc.position.z += npc.velocity.z;
+    //         npc.position.x += npc.velocity.x;
+    //         npc.verticesNeedUpdate = true;
+    //
+    //     }
+    //
+    // };
+    let messageHandler = new MessageHandler(username);
     let clock = new THREE.Clock();
+    let enemies = {};
+    function handleEnemies() {
+        messageHandler.send(mainSnowman.position.x, mainSnowman.position.y, mainSnowman.position.z, mainSnowman.rotation.y);
 
+        let usersSeen = {};
+        let othersKeys = Object.keys(messageHandler.others);
+        for (let i = 0; i < othersKeys.length; i++) {
+            enemy = messageHandler.others[othersKeys[i]];
+            if (enemy.username === username) {
+                continue
+            }
+            if (!(enemy.username in enemies)) {
+                enemies[enemy.username] = new Snowman(enemy.username);
+                scene.add(enemies[enemy.username]);
+            }
+            enemies[enemy.username].position.set(enemy.x, enemy.y, enemy.z);
+            enemies[enemy.username].rotation.y = enemy.theta;
+            usersSeen[enemy.username] = true;
+        }
+        let enemyKeys = Object.keys(enemies);
+        for (let i = 0; i < enemyKeys.length; i++) {
+            if (!(enemyKeys[i] in usersSeen)) {
+                console.log("REMOVE");
+                scene.remove(enemies[enemyKeys[i]]);
+                delete enemies[enemyKeys[i]]
+            }
+        }
+        setTimeout(handleEnemies, 20);
+    }
+    handleEnemies();
     function loop() {
+        camera.getWorldDirection( vector );
+        theta = Math.atan2(vector.x,vector.z);
+
+        mainSnowman.rotation.y = theta;
         controls.update(clock.getDelta());
         let t = subtractA(controls.targetPosition, controls.position);
         mainSnowman.position.x = camera.position.x;
-        mainSnowman.position.z = camera.position.z + 5;
+        mainSnowman.position.z = camera.position.z;
         mainSnowman.position.y = camera.position.y - 37;
         moveParticles();
-        moveNPCs();
+        // moveNPCs();
         renderer.render(scene, camera);
         requestAnimationFrame(loop);
     }
-
     loop();
 };
+
+
+function keyDown(event) {
+    if (event.key === 'Escape') {
+        document.getElementById('pause-menu').toggleAttribute('hidden')
+    }
+    if (event.key === 'Enter') {
+        chatWrapper = document.getElementById('chat-wrapper');
+        chatWrapper.toggleAttribute('hidden');
+        const chatInput = document.getElementById('message');
+
+        // if  hidden (after toggle), then blur, else focus on the input
+        if (chatWrapper.hidden === true) {
+            chatInput.blur();
+            if (chatInput.value !== '') {
+
+            }
+        } else {
+            chatInput.value = '';
+            chatInput.focus();
+        }
+
+    }
+}
 
 function subtractA(a, b) {
     return new THREE.Vector3(a.x - b.x, a.y - b.y, a.z - b.z)
@@ -274,19 +367,16 @@ class Mirror extends THREE.Group {
 }
 
 class MessageHandler {
-    constructor() {
+    constructor(username) {
+        this.username = username;
         var self = this;
         this.others = [];
         console.log(window.location.host);
         this.ws = new WebSocket('ws://' + window.location.host + '/ws');
         this.ws.addEventListener('message', function(e) {
             var msg = JSON.parse(e.data);
-            for (i = 0; i < msg.length; i++) {
+            self.others = msg;
 
-            }
-
-            var element = document.getElementById('chat-messages');
-            element.scrollTop = element.scrollHeight; // Auto scroll to the bottom
         });
 
 
@@ -301,26 +391,27 @@ class MessageHandler {
         console.log("pinging");
         if (this.ws.readyState === this.ws.OPEN) {
             this.ws.send(JSON.stringify({
-                email: "ping",
-                username: "ping",
-                message: "ping"
+                username: "ping"
             }))
         } else {
             console.log("was not ready, was: ", this.ws.readyState)
         }
         setTimeout(this.keepAlive, 15000);
     }
-    function () {
-        if (this.newMsg !== '') {
-            this.ws.send(
-                JSON.stringify({
-                        email: this.email,
-                        username: this.username,
-                        message: $('<p>').html(this.newMsg).text() // Strip out html
-                    }
-                ));
-            this.newMsg = ''; // Reset newMsg
+    send(x, y, z, theta) {
+        if (this.ws.readyState !== this.ws.OPEN) {
+            console.log("not ready");
+            return
         }
+        this.ws.send(
+            JSON.stringify({
+                    username: this.username,
+                    x: x,
+                    y: y,
+                    z: z,
+                    theta: theta,
+                }
+            ));
     }
 }
 
@@ -358,7 +449,7 @@ const globalColors = {
 };
 
 class Snowman extends THREE.Group {
-    constructor(noFace = false) {
+    constructor(username, noFace = false) {
         super();
         let colors = ['#ff0051', '#f56762', '#a53c6c', '#f19fa0', '#72bdbf', '#47689b'];
         // The main bauble is an Octahedron
@@ -462,6 +553,32 @@ class Snowman extends THREE.Group {
             eye2.position.z += 4;
             eye2.position.x += 2;
             this.add(eye2);
+            var loader = new THREE.FontLoader();
+            const self = this;
+            loader.load( 'font.json', function ( font ) {
+
+                const usernameText = new THREE.TextGeometry( username, {
+                    font: font,
+                    size: 10,
+                    height: 1,
+                    curveSegments: 20,
+                } );
+                const usernameMesh = new THREE.Mesh(
+                    usernameText,
+                    new THREE.MeshStandardMaterial({
+                        color: globalColors['carrot'],
+                        flatShading: THREE.FlatShading,
+                        metalness: 0,
+                        roughness: 0.8,
+                        refractionRatio: 0.25
+
+                    })
+                );
+                usernameMesh.position.y += 60;
+                self.add(usernameMesh);
+                self.usernameMesh = usernameMesh;
+            } );
+
         }
 
     }

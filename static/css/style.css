@@ -22,7 +22,7 @@
     border: 7px solid darkgreen;
 }
 
-body {
+html {
     background-color: black;
     color: white;
     font-family: "Lucida Console", Monaco, monospace;
@@ -67,3 +67,11 @@ body {
 .controls-subheader {
     font-size: 12px;
 }
+
+.hud {
+    font-size: 40px;
+    color: white;
+    position: fixed;
+    z-index: 999;
+}
+

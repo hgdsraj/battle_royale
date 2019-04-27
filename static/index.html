@@ -2,19 +2,59 @@
 <html>
 <head>
     <title> Snowman World - Raj Mahey</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="shortcut icon" href="#" />
 
 </head>
 <body>
+<div class="hud" >
+    <form id="login-form">
+        Username:<br>
+        <input type="text" id="username">
+        <div class="btn btn-primary" id="login-submit">Submit </div>
+    </form>
+</div>
+<div class="hud" id = "chat-wrapper" hidden>
+    <form  id = "chat-form" >
+        Message:<br>
+        <input type="text" id="message">
+        <div class="btn btn-primary" id="chat-submit">Submit </div>
+    </form>
+</div>
 
-<script type="text/javascript" src="threejs/min3.js"></script>
-<script type="text/javascript" src="Common/MV.js"></script>
-<script src="threejs/js/objects/Reflector.js"></script>
-<script src="threejs/js/controls/FirstPersonControls.js"></script>
-<script src="threejs/js/geometries/LightningStrike.js"></script>
-<script src="threejs/js/objects/LightningStorm.js"></script>
-<script src="threejs/js/SimplexNoise.js"></script>
+<div class="hud" hidden>
+    Press ESC to pause
+</div>
+<div class="hud" id="pause-menu" hidden>
+    <ul>
+        <li>
+            Press ESC to pause
+        </li>
+        <li>
+            Press ENTER to chat
+        </li>
+        <li>
+            Press R to ??
+        </li>
+        <li>
+            WASD to move
+        </li>
+        <li>
+            Space to jump
+        </li>
+    </ul>
+</div>
 
-<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="js/threejs/min3.js"></script>
+<script type="text/javascript" src="js/Common/MV.js"></script>
+<script src="js/threejs/js/objects/Reflector.js"></script>
+<script src="js/threejs/js/controls/FirstPersonControls.js"></script>
+<script src="js/PointerLockControls.js"></script>
+<script src="js/threejs/js/geometries/LightningStrike.js"></script>
+<script src="js/threejs/js/objects/LightningStorm.js"></script>
+<script src="js/threejs/js/SimplexNoise.js"></script>
+
+<script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
