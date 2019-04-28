@@ -30,11 +30,28 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * Math.floor(max - min) + min);
 }
 
-function getMeshesFromGroup(group) {
-    let meshes = [];
-    return meshes
-    for (let i = 0; i < group.children.length; i++) {
-        meshes.push(new THREE.Box3().setFromObject(group.children[i]))
+function calculateCollisionPoints( group ) {
+    // Compute the bounding box after scale, translation, etc.
+    let results = [];
+    const position = group.position;
+    for (let i =0; i < group.children.length; i++ ) {
+        results = results.concat(group.children[i])
+        results[results.length-1].position = position
     }
-    return meshes
+    return results
+}
+function detectCollisions(userCharacter, collisionObjects) {
+    var originPoint = userCharacter.position.clone();
+    for (var vertexIndex = 0; vertexIndex < userCharacter.geometry.vertices.length; vertexIndex++) {
+        var localVertex = userCharacter.geometry.vertices[vertexIndex].clone();
+        var globalVertex = localVertex.applyMatrix4(userCharacter.matrix);
+        var directionVector = globalVertex.sub(userCharacter.position);
+        var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+        var collisionResults = ray.intersectObjects(collisionObjects);
+        if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+            console.log(collisionResults[0].object.name);
+            // collisionResults[0].object.material.transparent = true;
+            // collisionResults[0].object.material.opacity = 0.4;
+        }
+    }
 }

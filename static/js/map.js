@@ -42,18 +42,18 @@ function setupMap(scene) {
     let snowman1 = new Snowman('');
     snowman1.position.y += 10;
     scene.add(snowman1);
-    collidableMeshList+= getMeshesFromGroup(snowman1);
+    collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman1));
 
     let snowman2 = new Snowman('');
     snowman2.position.set(30, 15, -10);
     snowman2.scale.set(.8, .8, .8);
     scene.add(snowman2);
-    collidableMeshList+= getMeshesFromGroup(snowman2);
+    collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman2));
 
     let snowman3 = new Snowman('');
     snowman3.position.set(-30, 20, -12);
     scene.add(snowman3);
-    collidableMeshList += getMeshesFromGroup(snowman3);
+    collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));
 
     floor = new THREE.Mesh(new THREE.PlaneGeometry(10000, 20000, 1, 1), new THREE.MeshPhongMaterial({color: 0x964B00}));
     floor.rotation.x = -Math.PI / 2;
@@ -67,10 +67,10 @@ function setupMap(scene) {
     verticalMirror.position.z = 50;
 
     scene.add(verticalMirror);
-    collidableMeshList += getMeshesFromGroup(verticalMirror);
+    collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(verticalMirror));
     setupSnow(scene);
     const trees = setupTrees(scene);
-    collidableMeshList += trees;
+    collidableMeshList = collidableMeshList.concat(trees);
     return collidableMeshList
 }
 
@@ -130,7 +130,7 @@ function setupSnow(scene) {
 function setupTrees(scene) {
 
     let treeGroup = new THREE.Group();
-
+    let collisions = [];
     for (let z = -10; z < 10; z++) {
         for (let x = -10; x < 10; x++) {
             let tree = new Tree();
@@ -141,11 +141,12 @@ function setupTrees(scene) {
             if (tree.position.x > -100 && tree.position.x < 100 && tree.position.y > -100 && tree.position.y < 100 && tree.position.z > -100 && tree.position.z < 100) {
             } else {
                 treeGroup.add(tree);
+                collisions = collisions.concat(calculateCollisionPoints(tree))
             }
         }
     }
     treeGroup.rotation.y = 1;
 
     scene.add(treeGroup);
-    return getMeshesFromGroup(treeGroup);
+    return collisions;
 }

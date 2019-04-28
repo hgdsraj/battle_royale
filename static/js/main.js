@@ -3,6 +3,9 @@ window.onload = function init() {
 };
 
 function setupLogin() {
+    document.getElementById('login-form').hidden = true;
+    beginGame('hds')
+
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
 
@@ -64,7 +67,7 @@ function setupCameraAndControls() {
     const controls = new THREE.FirstPersonControls(camera, domElement);
 
 
-    controls.movementSpeed = 200;
+    controls.movementSpeed = 1000;
     controls.lookSpeed = 0.2;
     controls.lookVertical = true;
     controls.activeLook = false;
@@ -191,7 +194,9 @@ function beginGame(username) {
 
         }
     });
+    console.log(collidableMeshList)
     function loop() {
+        detectCollisions(userCharacter.children[0],  collidableMeshList);
         camera.getWorldDirection(vector);
         theta = Math.atan2(vector.x, vector.z);
 
@@ -208,21 +213,7 @@ function beginGame(username) {
     }
 
     loop();
-    console.log(userCharacter);
-    console.log(box);
-
-    for (var vertexIndex = 0; vertexIndex < box.geometry.vertices.length; vertexIndex++) {
-        var localVertex = box.geometry.vertices[vertexIndex].clone();
-        var globalVertex = box.matrix.multiplyVector3(localVertex);
-        var directionVector = globalVertex.subSelf( box.position );
-
-        var ray = new THREE.Ray( box.position, directionVector.clone().normalize() );
-        var collisionResults = ray.intersectObjects( collidableMeshList );
-        if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) {
-            console.log("collision")
-        }
-    }
-};
+}
 
 function subtractA(a, b) {
     return new THREE.Vector3(a.x - b.x, a.y - b.y, a.z - b.z)

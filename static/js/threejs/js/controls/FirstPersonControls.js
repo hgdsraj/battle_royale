@@ -19,7 +19,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
     self.position = {};
     self.enabled = false;
 
-    self.movementSpeed = 1.0;
+    self.movementSpeed = 10;
     self.lookSpeed = 0.005;
 
     self.lookVertical = true;
