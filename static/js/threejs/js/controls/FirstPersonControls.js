@@ -55,7 +55,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
     self.viewHalfX = 0;
     self.viewHalfY = 0;
-
+    self.movements = [];
     // private variables
 
     var lat = 0;
@@ -150,6 +150,23 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
     }
 
+    self.pushMovement = function(movement) {
+        if (self.movements.length === 1) {
+            self.movements.shift()
+        }
+        self.movements.push(movement)
+    };
+    self.undoMovement = function() {
+        self.movements.forEach(el => {
+            if ('x' in el) {
+                self.camera.translateX(-el['x'])
+            } else if ('y' in el) {
+                self.camera.translateX(-el['y'])
+            } else if ('z' in el) {
+                self.camera.translateX(-el['z'])
+            }
+        })
+    };
 
     self.onKeyDown = function (event) {
         //event.preventDefault();
@@ -252,6 +269,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
             if (self.jump) {
                 if (self.jumpStepsPosition < self.jumpSteps.length) {
                     self.camera.position.y += self.jumpSteps[self.jumpStepsPosition];
+                    self.pushMovement({'y': self.jumpSteps[self.jumpStepsPosition]});
                     if (self.camera.position.y < self.initialY) {
                         self.camera.position.y = self.initialY;
                         self.jump = false;
@@ -267,12 +285,14 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
             if (self.moveForward || (self.autoForward && !self.moveBackward)) {
                 self.camera.translateZ(-(actualMoveSpeed + self.autoSpeedFactor));
+                self.pushMovement({'z': -(actualMoveSpeed + self.autoSpeedFactor)});
                 if (!self.jump) {
                     self.camera.position.y = self.initialY;
                 }
             }
             if (self.moveBackward) {
                 self.camera.translateZ(actualMoveSpeed);
+                self.pushMovement({'z': actualMoveSpeed});
                 if (!self.jump) {
                     self.camera.position.y = self.initialY;
                 }
@@ -283,11 +303,24 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
             }
 
-            if (self.moveLeft) self.camera.translateX(-actualMoveSpeed);
-            if (self.moveRight) self.camera.translateX(actualMoveSpeed);
+            if (self.moveLeft) {
+                self.camera.translateX(-actualMoveSpeed);
+                self.pushMovement({'x': -actualMoveSpeed});
 
-            if (self.moveUp) self.camera.translateY(actualMoveSpeed);
-            if (self.moveDown) self.camera.translateY(-actualMoveSpeed);
+            }
+            if (self.moveRight) {
+                self.camera.translateX(actualMoveSpeed);
+                self.pushMovement({'x': actualMoveSpeed});
+            }
+
+            if (self.moveUp) {
+                self.camera.translateY(actualMoveSpeed);
+                self.pushMovement({'y': actualMoveSpeed});
+            }
+            if (self.moveDown) {
+                self.camera.translateY(-actualMoveSpeed);
+                self.pushMovement({'y': -actualMoveSpeed});
+            }
         };
 
     }();

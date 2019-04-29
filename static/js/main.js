@@ -67,7 +67,7 @@ function setupCameraAndControls() {
     const controls = new THREE.FirstPersonControls(camera, domElement);
 
 
-    controls.movementSpeed = 1000;
+    controls.movementSpeed = 500;
     controls.lookSpeed = 0.2;
     controls.lookVertical = true;
     controls.activeLook = false;
@@ -195,8 +195,15 @@ function beginGame(username) {
         }
     });
     console.log(collidableMeshList)
+    console.log(userCharacter)
     function loop() {
-        detectCollisions(userCharacter.children[0],  collidableMeshList);
+        const collisionBoundsOfCharacter = userCharacter.children[0].clone();
+        collisionBoundsOfCharacter.matrix = userCharacter.matrix;
+        collisionBoundsOfCharacter.position.add(userCharacter.position);
+        const collisions = detectCollisions(collisionBoundsOfCharacter,  collidableMeshList);
+        if (collisions.length !== 0) {
+            controls.undoMovement();
+        }
         camera.getWorldDirection(vector);
         theta = Math.atan2(vector.x, vector.z);
 
