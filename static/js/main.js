@@ -3,18 +3,18 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    document.getElementById('login-form').hidden = true;
-    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
+    // document.getElementById('login-form').hidden = true;
+    // beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
 
-    document.getElementById('login-form').addEventListener('submit', function (e) {
+    document.getElementById('login-form').addEventListener('submit', (e) => {
         e.preventDefault();
         e.stopPropagation();
         loginButton.click();
     });
-    document.getElementById('chat-form').addEventListener('submit', function (e) {
+    document.getElementById('chat-form').addEventListener('submit', (e) => {
         e.preventDefault();
         e.stopPropagation();
         chatButton.click();
@@ -24,26 +24,25 @@ function setupLogin() {
         e.preventDefault();
         username = document.getElementById('username').value;
         if (username === '' || username === 'ping') {
-            alert("Username cannot be ping or empty");
-            return
+            alert('Username cannot be ping or empty');
+            return;
         }
         document.getElementById('login-form').hidden = true;
         loginButton.removeEventListener('click', loginClick);
 
-        beginGame(username)
+        beginGame(username);
     }
 
-    loginButton.addEventListener('click', loginClick)
-
+    loginButton.addEventListener('click', loginClick);
 }
 
 let domElement;
 
 function setupCameraAndControls() {
-    let scene = new THREE.Scene();
+    const scene = new THREE.Scene();
     document.getElementById('pause-menu').toggleAttribute('hidden');
 
-    let renderer = new THREE.WebGLRenderer({antialias: true});
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
 
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -51,16 +50,16 @@ function setupCameraAndControls() {
 
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.domElement.id = "main-canvas";
+    renderer.domElement.id = 'main-canvas';
 
     document.body.appendChild(renderer.domElement);
-    domElement = document.getElementById("main-canvas");
+    domElement = document.getElementById('main-canvas');
 
     const camera = new THREE.PerspectiveCamera(
-        90,                                   // Field of view
+        90, // Field of view
         window.innerWidth / window.innerHeight, // Aspect ratio
-        0.1,                                  // Near clipping pane
-        12000                                  // Far clipping pane
+        0.1, // Near clipping pane
+        12000, // Far clipping pane
     );
     camera.position.set(0, 100, 200);
 
@@ -75,7 +74,9 @@ function setupCameraAndControls() {
     controls.constrainVertical = true;
     controls.moveUp = false;
     controls.moveDown = false;
-    return {'scene': scene, 'camera': camera, 'controls': controls, 'renderer': renderer}
+    return {
+        scene, camera, controls, renderer,
+    };
 }
 
 
@@ -84,15 +85,15 @@ function beginGame(username) {
     const userHandler = new UserHandler(username);
     let theta = 0;
     const sceneControlsCamera = setupCameraAndControls();
-    console.log(sceneControlsCamera)
-    const scene = sceneControlsCamera['scene'];
-    const camera = sceneControlsCamera['camera'];
-    const controls = sceneControlsCamera['controls'];
-    const renderer = sceneControlsCamera['renderer'];
-    var vector = new THREE.Vector3();
+    console.log(sceneControlsCamera);
+    const scene = sceneControlsCamera.scene;
+    const camera = sceneControlsCamera.camera;
+    const controls = sceneControlsCamera.controls;
+    const renderer = sceneControlsCamera.renderer;
+    const vector = new THREE.Vector3();
     const map = setupMap(scene);
-    let collidableMeshList = map['collidableMeshList'];
-    let mapDynamics = map['mapDynamics'];
+    const collidableMeshList = map.collidableMeshList;
+    const mapDynamics = map.mapDynamics;
     let shooting = false;
     let lineOfSight = [];
     let killCount = {};
@@ -100,41 +101,43 @@ function beginGame(username) {
     userCharacter = new Character(username, noFace = true);
     userCharacter.position.set(30, 15, 40);
     scene.add(userCharacter);
-    let box = new THREE.Box3().setFromObject(userCharacter);
+    const box = new THREE.Box3().setFromObject(userCharacter);
     camera.position.y = box.getSize().y;
     controls.initialY = camera.position.y;
 
     renderer.render(scene, camera);
 
 
-    let clock = new THREE.Clock();
-    let enemies = {};
+    const clock = new THREE.Clock();
+    const enemies = {};
     let collidableEnemies = []; // holds meshes of enemies for collisions
-    let kills = {};
+    const kills = {};
 
-    let infoMessages = new InfoMessages();
+    const infoMessages = new InfoMessages();
 
     function handleEnemies() {
         userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {});
         collidableEnemies = [];
-        let usersSeen = {};
-        let othersKeys = Object.keys(userHandler.others);
+        const usersSeen = {};
+        const othersKeys = Object.keys(userHandler.others);
         for (let i = 0; i < othersKeys.length; i++) {
             enemy = userHandler.others[othersKeys[i]];
             killCount = enemy.kill_log.kill_count;
             if (enemy.username === username) {
-                continue
+                continue;
             }
             // todo: terrible way to recieve damage. others can max this value.
             if (username in enemy.attack) {
+                console.log(enemy.attack[username])
                 death = userCharacter.receiveDamage(enemy.attack[username]);
-                if (death) {
+                if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
                     infoMessages.push(username, enemy.username, 'killed by', '');
                     userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username);
                 }
             }
             if (enemy.killed_by !== '') {
                 const key = enemy.username + enemy.killed_by + enemy.killed_by_uuid;
+                console.log(key);
                 if (!(key in kills)) {
                     infoMessages.push(enemy.username, enemy.killed_by, 'killed by', '');
                 }
@@ -147,19 +150,19 @@ function beginGame(username) {
             }
             enemies[enemy.username].position.set(enemy.x, enemy.y, enemy.z);
             enemies[enemy.username].rotation.y = enemy.theta;
-            enemies[enemy.username].healthBar.scale.x = enemy.health;
+            enemies[enemy.username].healthBar.scale.x = enemy.health / 100;
             enemies[enemy.username].health = enemy.health;
             // = userCharacter.rotation;
             enemyUsername = enemies[enemy.username].rotateUserInfo(theta);
             usersSeen[enemy.username] = true;
         }
-        let enemyKeys = Object.keys(enemies);
+        const enemyKeys = Object.keys(enemies);
         for (let i = 0; i < enemyKeys.length; i++) {
             if (!(enemyKeys[i] in usersSeen)) {
                 infoMessages.push(enemy.username, '', 'has left the game', '');
 
                 scene.remove(enemies[enemyKeys[i]]);
-                delete enemies[enemyKeys[i]]
+                delete enemies[enemyKeys[i]];
             } else {
                 collidableEnemies = collidableEnemies.concat(calculateCollisionPoints(enemies[enemyKeys[i]]));
             }
@@ -173,9 +176,9 @@ function beginGame(username) {
         let txt = '';
         for (let i = 0; i < chatHandler.messages.length; i++) {
             if (chatHandler.messages[i].username === username) {
-                txt += `<span class="player-username">` + chatHandler.messages[i].username + `:</span>  ` + chatHandler.messages[i].message + `<br>`;
+                txt += `<span class="player-username">${chatHandler.messages[i].username}:</span>  ${chatHandler.messages[i].message}<br>`;
             } else {
-                txt += `<span class="username">` + chatHandler.messages[i].username + `:</span>  ` + chatHandler.messages[i].message + `<br>`;
+                txt += `<span class="username">${chatHandler.messages[i].username}:</span>  ${chatHandler.messages[i].message}<br>`;
             }
         }
         document.getElementById('chat-messages').innerHTML = txt;
@@ -187,7 +190,7 @@ function beginGame(username) {
     function handleInfos() {
         let txt = '';
         infoMessages.messages.forEach((i) => {
-            txt += i.message + `<br>`;
+            txt += `${i.message}<br>`;
         });
         document.getElementById('info-messages').innerHTML = txt;
         setTimeout(handleInfos, 20);
@@ -196,19 +199,17 @@ function beginGame(username) {
     handleInfos();
 
     function handleHealth() {
-        document.getElementById('health').innerHTML = userCharacter.health * 100;
+        document.getElementById('health').innerHTML = userCharacter.health;
         setTimeout(handleHealth, 10);
     }
 
     handleHealth();
 
     function handleKills() {
-
         let kills = '';
-        let keys = Object.keys(killCount);
+        const keys = Object.keys(killCount);
         for (let i = 0; i < keys.length; i++) {
-            kills += `<tr> <td> ${keys[i]}</td> <td>${killCount[keys[i]]}</td></tr>`
-
+            kills += `<tr> <td> ${keys[i]}</td> <td>${killCount[keys[i]]}</td></tr>`;
         }
         document.getElementById('kills').innerHTML = kills;
         setTimeout(handleKills, 10);
@@ -223,9 +224,9 @@ function beginGame(username) {
             lineOfSight.forEach((enemy) => {
                 const key = enemy.object.parent.username;
                 const attack = {};
-                attack[key] = 0.1;
+                attack[key] = 2;
                 userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
-            })
+            });
         }
         setTimeout(handleShooting, 70);
     }
@@ -239,7 +240,6 @@ function beginGame(username) {
         if (camera.zoom < 1.5) {
             setTimeout(zoomIn, 1);
         }
-
     }
 
     function zoomOut() {
@@ -249,7 +249,6 @@ function beginGame(username) {
         if (camera.zoom > 1) {
             setTimeout(zoomOut, 1);
         }
-
     }
 
     window.addEventListener('mouseup', (e) => {
@@ -272,23 +271,23 @@ function beginGame(username) {
     }, false);
 
     let inChat = false;
-    window.addEventListener('keydown', function (event) {
+    window.addEventListener('keydown', (event) => {
         if (event.key === 'p' && !inChat) {
-            let pauseMenu = document.getElementById('pause-menu');
+            const pauseMenu = document.getElementById('pause-menu');
             pauseMenu.toggleAttribute('hidden');
             if (pauseMenu.hidden === true) {
                 domElement.requestPointerLock();
-                console.log("Requested");
+                console.log('Requested');
                 controls.enabled = true;
             } else {
-                console.log("exit1");
+                console.log('exit1');
                 document.exitPointerLock();
                 controls.enabled = false;
             }
         } else if (event.key === 'Enter') {
-            let pauseMenu = document.getElementById('pause-menu');
+            const pauseMenu = document.getElementById('pause-menu');
             if (pauseMenu.hidden === false) {
-                return
+                return;
             }
             chatWrapper = document.getElementById('chat-form-wrapper');
             chatWrapper.toggleAttribute('hidden');
@@ -302,10 +301,10 @@ function beginGame(username) {
 
                 chatInput.blur();
                 if (chatInput.value === '' || chatInput.value.length > 120) {
-                    alert("Must input a message of length 1 to 120.")
-                    return
+                    alert('Must input a message of length 1 to 120.');
+                    return;
                 }
-                chatHandler.send(chatInput.value)
+                chatHandler.send(chatInput.value);
             } else {
                 inChat = true;
                 controls.enabled = false;
@@ -313,22 +312,19 @@ function beginGame(username) {
                 chatInput.value = '';
                 chatInput.focus();
                 document.exitPointerLock();
-
             }
-
-
         } else if (event.key === '`') {
-            let scoreboard = document.getElementById('scoreboard');
+            const scoreboard = document.getElementById('scoreboard');
             scoreboard.toggleAttribute('hidden');
             if (scoreboard.hidden === true) {
                 document.getElementById('pause-menu').hidden = true;
                 domElement.requestPointerLock();
-                console.log("Requested");
+                console.log('Requested');
             }
         }
     });
-    console.log(collidableMeshList)
-    console.log(userCharacter)
+    console.log(collidableMeshList);
+    console.log(userCharacter);
 
     function loop() {
         controls.update(clock.getDelta());
@@ -361,5 +357,4 @@ function beginGame(username) {
 
     loop();
 }
-
 

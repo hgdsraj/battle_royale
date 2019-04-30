@@ -8,9 +8,9 @@
 THREE.FirstPersonControls = function (camera, domElement) {
     const self = this;
     self.camera = camera;
-    self.euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
+    self.euler = new THREE.Euler(0, 0, 0, 'YXZ');
     self.recoilUp = true;
-    var PI_2 = Math.PI / 2;
+    const PI_2 = Math.PI / 2;
 
     self.isLocked = false;
 
@@ -69,132 +69,108 @@ THREE.FirstPersonControls = function (camera, domElement) {
     self.movements = [];
     // private variables
 
-    var lat = 0;
-    var lon = 0;
+    let lat = 0;
+    let lon = 0;
 
-    var lookDirection = new THREE.Vector3();
-    var spherical = new THREE.Spherical();
-    var target = new THREE.Vector3();
+    const lookDirection = new THREE.Vector3();
+    const spherical = new THREE.Spherical();
+    const target = new THREE.Vector3();
 
     //
 
     if (self.domElement !== document) {
-
         self.domElement.setAttribute('tabindex', -1);
-
     }
 
     //
     if (self.domElement !== document) {
-
         self.domElement.focus();
-
     }
 
     self.handleResize = function () {
-
         if (self.domElement === document) {
-
             self.viewHalfX = window.innerWidth / 2;
             self.viewHalfY = window.innerHeight / 2;
-
         } else {
-
             self.viewHalfX = self.domElement.offsetWidth / 2;
             self.viewHalfY = self.domElement.offsetHeight / 2;
-
         }
-
     };
 
     self.onMouseDown = function (event) {
-
         if (self.domElement !== document) {
-
             self.domElement.focus();
-
         }
 
         self.activeLook = true;
 
         self.mouseDragOn = true;
         self.shooting = true;
-
     };
 
     self.onMouseUp = function (event) {
-
         self.activeLook = true;
 
 
         self.mouseDragOn = true;
-
     };
 
     self.onMouseMove = function (event) {
+        if (self.isLocked === false) return;
 
-        if ( self.isLocked === false ) return;
+        const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+        const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-        var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-        var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
-        self.euler.setFromQuaternion( camera.quaternion );
+        self.euler.setFromQuaternion(camera.quaternion);
 
         self.euler.y -= movementX * 0.002;
         self.euler.x -= movementY * 0.002;
 
-        self.euler.x = Math.max( - PI_2, Math.min( PI_2, self.euler.x ) );
+        self.euler.x = Math.max(-PI_2, Math.min(PI_2, self.euler.x));
 
-        camera.quaternion.setFromEuler( self.euler );
-
-
+        camera.quaternion.setFromEuler(self.euler);
     };
 
-    self.recoil = function() {
+    self.recoil = function () {
         if (self.recoilUp) {
-            self.euler.x +=  0.04;
+            self.euler.x += 0.04;
             self.recoilUp = false;
         } else {
             self.euler.x -= 0.03;
             self.recoilUp = true;
         }
-        self.euler.x = Math.max( - PI_2, Math.min( PI_2, self.euler.x ) );
-        camera.quaternion.setFromEuler( self.euler );
-
-
+        self.euler.x = Math.max(-PI_2, Math.min(PI_2, self.euler.x));
+        camera.quaternion.setFromEuler(self.euler);
     };
 
     function onPointerlockChange() {
         self.isLocked = document.pointerLockElement === domElement;
         self.enabled = self.isLocked;
-        console.log("wuddup", self.isLocked);
-
+        console.log('wuddup', self.isLocked);
     }
 
     function onPointerlockError() {
-
-        console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
-
+        console.error('THREE.PointerLockControls: Unable to use Pointer Lock API');
     }
 
-    self.pushMovement = function(movement) {
+    self.pushMovement = function (movement) {
         if (self.movements.length === 1) {
-            self.movements.shift()
+            self.movements.shift();
         }
-        self.movements.push(movement)
+        self.movements.push(movement);
     };
-    self.undoMovement = function() {
-        self.movements.forEach(el => {
+    self.undoMovement = function () {
+        self.movements.forEach((el) => {
             if ('x' in el) {
-                self.camera.translateX(-el['x'])
+                self.camera.translateX(-el.x);
             } else if ('y' in el) {
-                self.camera.translateY(-el['y'])
+                self.camera.translateY(-el.y);
             } else if ('z' in el) {
-                self.camera.translateZ(-el['z'])
+                self.camera.translateZ(-el.z);
             }
-        })
+        });
     };
-    self.dontAllowMovement = function(direction) {
+    self.dontAllowMovement = function (direction) {
         self.allowAllMovements();
         if (direction.x < 0) {
             self.allowNegativeXMovement = false;
@@ -212,117 +188,105 @@ THREE.FirstPersonControls = function (camera, domElement) {
             self.allowPositiveZMovement = false;
         }
     };
-    self.allowAllMovements = function() {
+    self.allowAllMovements = function () {
         self.allowNegativeXMovement = true;
         self.allowNegativeYMovement = true;
         self.allowNegativeZMovement = true;
         self.allowPositiveXMovement = true;
         self.allowPositiveYMovement = true;
         self.allowPositiveZMovement = true;
-
     };
 
     self.onKeyDown = function (event) {
-        //event.preventDefault();
+        // event.preventDefault();
 
         switch (event.keyCode) {
-
-            case 38: /*up*/
-            case 87: /*W*/
+            case 38: /* up */
+            case 87: /* W */
                 self.moveForward = true;
                 break;
 
-            case 37: /*left*/
-            case 65: /*A*/
+            case 37: /* left */
+            case 65: /* A */
                 self.moveLeft = true;
                 break;
 
-            case 40: /*down*/
-            case 83: /*S*/
+            case 40: /* down */
+            case 83: /* S */
                 self.moveBackward = true;
                 break;
 
-            case 39: /*right*/
-            case 68: /*D*/
+            case 39: /* right */
+            case 68: /* D */
                 self.moveRight = true;
                 break;
 
-            case 82: /*R*/
+            case 82: /* R */
                 self.moveUp = true;
                 break;
-            case 70: /*F*/
+            case 70: /* F */
                 self.moveDown = true;
                 break;
-            case 32: /*space*/
+            case 32: /* space */
                 self.jump = true;
                 break;
-
-
         }
-
     };
 
     self.onKeyUp = function (event) {
-
         switch (event.keyCode) {
-
-            case 38: /*up*/
-            case 87: /*W*/
+            case 38: /* up */
+            case 87: /* W */
                 self.moveForward = false;
                 break;
 
-            case 37: /*left*/
-            case 65: /*A*/
+            case 37: /* left */
+            case 65: /* A */
                 self.moveLeft = false;
                 break;
 
-            case 40: /*down*/
-            case 83: /*S*/
+            case 40: /* down */
+            case 83: /* S */
                 self.moveBackward = false;
                 break;
 
-            case 39: /*right*/
-            case 68: /*D*/
+            case 39: /* right */
+            case 68: /* D */
                 self.moveRight = false;
                 break;
 
-            case 82: /*R*/
+            case 82: /* R */
                 self.moveUp = false;
                 break;
-            case 70: /*F*/
+            case 70: /* F */
                 self.moveDown = false;
                 break;
 
             // case 32: /*space*/ self.jump = false; break;
-
         }
-
     };
 
 
-    self.update = function () {
-
-
+    self.update = (function () {
         return function update(delta) {
-
             if (self.enabled === false) return;
 
             if (self.heightSpeed) {
-                var y = THREE.Math.clamp(self.camera.position.y, self.heightMin, self.heightMax);
-                var heightDelta = y - self.heightMin;
+                const y = THREE.Math.clamp(self.camera.position.y, self.heightMin, self.heightMax);
+                const heightDelta = y - self.heightMin;
                 self.autoSpeedFactor = delta * (heightDelta * self.heightCoef);
             } else {
                 self.autoSpeedFactor = 0.0;
             }
-            var actualMoveSpeed = delta * self.movementSpeed;
+            const actualMoveSpeed = delta * self.movementSpeed;
             if (self.jump && self.allowPositiveYMovement && self.jumpVelocity > 0) {
                 self.camera.position.y += self.jumpVelocity;
                 self.jumpVelocity -= 1;
-                self.pushMovement({'y': self.jumpVelocity});
-            } else  if (self.allowNegativeYMovement && self.camera.position.y > self.initialY) {
+                self.pushMovement({ y: self.jumpVelocity });
+            } else if (self.allowNegativeYMovement && self.camera.position.y > self.initialY) {
                 self.camera.position.y -= self.gravityVelocity;
                 self.gravityVelocity += 1;
-                self.pushMovement({'y': -self.gravityVelocity});
+                self.pushMovement({ y: -self.gravityVelocity });
             } else {
                 self.gravityVelocity = self.initialGravityVelocity;
                 self.jumpVelocity = self.initialJumpVelocity;
@@ -330,16 +294,14 @@ THREE.FirstPersonControls = function (camera, domElement) {
             }
 
 
-
-
             if ((self.moveForward || (self.autoForward && !self.moveBackward)) && self.allowNegativeZMovement) {
                 self.camera.translateZ(-(actualMoveSpeed + self.autoSpeedFactor));
-                self.pushMovement({'z': -(actualMoveSpeed + self.autoSpeedFactor)});
+                self.pushMovement({ z: -(actualMoveSpeed + self.autoSpeedFactor) });
             }
 
             if (self.moveBackward && self.allowPositiveZMovement) {
                 self.camera.translateZ(actualMoveSpeed);
-                self.pushMovement({'z': actualMoveSpeed});
+                self.pushMovement({ z: actualMoveSpeed });
             }
 
             if (self.camera.position.y < self.initialY) {
@@ -349,43 +311,37 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
             if (self.moveLeft && self.allowNegativeXMovement) {
                 self.camera.translateX(-actualMoveSpeed);
-                self.pushMovement({'x': -actualMoveSpeed});
-
+                self.pushMovement({ x: -actualMoveSpeed });
             }
             if (self.moveRight && self.allowPositiveXMovement) {
                 self.camera.translateX(actualMoveSpeed);
-                self.pushMovement({'x': actualMoveSpeed});
+                self.pushMovement({ x: actualMoveSpeed });
             }
 
             if (self.moveUp && self.allowPositiveYMovement) {
                 self.camera.translateY(actualMoveSpeed);
-                self.pushMovement({'y': actualMoveSpeed});
+                self.pushMovement({ y: actualMoveSpeed });
             }
-            if (self.moveDown  && self.allowNegativeYMovement) {
+            if (self.moveDown && self.allowNegativeYMovement) {
                 self.camera.translateY(-actualMoveSpeed);
-                self.pushMovement({'y': -actualMoveSpeed});
+                self.pushMovement({ y: -actualMoveSpeed });
             }
         };
-
-    }();
+    }());
 
     function contextmenu(event) {
-
         event.preventDefault();
-
     }
     self.dispose = function () {
-
         self.domElement.removeEventListener('contextmenu', contextmenu, false);
         self.domElement.removeEventListener('mousedown', _onMouseDown, false);
         self.domElement.removeEventListener('mousemove', _onMouseMove, false);
         self.domElement.removeEventListener('mouseup', _onMouseUp, false);
-        document.removeEventListener( 'pointerlockchange', onPointerlockChange, false );
-        document.removeEventListener( 'pointerlockerror', onPointerlockError, false );
+        document.removeEventListener('pointerlockchange', onPointerlockChange, false);
+        document.removeEventListener('pointerlockerror', onPointerlockError, false);
 
         window.removeEventListener('keydown', _onKeyDown, false);
         window.removeEventListener('keyup', _onKeyUp, false);
-
     };
 
     var _onMouseMove = bind(self, self.onMouseMove);
@@ -398,37 +354,30 @@ THREE.FirstPersonControls = function (camera, domElement) {
     self.domElement.addEventListener('mousemove', _onMouseMove, false);
     self.domElement.addEventListener('mousedown', _onMouseDown, false);
     self.domElement.addEventListener('mouseup', _onMouseUp, false);
-    document.addEventListener( 'pointerlockchange', onPointerlockChange, false );
-    document.addEventListener( 'pointerlockerror', onPointerlockError, false );
+    document.addEventListener('pointerlockchange', onPointerlockChange, false);
+    document.addEventListener('pointerlockerror', onPointerlockError, false);
 
     window.addEventListener('keydown', _onKeyDown, false);
     window.addEventListener('keyup', _onKeyUp, false);
 
     function bind(scope, fn) {
-
         return function () {
-
             fn.apply(scope, arguments);
-
         };
-
     }
 
     function setOrientation(controls) {
-
-        var quaternion = controls.camera.quaternion;
+        const quaternion = controls.camera.quaternion;
 
         lookDirection.set(0, 0, -1).applyQuaternion(quaternion);
         spherical.setFromVector3(lookDirection);
 
         lat = 90 - THREE.Math.radToDeg(spherical.phi);
         lon = THREE.Math.radToDeg(spherical.theta);
-
     }
 
 
     self.handleResize();
 
     setOrientation(self);
-
 };

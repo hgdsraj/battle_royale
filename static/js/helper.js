@@ -10,13 +10,12 @@
  * @returns the geometry object
  */
 function addNoise(geometry, noiseX, noiseY, noiseZ) {
-
     noiseX = noiseX || 2;
     noiseY = noiseY || noiseX;
     noiseZ = noiseZ || noiseY;
 
     for (let i = 0; i < geometry.vertices.length; i++) {
-        let v = geometry.vertices[i];
+        const v = geometry.vertices[i];
         v.x += -noiseX / 2 + Math.random() * noiseX;
         v.y += -noiseY / 2 + Math.random() * noiseY;
         v.z += -noiseZ / 2 + Math.random() * noiseZ;
@@ -30,7 +29,7 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * Math.floor(max - min) + min);
 }
 
-function calculateCollisionPoints( group ) {
+function calculateCollisionPoints(group) {
     // // Compute the bounding box after scale, translation, etc.
     // let results = [];
     // const position = group.position;
@@ -44,25 +43,22 @@ function calculateCollisionPoints( group ) {
     return group.children;
 }
 function detectCollisions(userCharacter, collisionObjects) {
-    let  collisions = [];
-    for (var vertexIndex = 0; vertexIndex < userCharacter.geometry.vertices.length; vertexIndex++)
-    {
-        var localVertex = userCharacter.geometry.vertices[vertexIndex].clone();
-        var globalVertex = localVertex.applyMatrix4(userCharacter.matrix);
-        var directionVector = globalVertex.sub( userCharacter.position );
+    const collisions = [];
+    for (let vertexIndex = 0; vertexIndex < userCharacter.geometry.vertices.length; vertexIndex++) {
+        const localVertex = userCharacter.geometry.vertices[vertexIndex].clone();
+        const globalVertex = localVertex.applyMatrix4(userCharacter.matrix);
+        const directionVector = globalVertex.sub(userCharacter.position);
 
-        var ray = new THREE.Raycaster( userCharacter.position, directionVector.clone().normalize() );
-        var collisionResults = ray.intersectObjects( collisionObjects );
-        if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() )
-        {
-            collisions.push([collisionResults[0].distance - directionVector.length(), directionVector])
+        const ray = new THREE.Raycaster(userCharacter.position, directionVector.clone().normalize());
+        const collisionResults = ray.intersectObjects(collisionObjects);
+        if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+            collisions.push([collisionResults[0].distance - directionVector.length(), directionVector]);
         }
     }
     return collisions;
-
 }
 
 function detectBullets(position, vector, collisionObjects) {
-    var ray = new THREE.Raycaster( position, vector.clone().normalize() );
-    return ray.intersectObjects( collisionObjects );
+    const ray = new THREE.Raycaster(position, vector.clone().normalize());
+    return ray.intersectObjects(collisionObjects);
 }

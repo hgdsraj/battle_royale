@@ -179,7 +179,10 @@ func handleUsers() {
 		users.Mutex.Unlock()
 		// Send it out to every client that is currently connected
 		for client := range userClients {
+			killLogMutex.Lock()
 			err := client.WriteJSON(users.Users)
+			killLogMutex.Unlock()
+
 			if err != nil {
 				log.Printf("user error: %v", err)
 				client.Close()
