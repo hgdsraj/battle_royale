@@ -76,7 +76,7 @@ function setupCameraAndControls() {
     controls.moveDown = false;
     return {'scene': scene, 'camera': camera, 'controls': controls, 'renderer': renderer}
 }
-PI_2
+
 
 function beginGame(username) {
     const chatHandler = new ChatHandler(username);
@@ -198,7 +198,6 @@ function beginGame(username) {
     function handleShooting() {
         if (shooting === true) {
             controls.recoil();
-
             lineOfSight.forEach((enemy) => {
                 const key = enemy.object.parent.username;
                 const attack = {};
@@ -215,13 +214,40 @@ function beginGame(username) {
     }
 
     handleShooting();
+    function zoomIn() {
+        camera.zoom += 0.1;
 
+        camera.updateProjectionMatrix();
+        if (camera.zoom < 1.5) {
+            setTimeout(zoomIn, 1);
+        }
+
+    }
+    function zoomOut() {
+        camera.zoom -= 0.1;
+        console.log(camera.zoom)
+
+        camera.updateProjectionMatrix();
+        if (camera.zoom > 1) {
+            setTimeout(zoomOut, 1);
+        }
+
+    }
     window.addEventListener('mouseup', (e) => {
-        shooting = false;
+        if (e.button === 0) {
+            shooting = false;
+        } else if (e.button ===2 ) {
+            zoomOut();
+        }
     }, false);
     window.addEventListener('mousedown', (e) => {
         if (controls.enabled) {
-            shooting = true;
+            console.log(e.button)
+            if (e.button === 0) {
+                shooting = true;
+            } else if (e.button ===2 ) {
+                zoomIn();
+            }
         }
     }, false);
 
