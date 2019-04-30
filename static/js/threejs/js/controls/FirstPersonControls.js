@@ -118,6 +118,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
         self.activeLook = true;
 
         self.mouseDragOn = true;
+        self.shooting = true;
 
     };
 

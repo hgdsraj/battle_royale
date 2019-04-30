@@ -1,6 +1,6 @@
 let npcs = [];
 // for (let i = 0; i < 20; i ++) {
-//     let s = new Snowman('');
+//     let s = new Character('');
 //     s.position.set(-1000 + Math.random() * 2000, 15, -1000 + Math.random() * 2000);
 //     npcs.push(s);
 //     s.velocity = {'x': 0, 'z': 0};

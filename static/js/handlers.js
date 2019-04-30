@@ -40,7 +40,7 @@ class UserHandler extends Handler {
         this.ws.addEventListener('message', handler);
     }
 
-    send(x, y, z, theta) {
+    send(x, y, z, theta, health, attack, killer) {
         if (this.ws.readyState !== this.ws.OPEN) {
             console.log("not ready");
             return
@@ -52,6 +52,9 @@ class UserHandler extends Handler {
                     y: y,
                     z: z,
                     theta: theta,
+                    health: health,
+                    attack: attack,
+                    killed_by: killer,
                 }
             ));
     }
@@ -91,13 +94,13 @@ class InfoMessage {
         this.username = username;
         this.message = ``;
         if (username !== '') {
-            this.message += `<span class="username">${username}</span> `
+            this.message += `<span class="player-username">${username}</span> `
         }
         if (action !== '') {
             this.message += `${action} `
         }
         if (second_username !== '') {
-            this.message = `<span class="username">${second_username}</span> `
+            this.message += `<span class="username">${second_username}</span> `
         }
         if (message !== '') {
             this.message += `${message} `

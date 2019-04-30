@@ -1,6 +1,7 @@
 const globalColors = {
     'snowman': '#bcfeff',
     'carrot': '#ed9121',
+    'green': '#00ed06',
     'eye': '#000000'
 };
 class Mirror extends THREE.Group {
@@ -59,9 +60,11 @@ class Ramp extends THREE.Group {
     }
 }
 
-class Snowman extends THREE.Group {
+class Character extends THREE.Group {
     constructor(username, noFace = false) {
         super();
+        this.health = 1;
+        this.username = username;
         let colors = ['#ff0051', '#f56762', '#a53c6c', '#f19fa0', '#72bdbf', '#47689b'];
         // The main bauble is an Octahedron
         const snowMaterial = new THREE.MeshPhysicalMaterial({
@@ -167,17 +170,16 @@ class Snowman extends THREE.Group {
             var loader = new THREE.FontLoader();
             const self = this;
             loader.load('font.json', function (font) {
-
                 const usernameText = new THREE.TextGeometry(username, {
                     font: font,
-                    size: 10,
+                    size: 8,
                     height: 1,
                     curveSegments: 20,
                 });
                 const usernameMesh = new THREE.Mesh(
                     usernameText,
                     new THREE.MeshStandardMaterial({
-                        color: globalColors['carrot'],
+                        color: globalColors['green'],
                         flatShading: THREE.FlatShading,
                         metalness: 0,
                         roughness: 0.8,
@@ -185,13 +187,65 @@ class Snowman extends THREE.Group {
 
                     })
                 );
-                usernameMesh.position.y += 60;
+                usernameMesh.name = 'username';
+                usernameMesh.position.y += 50;
+                const size = new THREE.Box3().setFromObject( usernameMesh ).getSize();
+                usernameMesh.geometry.translate(-Math.floor(size['x'] / 2), 0, 0);
                 self.add(usernameMesh);
                 self.usernameMesh = usernameMesh;
+
             });
+            const health = new THREE.Mesh(
+                new THREE.BoxGeometry(40, 2, 2),
+                new THREE.MeshStandardMaterial({
+                    color: 0xff0051,
+                    flatShading: THREE.FlatShading,
+                    metalness: 0,
+                    roughness: 0.8,
+                    refractionRatio: 0.25
+
+                })
+            );
+            health.name = 'health';
+            health.position.y += 60;
+            self.healthBar = health;
+            self.add(health);
 
         }
 
+    }
+
+    rotateUserInfo(theta) {
+        if (this.usernameMesh !== undefined && this.healthBar !== undefined) {
+            // console.log(this.usernameMesh);
+            // this.usernameMesh.position.y = 0;
+            // this.usernameMesh.rotation.y = theta;
+            // this.usernameMesh.position.y = 50;
+            // this.usernameMesh.position.x = 0;
+            //
+            // const size = new THREE.Box3().setFromObject( this.usernameMesh ).getSize();
+            // this.usernameMesh.position.x -= Math.floor(size['x'] / 2);
+            // this.usernameMesh.position.x = 0;
+            this.usernameMesh.position.z = 0;
+            this.healthBar.position.x = 0;
+            this.usernameMesh.rotation.y = theta - this.rotation.y;
+            this.healthBar.rotation.y = theta - this.rotation.y;
+
+        }
+    }
+
+    receiveDamage(amount) {
+        let death = false;
+        if (this.health > 0) {
+            this.health -= amount
+        } else {
+            this.health = 1;
+            death =  true
+        }
+        if (this.healthBar !== undefined) {
+            this.healthBar.scale.x = this.health;
+        }
+        return death
     }
 }
 

@@ -39,18 +39,18 @@ function setupMap(scene) {
     spotLight2.angle = radians(10);
     spotLight2.target = moon;
     scene.add(spotLight2);
-    let snowman1 = new Snowman('');
+    let snowman1 = new Character('');
     snowman1.position.y += 10;
     scene.add(snowman1);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman1));
 
-    let snowman2 = new Snowman('');
+    let snowman2 = new Character('');
     snowman2.position.set(30, 15, -10);
     snowman2.scale.set(.8, .8, .8);
     scene.add(snowman2);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman2));
 
-    let snowman3 = new Snowman('');
+    let snowman3 = new Character('');
     snowman3.position.set(-30, 20, -12);
     scene.add(snowman3);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));

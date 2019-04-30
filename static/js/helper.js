@@ -61,3 +61,8 @@ function detectCollisions(userCharacter, collisionObjects) {
     return collisions;
 
 }
+
+function detectBullets(position, vector, collisionObjects) {
+    var ray = new THREE.Raycaster( position, vector.clone().normalize() );
+    return ray.intersectObjects( collisionObjects );
+}

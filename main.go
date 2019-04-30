@@ -47,6 +47,9 @@ type User struct {
 	Y  float32 `json:"y"`
 	Z  float32 `json:"z"`
 	Theta  float32 `json:"theta"`
+	Health  float32 `json:"health"`
+	Attack map[string]float32 `json:"attack"`
+	KilledBy string `json:"killed_by"`
 }
 
 type Users struct {
@@ -106,6 +109,7 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		var user User
+		user.Attack = make(map[string]float32)
 		// Read in a new message as JSON and map it to a Message object
 		ws.SetPingHandler(func(appData string) error {return nil})
 		err := ws.ReadJSON(&user)
@@ -127,7 +131,7 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		users.Mutex.Lock()
 		users.SocketMap[ws] = user.Username;
 		users.Mutex.Unlock()
-
+		//fmt.Println(user.Attack)
 		// Send the newly received message to the broadcast channel
 		userBroadcast <- user
 	}
