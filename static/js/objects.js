@@ -228,8 +228,8 @@ class Character extends THREE.Group {
             // this.usernameMesh.position.x = 0;
             this.usernameMesh.position.z = 0;
             this.healthBar.position.x = 0;
-            this.usernameMesh.rotation.y = theta - this.rotation.y;
-            this.healthBar.rotation.y = theta - this.rotation.y;
+            this.usernameMesh.rotation.y = theta - this.rotation.y - radians(180);
+            this.healthBar.rotation.y = this.usernameMesh.rotation.y ;
 
         }
     }

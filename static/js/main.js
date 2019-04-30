@@ -76,7 +76,7 @@ function setupCameraAndControls() {
     controls.moveDown = false;
     return {'scene': scene, 'camera': camera, 'controls': controls, 'renderer': renderer}
 }
-
+PI_2
 
 function beginGame(username) {
     const chatHandler = new ChatHandler(username);
@@ -197,10 +197,13 @@ function beginGame(username) {
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
         if (shooting === true) {
+            controls.recoil();
+
             lineOfSight.forEach((enemy) => {
                 const key = enemy.object.parent.username;
                 const attack = {};
                 attack[key] = 0.1;
+
                 console.log(attack);
                 const death = userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health,attack );
                 if (death) {
@@ -208,7 +211,7 @@ function beginGame(username) {
                 }
             })
         }
-        setTimeout(handleShooting, 10);
+        setTimeout(handleShooting, 70);
     }
 
     handleShooting();

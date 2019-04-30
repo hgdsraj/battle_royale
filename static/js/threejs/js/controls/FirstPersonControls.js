@@ -9,7 +9,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
     const self = this;
     self.camera = camera;
     self.euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
-
+    self.recoilUp = true;
     var PI_2 = Math.PI / 2;
 
     self.isLocked = false;
@@ -149,6 +149,21 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
 
     };
+
+    self.recoil = function() {
+        if (self.recoilUp) {
+            self.euler.x +=  0.04;
+            self.recoilUp = false;
+        } else {
+            self.euler.x -= 0.03;
+            self.recoilUp = true;
+        }
+        self.euler.x = Math.max( - PI_2, Math.min( PI_2, self.euler.x ) );
+        camera.quaternion.setFromEuler( self.euler );
+
+
+    };
+
     function onPointerlockChange() {
         self.isLocked = document.pointerLockElement === domElement;
         self.enabled = self.isLocked;
