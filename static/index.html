@@ -4,29 +4,29 @@
     <title> Character World - Raj Mahey</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="shortcut icon" href="#" />
+    <link rel="shortcut icon" href="#"/>
 
 </head>
 <body>
-<div class="hud" >
+<div class="hud">
     <form id="login-form">
         Username:<br>
         <input type="text" id="username">
-        <div class="btn btn-primary" id="login-submit">Submit </div>
+        <div class="btn btn-primary" id="login-submit">Submit</div>
     </form>
 </div>
-<div class="hud" id = "chat-form-wrapper" hidden>
-    <form  id = "chat-form" >
+<div class="hud" id="chat-form-wrapper" hidden>
+    <form id="chat-form">
         Message:<br>
         <input type="text" id="message">
-        <div class="btn btn-primary" id="chat-submit">Submit </div>
+        <div class="btn btn-primary" id="chat-submit">Submit</div>
     </form>
 </div>
 
 <div class="hud" hidden>
     Press ESC to pause
 </div>
-<div class="hud" id="pause-menu" hidden>
+<div id="pause-menu" class="hud" hidden>
     <ul>
         <li>
             Press p to pause (paused now)
@@ -43,24 +43,37 @@
         <li>
             Space to jump
         </li>
+        <li>
+            ` for kills
+        </li>
     </ul>
 </div>
+<table class="hud" id="scoreboard" hidden>
+    <tr>
+        <th> Username</th>
+        <th> Kill Count</th>
+    </tr>
+    <tbody id="kills">
 
-<div class ="hud" id="chat-wrapper">
+    </tbody>
+</table>
+
+<div class="hud" id="chat-wrapper">
     <div id="chat-messages"></div>
     Chat
 </div>
 
-<div class ="hud" id="info-wrapper">
+<div class="hud" id="info-wrapper">
     Info
     <div id="info-messages"></div>
 
 </div>
-<span class ="hud" id="crosshair">
+<span class="hud" id="crosshair">
 </span>
-<span class ="hud" id="health-wrapper">
-    <span id="health"></span>
+<span class="hud" id="health-wrapper">
+    Health: <span id="health"></span>
 </span>
+
 
 <script type="text/javascript" src="js/threejs/min3.js"></script>
 <script type="text/javascript" src="js/Common/MV.js"></script>

@@ -4,7 +4,7 @@ window.onload = function init() {
 
 function setupLogin() {
     document.getElementById('login-form').hidden = true;
-    beginGame('veryRealUsername' + Math.floor(Math.random().toString()*1000))
+    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
@@ -36,6 +36,7 @@ function setupLogin() {
     loginButton.addEventListener('click', loginClick)
 
 }
+
 let domElement;
 
 function setupCameraAndControls() {
@@ -94,6 +95,7 @@ function beginGame(username) {
     let mapDynamics = map['mapDynamics'];
     let shooting = false;
     let lineOfSight = [];
+    let killCount = {};
 
     userCharacter = new Character(username, noFace = true);
     userCharacter.position.set(30, 15, 40);
@@ -108,8 +110,10 @@ function beginGame(username) {
     let clock = new THREE.Clock();
     let enemies = {};
     let collidableEnemies = []; // holds meshes of enemies for collisions
+    let kills = {};
 
     let infoMessages = new InfoMessages();
+
     function handleEnemies() {
         userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {});
         collidableEnemies = [];
@@ -117,6 +121,7 @@ function beginGame(username) {
         let othersKeys = Object.keys(userHandler.others);
         for (let i = 0; i < othersKeys.length; i++) {
             enemy = userHandler.others[othersKeys[i]];
+            killCount = enemy.kill_log.kill_count;
             if (enemy.username === username) {
                 continue
             }
@@ -125,11 +130,15 @@ function beginGame(username) {
                 death = userCharacter.receiveDamage(enemy.attack[username]);
                 if (death) {
                     infoMessages.push(username, enemy.username, 'killed by', '');
-                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {},  enemy.username);
+                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username);
                 }
             }
             if (enemy.killed_by !== '') {
-                infoMessages.push(enemy.username, enemy.killed_by, 'killed by', '');
+                const key = enemy.username + enemy.killed_by + enemy.killed_by_uuid;
+                if (!(key in kills)) {
+                    infoMessages.push(enemy.username, enemy.killed_by, 'killed by', '');
+                }
+                kills[key] = true;
             }
             if (!(enemy.username in enemies)) {
                 enemies[enemy.username] = new Character(enemy.username);
@@ -140,7 +149,7 @@ function beginGame(username) {
             enemies[enemy.username].rotation.y = enemy.theta;
             enemies[enemy.username].healthBar.scale.x = enemy.health;
             enemies[enemy.username].health = enemy.health;
-             // = userCharacter.rotation;
+            // = userCharacter.rotation;
             enemyUsername = enemies[enemy.username].rotateUserInfo(theta);
             usersSeen[enemy.username] = true;
         }
@@ -177,7 +186,7 @@ function beginGame(username) {
 
     function handleInfos() {
         let txt = '';
-        infoMessages.messages.forEach((i) =>  {
+        infoMessages.messages.forEach((i) => {
             txt += i.message + `<br>`;
         });
         document.getElementById('info-messages').innerHTML = txt;
@@ -185,12 +194,28 @@ function beginGame(username) {
     }
 
     handleInfos();
+
     function handleHealth() {
         document.getElementById('health').innerHTML = userCharacter.health * 100;
         setTimeout(handleHealth, 10);
     }
 
     handleHealth();
+
+    function handleKills() {
+
+        let kills = '';
+        let keys = Object.keys(killCount);
+        for (let i = 0; i < keys.length; i++) {
+            kills += `<tr> <td> ${keys[i]}</td> <td>${killCount[keys[i]]}</td></tr>`
+
+        }
+        document.getElementById('kills').innerHTML = kills;
+        setTimeout(handleKills, 10);
+    }
+
+    handleKills();
+
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
         if (shooting === true) {
@@ -199,17 +224,14 @@ function beginGame(username) {
                 const key = enemy.object.parent.username;
                 const attack = {};
                 attack[key] = 0.1;
-
-                const death = userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health,attack );
-                if (death) {
-                    infoMessages.push(username, enemy.object.parent.username, 'has killed', '');
-                }
+                userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
             })
         }
         setTimeout(handleShooting, 70);
     }
 
     handleShooting();
+
     function zoomIn() {
         camera.zoom += 0.1;
 
@@ -219,6 +241,7 @@ function beginGame(username) {
         }
 
     }
+
     function zoomOut() {
         camera.zoom -= 0.1;
 
@@ -228,38 +251,39 @@ function beginGame(username) {
         }
 
     }
+
     window.addEventListener('mouseup', (e) => {
-        if (e.button === 0) {
-            shooting = false;
-        } else if (e.button ===2 ) {
-            zoomOut();
+        if (controls.enabled) {
+            if (e.button === 0) {
+                shooting = false;
+            } else if (e.button === 2) {
+                zoomOut();
+            }
         }
     }, false);
     window.addEventListener('mousedown', (e) => {
         if (controls.enabled) {
-            console.log(e.button)
             if (e.button === 0) {
                 shooting = true;
-            } else if (e.button ===2 ) {
+            } else if (e.button === 2) {
                 zoomIn();
             }
         }
     }, false);
 
+    let inChat = false;
     window.addEventListener('keydown', function (event) {
-        if (event.key === 'p') {
-
+        if (event.key === 'p' && !inChat) {
             let pauseMenu = document.getElementById('pause-menu');
-            pauseMenu.toggleAttribute('hidden')
+            pauseMenu.toggleAttribute('hidden');
             if (pauseMenu.hidden === true) {
                 domElement.requestPointerLock();
                 console.log("Requested");
                 controls.enabled = true;
             } else {
-                console.log("exit1")
+                console.log("exit1");
                 document.exitPointerLock();
                 controls.enabled = false;
-
             }
         } else if (event.key === 'Enter') {
             let pauseMenu = document.getElementById('pause-menu');
@@ -272,6 +296,7 @@ function beginGame(username) {
 
             // if  hidden (after toggle), then blur, else focus on the input
             if (chatWrapper.hidden === true) {
+                inChat = false;
                 domElement.requestPointerLock();
                 controls.enabled = true;
 
@@ -282,6 +307,7 @@ function beginGame(username) {
                 }
                 chatHandler.send(chatInput.value)
             } else {
+                inChat = true;
                 controls.enabled = false;
 
                 chatInput.value = '';
@@ -291,17 +317,26 @@ function beginGame(username) {
             }
 
 
+        } else if (event.key === '`') {
+            let scoreboard = document.getElementById('scoreboard');
+            scoreboard.toggleAttribute('hidden');
+            if (scoreboard.hidden === true) {
+                document.getElementById('pause-menu').hidden = true;
+                domElement.requestPointerLock();
+                console.log("Requested");
+            }
         }
     });
     console.log(collidableMeshList)
     console.log(userCharacter)
+
     function loop() {
         controls.update(clock.getDelta());
 
         const collisionBoundsOfCharacter = userCharacter.children[0].clone();
         collisionBoundsOfCharacter.matrix = userCharacter.matrix;
         collisionBoundsOfCharacter.position.add(userCharacter.position);
-        const collisions = detectCollisions(collisionBoundsOfCharacter,  collidableMeshList.concat(collidableEnemies));
+        const collisions = detectCollisions(collisionBoundsOfCharacter, collidableMeshList.concat(collidableEnemies));
         if (collisions.length !== 0) {
             controls.undoMovement();
             controls.dontAllowMovement(collisions[0][1]);

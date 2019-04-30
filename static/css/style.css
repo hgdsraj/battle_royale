@@ -1,154 +1,164 @@
 .side-by-side {
-    float: left;
-    margin-right: 10px;
+    float:left;
+    margin-right:10px;
 }
 
-.scoreboard {
-    width: 400px;
-    height: 900px;
-    min-height: 900px;
-    font-size: 18px;
-    padding: 10px;
+#left,#down,#right,#up {
+    padding:.1em .6em;
 }
 
-
-#left, #down, #right, #up {
-    padding: 0.1em 0.6em;
-}
-#p, #q, #r, #enter {
-    padding:0.1em 0.1em;
-}
-#gl-canvas, .scoreboard, .mobile-controls{
-    border: 7px solid darkgreen;
+#p,#q,#r,#enter {
+    padding:.1em;
 }
 
 html {
-    background-color: black;
-    color: white;
-    font-family: "Lucida Console", Monaco, monospace;
+    background-color:#000;
+    color:#FFF;
+    font-family:"Lucida Console", Monaco, monospace;
 }
+
 body {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
+    height:100%;
+    overflow:hidden;
+    width:100%;
 }
 
 #main-canvas {
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll;
-    padding-right: 17px; /* Increase/decrease this value for cross-browser compatibility */
-    box-sizing: content-box; /* So the width will be 100% + 17px */
-
+    box-sizing:content-box;
+    height:100%;
+    overflow-y:scroll;
+    padding-right:17px;
+    width:100%;
 }
+
 .title {
-    text-align: center;
+    text-align:center;
 }
 
 #paused {
-    color: red;
-    animation: blinker 1s linear infinite;
-    text-align: center;
+    animation:blinker 1s linear infinite;
+    color:red;
+    text-align:center;
 }
 
 #legend-text-wrapper {
-    padding-left: 10px;
-    font-size: 25px;
-}
-
-@keyframes blinker {
-    50% {
-        opacity: 0;
-    }
+    font-size:25px;
+    padding-left:10px;
 }
 
 #controls-list {
-    list-style: none;
-    margin-top: 0;
+    list-style:none;
+    margin-top:0;
 }
 
-#controls-header, #colors-select-name {
-    margin-bottom: 0;
+#controls-header,#colors-select-name {
+    margin-bottom:0;
 }
 
 #begin {
-    color: green;
-    text-align: center;
-    animation: blinker 1s linear infinite;
+    animation:blinker 1s linear infinite;
+    color:green;
+    text-align:center;
 }
 
 .controls-subheader {
-    font-size: 12px;
+    font-size:12px;
 }
 
 .hud {
-    font-size: 40px;
-    color: white;
-    position: fixed;
-    z-index: 999;
+    color:#FFF;
+    font-size:40px;
+    position:fixed;
+    z-index:999;
 }
 
-
 #chat-form-wrapper {
-    position: fixed;
-    bottom: 0;
-    right: 0;
+    bottom:0;
+    position:fixed;
+    right:0;
 }
 
 #chat-wrapper {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    bottom:0;
+    left:0;
+    position:fixed;
 }
 
 #chat-messages {
-    width: 300px;
-    color: lightgrey;
-    font-size: 20px;
-    word-wrap: break-word;
-
+    color:#D3D3D3;
+    font-size:20px;
+    width:300px;
+    word-wrap:break-word;
 }
 
 #info-wrapper {
-    position: fixed;
-    top: 0;
-    right: 0;
-    text-align: right;
-
+    position:fixed;
+    right:0;
+    text-align:right;
+    top:0;
 }
 
 #info-messages {
-    width: 300px;
-    color: lightgrey;
-    font-size: 20px;
-    word-wrap: break-word;
-    text-align: right;
+    color:#D3D3D3;
+    font-size:20px;
+    text-align:right;
+    width:300px;
+    word-wrap:break-word;
 }
+
 .username {
-    color: #00c1b3;
+    color:#00c1b3;
 }
+
 .player-username {
-    color: #c19605;
+    color:#c19605;
 }
 
 #crosshair {
-    bottom: 50%;
-    right: 50%;
-    height: 10px;
-    width: 10px;
-    background-color: #bb0069;
-    border-radius: 50%;
-    display: inline-block;
+    background-color:#bb0069;
+    border-radius:50%;
+    bottom:50%;
+    display:inline-block;
+    height:10px;
+    right:50%;
+    width:10px;
 }
 
 #health-wrapper {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    text-align: right;
-    color: #c10018;
+    bottom:0;
+    position:fixed;
+    right:0;
+    text-align:right;
 }
 
 #health {
-    color: #c10018;
+    color:#c10018;
+}
+
+#scoreboard,#pause-menu {
+    background-color:#4e555b;
+    border:7px solid #006400;
+    color:#defff1;
+    font-size:18px;
+    margin-left:250px;
+    opacity:0.8;
+    padding:10px;
+    position:fixed;
+    text-align:left;
+    top:30%;
+    width:500px;
+}
+
+#pause-menu {
+    top:0;
+}
+
+#scoreboard th,td {
+    border:2px solid #000;
+    padding-left:20px;
+}
+
+#scoreboard tr {
+    padding-left:20px;
+    width:100%;
 }

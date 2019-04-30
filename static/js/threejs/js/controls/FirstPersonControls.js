@@ -308,16 +308,11 @@ THREE.FirstPersonControls = function (camera, domElement) {
             if (self.enabled === false) return;
 
             if (self.heightSpeed) {
-
                 var y = THREE.Math.clamp(self.camera.position.y, self.heightMin, self.heightMax);
                 var heightDelta = y - self.heightMin;
-
                 self.autoSpeedFactor = delta * (heightDelta * self.heightCoef);
-
             } else {
-
                 self.autoSpeedFactor = 0.0;
-
             }
             var actualMoveSpeed = delta * self.movementSpeed;
             if (self.jump && self.allowPositiveYMovement && self.jumpVelocity > 0) {

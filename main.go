@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
-	"github.com/lib/pq"
-
 	"database/sql"
 	"fmt"
+	"github.com/gorilla/websocket"
+	"github.com/lib/pq"
+	"github.com/satori/go.uuid"
 	"log"
 	"net/http"
 	"os"
@@ -50,8 +50,17 @@ type User struct {
 	Health  float32 `json:"health"`
 	Attack map[string]float32 `json:"attack"`
 	KilledBy string `json:"killed_by"`
+	KilledByUUID string `json:"killed_by_uuid"`
+	KillLog killLog `json:"kill_log"`
 }
 
+type killLog struct {
+	KillCount map[string]int `json:"kill_count"`
+	Kills map[string]map[string]int `json:"kills"`
+}
+
+var globalKillLog = killLog{}
+var killLogMutex = &sync.Mutex{}
 type Users struct {
 	*sync.Mutex
 	Users map[string]User
@@ -62,6 +71,8 @@ type Message struct {
 	Message string `json:"message"`
 }
 func main() {
+	globalKillLog.KillCount = make(map[string]int)
+	globalKillLog.Kills = make(map[string]map[string]int)
 
 	users.Users = make(map[string]User)
 	users.SocketMap = make(map[*websocket.Conn]string)
@@ -102,7 +113,12 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	// Make sure we close the connection when the function returns
-	defer ws.Close()
+	defer func() {
+		err := ws.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// Register our new client
 	userClients[ws] = true
@@ -110,6 +126,7 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	for {
 		var user User
 		user.Attack = make(map[string]float32)
+
 		// Read in a new message as JSON and map it to a Message object
 		ws.SetPingHandler(func(appData string) error {return nil})
 		err := ws.ReadJSON(&user)
@@ -133,6 +150,19 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		users.Mutex.Unlock()
 		//fmt.Println(user.Attack)
 		// Send the newly received message to the broadcast channel
+		if user.KilledBy != "" {
+			killLogMutex.Lock()
+			globalKillLog.KillCount[user.KilledBy] += 1
+			if globalKillLog.Kills[user.KilledBy] == nil {
+				globalKillLog.Kills[user.KilledBy] = make(map[string]int)
+			}
+			globalKillLog.Kills[user.KilledBy][user.Username] += 1
+			killLogMutex.Unlock()
+
+			u := uuid.NewV4()
+			user.KilledByUUID = u.String()
+		}
+		user.KillLog = globalKillLog
 		userBroadcast <- user
 	}
 }
