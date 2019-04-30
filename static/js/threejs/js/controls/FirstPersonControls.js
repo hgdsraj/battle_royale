@@ -14,6 +14,13 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
     self.isLocked = false;
 
+    self.allowNegativeXMovement = true;
+    self.allowNegativeYMovement = true;
+    self.allowNegativeZMovement = true;
+    self.allowPositiveXMovement = true;
+    self.allowPositiveYMovement = true;
+    self.allowPositiveZMovement = true;
+
     self.domElement = (domElement !== undefined) ? domElement : document;
     self.targetPosition = {};
     self.position = {};
@@ -48,10 +55,14 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
     self.mouseDragOn = true;
     self.jump = false;
-    self.jumpStepsPosition = 0;
-    self.jumpSteps = [1, 0.9, 0.9, 0.9, 0.6, 0.5, 0.5, 0.3, 0.3, 0.2, 0.2, 0.1, 0.1,0.1, 0.1,0.1, 0.1, 0, -0.1, -0.1,-0.1, -0.1,-0.1, -0.1, -0.2, -0.2, -0.3, -0.3, -0.5, -0.5, -0.6, -0.9, -0.9, -0.9, -1].map(function (x) {
-        return x * 20;
-    });
+    self.initialJumpVelocity = 20;
+    self.initialGravityVelocity = 0;
+    self.gravityVelocity = self.initialGravityVelocity;
+    self.jumpVelocity = self.initialJumpVelocity;
+    // self.jumpStepsPosition = 0;
+    // self.jumpSteps = [1, 0.9, 0.9, 0.9, 0.6, 0.5, 0.5, 0.3, 0.3, 0.2, 0.2, 0.1, 0.1,0.1, 0.1,0.1, 0.1, 0, -0.1, -0.1,-0.1, -0.1,-0.1, -0.1, -0.2, -0.2, -0.3, -0.3, -0.5, -0.5, -0.6, -0.9, -0.9, -0.9, -1].map(function (x) {
+    //     return x * 20;
+    // });
 
     self.viewHalfX = 0;
     self.viewHalfY = 0;
@@ -161,11 +172,38 @@ THREE.FirstPersonControls = function (camera, domElement) {
             if ('x' in el) {
                 self.camera.translateX(-el['x'])
             } else if ('y' in el) {
-                self.camera.translateX(-el['y'])
+                self.camera.translateY(-el['y'])
             } else if ('z' in el) {
-                self.camera.translateX(-el['z'])
+                self.camera.translateZ(-el['z'])
             }
         })
+    };
+    self.dontAllowMovement = function(direction) {
+        self.allowAllMovements();
+        if (direction.x < 0) {
+            self.allowNegativeXMovement = false;
+        } else if (direction.x > 0) {
+            self.allowPositiveXMovement = false;
+        }
+        if (direction.y < 0) {
+            self.allowNegativeYMovement = false;
+        } else if (direction.y > 0) {
+            self.allowPositiveYMovement = false;
+        }
+        if (direction.z < 0) {
+            self.allowNegativeZMovement = false;
+        } else if (direction.z > 0) {
+            self.allowPositiveZMovement = false;
+        }
+    };
+    self.allowAllMovements = function() {
+        self.allowNegativeXMovement = true;
+        self.allowNegativeYMovement = true;
+        self.allowNegativeZMovement = true;
+        self.allowPositiveXMovement = true;
+        self.allowPositiveYMovement = true;
+        self.allowPositiveZMovement = true;
+
     };
 
     self.onKeyDown = function (event) {
@@ -266,58 +304,53 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
             }
             var actualMoveSpeed = delta * self.movementSpeed;
-            if (self.jump) {
-                if (self.jumpStepsPosition < self.jumpSteps.length) {
-                    self.camera.position.y += self.jumpSteps[self.jumpStepsPosition];
-                    self.pushMovement({'y': self.jumpSteps[self.jumpStepsPosition]});
-                    if (self.camera.position.y < self.initialY) {
-                        self.camera.position.y = self.initialY;
-                        self.jump = false;
-                        self.jumpStepsPosition = 0;
-
-                    }
-                    self.jumpStepsPosition += 1;
-                } else {
-                    self.jump = false;
-                    self.jumpStepsPosition = 0;
-                }
+            if (self.jump && self.allowPositiveYMovement && self.jumpVelocity > 0) {
+                self.camera.position.y += self.jumpVelocity;
+                self.jumpVelocity -= 1;
+                self.pushMovement({'y': self.jumpVelocity});
+            } else  if (self.allowNegativeYMovement && self.camera.position.y > self.initialY) {
+                self.camera.position.y -= self.gravityVelocity;
+                self.gravityVelocity += 1;
+                self.pushMovement({'y': -self.gravityVelocity});
+            } else {
+                self.gravityVelocity = self.initialGravityVelocity;
+                self.jumpVelocity = self.initialJumpVelocity;
+                self.jump = false;
             }
 
-            if (self.moveForward || (self.autoForward && !self.moveBackward)) {
+
+
+
+            if ((self.moveForward || (self.autoForward && !self.moveBackward)) && self.allowNegativeZMovement) {
                 self.camera.translateZ(-(actualMoveSpeed + self.autoSpeedFactor));
                 self.pushMovement({'z': -(actualMoveSpeed + self.autoSpeedFactor)});
-                if (!self.jump) {
-                    self.camera.position.y = self.initialY;
-                }
             }
-            if (self.moveBackward) {
+
+            if (self.moveBackward && self.allowPositiveZMovement) {
                 self.camera.translateZ(actualMoveSpeed);
                 self.pushMovement({'z': actualMoveSpeed});
-                if (!self.jump) {
-                    self.camera.position.y = self.initialY;
-                }
-            }
-            if (self.jumpOver) {
-                self.camera.position.y -= 10;
-                self.jumpOver = false;
-
             }
 
-            if (self.moveLeft) {
+            if (self.camera.position.y < self.initialY) {
+                self.camera.position.y = self.initialY;
+                self.jump = false;
+            }
+
+            if (self.moveLeft && self.allowNegativeXMovement) {
                 self.camera.translateX(-actualMoveSpeed);
                 self.pushMovement({'x': -actualMoveSpeed});
 
             }
-            if (self.moveRight) {
+            if (self.moveRight && self.allowPositiveXMovement) {
                 self.camera.translateX(actualMoveSpeed);
                 self.pushMovement({'x': actualMoveSpeed});
             }
 
-            if (self.moveUp) {
+            if (self.moveUp && self.allowPositiveYMovement) {
                 self.camera.translateY(actualMoveSpeed);
                 self.pushMovement({'y': actualMoveSpeed});
             }
-            if (self.moveDown) {
+            if (self.moveDown  && self.allowNegativeYMovement) {
                 self.camera.translateY(-actualMoveSpeed);
                 self.pushMovement({'y': -actualMoveSpeed});
             }

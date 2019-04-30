@@ -33,6 +33,31 @@ class Mirror extends THREE.Group {
 
     }
 }
+class Ramp extends THREE.Group {
+    constructor(length, width, angle, position) {
+        super();
+        const material = new THREE.Mesh(
+            new THREE.BoxGeometry(width, length, 3),
+            new THREE.MeshStandardMaterial({
+                color: 0x6f7c7c,
+                flatShading: THREE.FlatShading,
+                metalness: 0,
+                roughness: 0.8,
+                refractionRatio: 0.25
+
+            })
+        );
+        material.position.z += 3;
+        material.rotateY(radians(180));
+        material.rotateX(radians(angle));
+        this.add(material);
+        this.position.x = position['x'];
+        this.position.y = position['y'];
+        this.position.z = position['z'];
+        material.position.z += 3;
+
+    }
+}
 
 class Snowman extends THREE.Group {
     constructor(username, noFace = false) {

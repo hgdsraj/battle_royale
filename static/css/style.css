@@ -27,7 +27,20 @@ html {
     color: white;
     font-family: "Lucida Console", Monaco, monospace;
 }
+body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
 
+#main-canvas {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    padding-right: 17px; /* Increase/decrease this value for cross-browser compatibility */
+    box-sizing: content-box; /* So the width will be 100% + 17px */
+
+}
 .title {
     text-align: center;
 }
@@ -75,11 +88,6 @@ html {
     z-index: 999;
 }
 
-#chat-wrapper {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-}
 
 #chat-form-wrapper {
     position: fixed;
@@ -87,12 +95,35 @@ html {
     right: 0;
 }
 
+#chat-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
 #chat-messages {
-    width: 100px;
+    width: 300px;
     color: lightgrey;
-    font-size: 24px;
+    font-size: 20px;
+    word-wrap: break-word;
 
 }
+
+#info-wrapper {
+    position: fixed;
+    top: 0;
+    right: 0;
+    text-align: right;
+
+}
+
+#info-messages {
+    width: 300px;
+    color: lightgrey;
+    font-size: 20px;
+    word-wrap: break-word;
+    text-align: right;
+}
 .username {
-    color: #062c33;
+    color: #00c1b3;
 }

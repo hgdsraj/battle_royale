@@ -1,5 +1,5 @@
 function setupMap(scene) {
-    let ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    let ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
     let spotLightPosition = [1000, 5000, -10000];
     let spotLight = new THREE.SpotLight(0xffffff, 1);
@@ -65,13 +65,18 @@ function setupMap(scene) {
     verticalMirror.position.y = 60;
     verticalMirror.position.x = 0;
     verticalMirror.position.z = 50;
-
     scene.add(verticalMirror);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(verticalMirror));
-    setupSnow(scene);
+
+    let ramp = new Ramp(640, 160, 45, {'x': 120, 'y': 200, 'z': 200});
+    scene.add(ramp);
+    collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(ramp));
+
+    // mapDynamics = setupSnow(scene); //TODO removed snow...maybe add back?
+    const mapDynamics = () => {};
     const trees = setupTrees(scene);
     collidableMeshList = collidableMeshList.concat(trees);
-    return collidableMeshList
+    return {'collidableMeshList': collidableMeshList, 'mapDynamics': mapDynamics}
 }
 
 function setupSnow(scene) {
@@ -138,7 +143,7 @@ function setupTrees(scene) {
             tree.position.z = (z * (Math.random() * 51 + 170)) - (10 * 80) + variation;
             tree.position.x = (x * (Math.random() * 51 + 170)) - (8 * 80) + variation;
 
-            if (tree.position.x > -100 && tree.position.x < 100 && tree.position.y > -100 && tree.position.y < 100 && tree.position.z > -100 && tree.position.z < 100) {
+            if (tree.position.x > -600 && tree.position.x < 600 && tree.position.y > -600 && tree.position.y < 600 && tree.position.z > -600 && tree.position.z < 600) {
             } else {
                 treeGroup.add(tree);
                 collisions = collisions.concat(calculateCollisionPoints(tree))

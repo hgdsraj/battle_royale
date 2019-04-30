@@ -3,8 +3,8 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    document.getElementById('login-form').hidden = true;
-    beginGame('hds')
+    // document.getElementById('login-form').hidden = true;
+    // beginGame('veryRealUsername' + Math.floor(Math.random().toString()*1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
@@ -89,7 +89,9 @@ function beginGame(username) {
     const controls = sceneControlsCamera['controls'];
     const renderer = sceneControlsCamera['renderer'];
     var vector = new THREE.Vector3();
-    let collidableMeshList = setupMap(scene);
+    const map = setupMap(scene);
+    let collidableMeshList = map['collidableMeshList'];
+    let mapDynamics = map['mapDynamics'];
 
     userCharacter = new Snowman(username, noFace = true);
     userCharacter.position.set(30, 15, 40);
@@ -103,10 +105,12 @@ function beginGame(username) {
 
     let clock = new THREE.Clock();
     let enemies = {};
+    let collidableEnemies = []; // holds meshes of enemies for collisions
 
+    let infoMessages = new InfoMessages();
     function handleEnemies() {
         userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y);
-
+        collidableEnemies = [];
         let usersSeen = {};
         let othersKeys = Object.keys(userHandler.others);
         for (let i = 0; i < othersKeys.length; i++) {
@@ -117,6 +121,7 @@ function beginGame(username) {
             if (!(enemy.username in enemies)) {
                 enemies[enemy.username] = new Snowman(enemy.username);
                 scene.add(enemies[enemy.username]);
+                infoMessages.push(enemy.username, '', 'has entered the game', '');
             }
             enemies[enemy.username].position.set(enemy.x, enemy.y, enemy.z);
             enemies[enemy.username].rotation.y = enemy.theta;
@@ -125,9 +130,12 @@ function beginGame(username) {
         let enemyKeys = Object.keys(enemies);
         for (let i = 0; i < enemyKeys.length; i++) {
             if (!(enemyKeys[i] in usersSeen)) {
-                console.log("REMOVE");
+                infoMessages.push(enemy.username, '', 'has left the game', '');
+
                 scene.remove(enemies[enemyKeys[i]]);
                 delete enemies[enemyKeys[i]]
+            } else {
+                collidableEnemies = collidableEnemies.concat(calculateCollisionPoints(enemies[enemyKeys[i]]));
             }
         }
         setTimeout(handleEnemies, 20);
@@ -146,6 +154,17 @@ function beginGame(username) {
 
     handleMessages();
 
+    function handleInfos() {
+        let txt = '';
+        infoMessages.messages.forEach((i) =>  {
+            txt += i.message + `<br>`;
+        });
+        document.getElementById('info-messages').innerHTML = txt;
+        setTimeout(handleInfos, 20);
+    }
+
+    handleInfos();
+
 
     window.addEventListener('keydown', function (event) {
         if (event.key === 'p') {
@@ -154,7 +173,7 @@ function beginGame(username) {
             pauseMenu.toggleAttribute('hidden')
             if (pauseMenu.hidden === true) {
                 domElement.requestPointerLock();
-                console.log("Requested")
+                console.log("Requested");
                 controls.enabled = true;
             } else {
                 console.log("exit1")
@@ -197,33 +216,32 @@ function beginGame(username) {
     console.log(collidableMeshList)
     console.log(userCharacter)
     function loop() {
+        controls.update(clock.getDelta());
+
         const collisionBoundsOfCharacter = userCharacter.children[0].clone();
         collisionBoundsOfCharacter.matrix = userCharacter.matrix;
         collisionBoundsOfCharacter.position.add(userCharacter.position);
-        const collisions = detectCollisions(collisionBoundsOfCharacter,  collidableMeshList);
+        const collisions = detectCollisions(collisionBoundsOfCharacter,  collidableMeshList.concat(collidableEnemies));
         if (collisions.length !== 0) {
             controls.undoMovement();
+            controls.dontAllowMovement(collisions[0][1]);
+        } else {
+            controls.allowAllMovements();
         }
         camera.getWorldDirection(vector);
         theta = Math.atan2(vector.x, vector.z);
 
         userCharacter.rotation.y = theta;
-        controls.update(clock.getDelta());
-        let t = subtractA(controls.targetPosition, controls.position);
         userCharacter.position.x = camera.position.x;
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 37;
-        moveParticles();
+        mapDynamics();
         // moveNPCs();
         renderer.render(scene, camera);
         requestAnimationFrame(loop);
     }
 
     loop();
-}
-
-function subtractA(a, b) {
-    return new THREE.Vector3(a.x - b.x, a.y - b.y, a.z - b.z)
 }
 
 

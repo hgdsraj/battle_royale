@@ -1,13 +1,10 @@
 
 class Handler {
-    constructor(username, endpoint, handler) {
+    constructor(username, endpoint) {
         this.username = username;
-        var self = this;
-        this.ws = new WebSocket('ws://' + window.location.host + endpoint);
-        this.ws.addEventListener('message', handler);
-
-
-        this.keepAlive()
+        const self = this;
+        this.ws = new WebSocket('wss://' + window.location.host + endpoint);
+        this.keepAlive(this.ws)
 
     }
 
@@ -15,30 +12,32 @@ class Handler {
         return 'http://www.gravatar.com/avatar/' + CryptoJS.MD5(email);
     }
 
-    keepAlive() {
-        console.log("pinging");
-        if (this.ws.readyState === this.ws.OPEN) {
-            this.ws.send(JSON.stringify({
-                username: "ping"
-            }))
-        } else {
-            console.log("was not ready, was: ", this.ws.readyState)
-        }
-        setTimeout(this.keepAlive, 15000);
+    keepAlive(ws) {
+        const keepAlive = function (keepAlive) {
+            console.log("pinging");
+            if (ws.readyState === ws.OPEN) {
+                ws.send(JSON.stringify({
+                    username: "ping"
+                }))
+            } else if (ws.readyState === ws.CLOSED) {
+                console.log("was not ready, was: ", ws.readyState);
+                alert("error: websocket has closed");
+            }
+            setTimeout(keepAlive, 15000);
+        };
+        keepAlive(keepAlive);
     }
 
 }
 class UserHandler extends Handler {
     constructor(username) {
+        super(username, '/ws');
+        const self = this;
+        self.others = [];
         let handler = function (e) {
-            var msg = JSON.parse(e.data);
-            self.others = msg;
-
+            self.others = JSON.parse(e.data);
         };
-        super(username, '/ws', handler);
-        this.others = [];
-        this.keepAlive()
-
+        this.ws.addEventListener('message', handler);
     }
 
     send(x, y, z, theta) {
@@ -60,17 +59,17 @@ class UserHandler extends Handler {
 
 class ChatHandler extends Handler{
     constructor(username) {
-        let handler = function (e) {
+        super(username, '/chat');
+        const self = this;
+        self.messages = [];
+        let handler = function(e) {
             var msg = JSON.parse(e.data);
             if (self.messages.length === 5) {
                 self.messages.shift()
             }
             self.messages.push(msg)
-
         };
-        super(username, '/chat', handler);
-        this.messages = [];
-
+        this.ws.addEventListener('message', handler);
     }
 
     send(message) {
@@ -87,3 +86,35 @@ class ChatHandler extends Handler{
     }
 }
 
+class InfoMessage {
+    constructor(username, second_username, action, message) {
+        this.username = username;
+        this.message = ``;
+        if (username !== '') {
+            this.message += `<span class="username">${username}</span> `
+        }
+        if (action !== '') {
+            this.message += `${action} `
+        }
+        if (second_username !== '') {
+            this.message = `<span class="username">${second_username}</span> `
+        }
+        if (message !== '') {
+            this.message += `${message} `
+        }
+    }
+}
+
+class InfoMessages {
+    constructor() {
+        this.messages = [];
+    }
+
+    push(username, second_username, action, message) {
+        if (this.messages.length === 5) {
+            this.messages.shift()
+        }
+        this.messages.push(new InfoMessage(username, second_username, action, message))
+
+    }
+}

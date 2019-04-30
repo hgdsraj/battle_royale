@@ -31,17 +31,19 @@ function getRandomInt(min, max) {
 }
 
 function calculateCollisionPoints( group ) {
-    // Compute the bounding box after scale, translation, etc.
-    let results = [];
-    const position = group.position;
-    for (let i =0; i < group.children.length; i++ ) {
-        results.push(group.children[i]); //TODO: this should be children[i].clone() but it doesn't work! why?
-        results[results.length-1].position.add(position) // mutates the position
-    }
-    return results
+    // // Compute the bounding box after scale, translation, etc.
+    // let results = [];
+    // const position = group.position;
+    // for (let i =0; i < group.children.length; i++ ) {
+    //     const child = group.children[i].clone();
+    //     child.parent = group.children[i].parent.clone();
+    //     child.matrix = group.children[i].matrix;
+    //     child.position.add(position);
+    //     results.push(child); //TODO: this should be children[i].clone() but it doesn't work! why?
+    // }
+    return group.children;
 }
 function detectCollisions(userCharacter, collisionObjects) {
-    console.log(userCharacter.position)
     let  collisions = [];
     for (var vertexIndex = 0; vertexIndex < userCharacter.geometry.vertices.length; vertexIndex++)
     {
