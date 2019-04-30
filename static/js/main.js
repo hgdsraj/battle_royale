@@ -42,7 +42,7 @@ function setupCameraAndControls() {
     const scene = new THREE.Scene();
     document.getElementById('pause-menu').toggleAttribute('hidden');
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({antialias: true});
 
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -97,6 +97,7 @@ function beginGame(username) {
     let shooting = false;
     let lineOfSight = [];
     let killCount = {};
+    let attacks =  {};
 
     userCharacter = new Character(username, noFace = true);
     userCharacter.position.set(30, 15, 40);
@@ -121,28 +122,12 @@ function beginGame(username) {
         const usersSeen = {};
         const othersKeys = Object.keys(userHandler.others);
         for (let i = 0; i < othersKeys.length; i++) {
-            enemy = userHandler.others[othersKeys[i]];
+            const enemy = userHandler.others[othersKeys[i]];
             killCount = enemy.kill_log.kill_count;
             if (enemy.username === username) {
                 continue;
             }
             // todo: terrible way to recieve damage. others can max this value.
-            if (username in enemy.attack) {
-                console.log(enemy.attack[username])
-                death = userCharacter.receiveDamage(enemy.attack[username]);
-                if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
-                    infoMessages.push(username, enemy.username, 'killed by', '');
-                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username);
-                }
-            }
-            if (enemy.killed_by !== '') {
-                const key = enemy.username + enemy.killed_by + enemy.killed_by_uuid;
-                console.log(key);
-                if (!(key in kills)) {
-                    infoMessages.push(enemy.username, enemy.killed_by, 'killed by', '');
-                }
-                kills[key] = true;
-            }
             if (!(enemy.username in enemies)) {
                 enemies[enemy.username] = new Character(enemy.username);
                 scene.add(enemies[enemy.username]);
@@ -159,7 +144,7 @@ function beginGame(username) {
         const enemyKeys = Object.keys(enemies);
         for (let i = 0; i < enemyKeys.length; i++) {
             if (!(enemyKeys[i] in usersSeen)) {
-                infoMessages.push(enemy.username, '', 'has left the game', '');
+                infoMessages.push(enemies[enemyKeys[i]].username, '', 'has left the game', '');
 
                 scene.remove(enemies[enemyKeys[i]]);
                 delete enemies[enemyKeys[i]];
@@ -171,6 +156,36 @@ function beginGame(username) {
     }
 
     handleEnemies();
+
+    function handleDamageAndKills() {
+        if (userHandler.kills.length > 0) {
+            const kill = userHandler.kills.shift();
+            if (kill.username !== username) {
+                const key = kill.username + kill.killed_by + kill.killed_by_uuid;
+                if (!(key in kills)) {
+                    infoMessages.push(kill.username, kill.killed_by, 'killed by', '');
+                }
+                kills[key] = true;
+            }
+        }
+        if (userHandler.attacks.length > 0) {
+            const enemy = userHandler.attacks.shift();
+            if (!(enemy.attack.uuid in attacks)) {
+                death = userCharacter.receiveDamage(enemy.attack.damage);
+                if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
+                    infoMessages.push(username, enemy.username, 'killed by', '');
+                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username);
+                }
+                attacks[enemy.attack.uuid] = true;
+            }
+
+        }
+
+        setTimeout(handleDamageAndKills, 1);
+
+    }
+
+    handleDamageAndKills();
 
     function handleMessages() {
         let txt = '';
@@ -216,22 +231,22 @@ function beginGame(username) {
     }
 
     handleKills();
-
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
-        if (shooting === true) {
-            controls.recoil();
-            lineOfSight.forEach((enemy) => {
-                const key = enemy.object.parent.username;
-                const attack = {};
-                attack[key] = 2;
+        controls.recoil();
+        if (lineOfSight.length > 0) {
+            const enemy = lineOfSight[0];
+            if (enemy.object.parent.username !== undefined) {
+                const attack = {'username': enemy.object.parent.username, 'damage': 2};
                 userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
-            });
+            }
         }
-        setTimeout(handleShooting, 70);
+
+        if (shooting === true) { //  TODO this doesn't work...shooting true when called so stays true
+            setTimeout(handleShooting, 100);
+        }
     }
 
-    handleShooting();
 
     function zoomIn() {
         camera.zoom += 0.1;
@@ -255,6 +270,7 @@ function beginGame(username) {
         if (controls.enabled) {
             if (e.button === 0) {
                 shooting = false;
+                clearTimeout(handleShooting)
             } else if (e.button === 2) {
                 zoomOut();
             }
@@ -264,6 +280,7 @@ function beginGame(username) {
         if (controls.enabled) {
             if (e.button === 0) {
                 shooting = true;
+                handleShooting();
             } else if (e.button === 2) {
                 zoomIn();
             }
@@ -341,7 +358,7 @@ function beginGame(username) {
         }
         camera.getWorldDirection(vector);
         theta = Math.atan2(vector.x, vector.z);
-        lineOfSight = detectBullets(camera.position, vector, collidableEnemies);
+        lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
         if (lineOfSight.length > 0 && shooting) {
             // console.log(lineOfSight)
         }

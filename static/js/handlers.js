@@ -32,8 +32,23 @@ class UserHandler extends Handler {
         super(username, '/ws');
         const self = this;
         self.others = {};
+        self.kills = [];
+        self.attacks = [];
         const handler = function (e) {
             self.others = JSON.parse(e.data);
+            const othersKeys = Object.keys(self.others);
+            for (let i = 0; i < othersKeys.length; i++) {
+                if (self.others[othersKeys[i]].attack.username === username) {
+                    self.attacks.push(self.others[othersKeys[i]])
+                }
+                if (self.others[othersKeys[i]].killed_by !== '') {
+                    self.kills.push({
+                        'username': self.others[othersKeys[i]].username,
+                        'killed_by': self.others[othersKeys[i]].killed_by,
+                        'killed_by_uuid': self.others[othersKeys[i]].killed_by_uuid
+                    })
+                }
+            }
         };
         this.ws.addEventListener('message', handler);
     }

@@ -40,6 +40,11 @@ var upgrader = websocket.Upgrader{
 	HandshakeTimeout: time.Hour * 1000, //TODO this is really dumb.
 }
 
+type attack struct {
+	Username string `json:"username"`
+	Damage int `json:"damage"`
+	UUID string `json:"uuid"`
+}
 // Define our message object
 type User struct {
 	Username string `json:"username"`
@@ -48,7 +53,7 @@ type User struct {
 	Z  float32 `json:"z"`
 	Theta  float32 `json:"theta"`
 	Health  float32 `json:"health"`
-	Attack map[string]float32 `json:"attack"`
+	Attack attack `json:"attack"`
 	KilledBy string `json:"killed_by"`
 	KilledByUUID string `json:"killed_by_uuid"`
 	KillLog killLog `json:"kill_log"`
@@ -125,7 +130,6 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		var user User
-		user.Attack = make(map[string]float32)
 
 		// Read in a new message as JSON and map it to a Message object
 		ws.SetPingHandler(func(appData string) error {return nil})
@@ -134,10 +138,17 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error: %v", err)
 			delete(userClients, ws)
 			if val, ok := users.SocketMap[ws]; ok {
+				killLogMutex.Lock()
+				delete(globalKillLog.KillCount, val)
+				delete(globalKillLog.Kills, val)
+				killLogMutex.Unlock()
+
 				users.Mutex.Lock()
 				delete(users.Users, val)
 				delete(users.SocketMap, ws)
 				users.Mutex.Unlock()
+
+
 			}
 			delete(userClients, ws)
 			break
@@ -163,6 +174,9 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 			user.KilledByUUID = u.String()
 		}
 		user.KillLog = globalKillLog
+		if user.Attack.Username != "" {
+			user.Attack.UUID = uuid.NewV4().String()
+		}
 		userBroadcast <- user
 	}
 }
