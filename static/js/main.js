@@ -3,8 +3,8 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    // document.getElementById('login-form').hidden = true;
-    // beginGame('veryRealUsername' + Math.floor(Math.random().toString()*1000))
+    document.getElementById('login-form').hidden = true;
+    beginGame('veryRealUsername' + Math.floor(Math.random().toString()*1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
@@ -122,11 +122,8 @@ function beginGame(username) {
             }
             // todo: terrible way to recieve damage. others can max this value.
             if (username in enemy.attack) {
-                console.log(enemy.attack);
                 death = userCharacter.receiveDamage(enemy.attack[username]);
-                console.log(userCharacter.health);
                 if (death) {
-                    console.log('death');
                     infoMessages.push(username, enemy.username, 'killed by', '');
                     userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {},  enemy.username);
                 }
@@ -203,7 +200,6 @@ function beginGame(username) {
                 const attack = {};
                 attack[key] = 0.1;
 
-                console.log(attack);
                 const death = userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health,attack );
                 if (death) {
                     infoMessages.push(username, enemy.object.parent.username, 'has killed', '');
@@ -225,7 +221,6 @@ function beginGame(username) {
     }
     function zoomOut() {
         camera.zoom -= 0.1;
-        console.log(camera.zoom)
 
         camera.updateProjectionMatrix();
         if (camera.zoom > 1) {
