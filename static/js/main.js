@@ -3,8 +3,8 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    document.getElementById('login-form').hidden = true;
-    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
+    // document.getElementById('login-form').hidden = true;
+    // beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
