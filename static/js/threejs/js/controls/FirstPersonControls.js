@@ -168,7 +168,6 @@ THREE.FirstPersonControls = function (camera, domElement) {
                 self.camera.translateZ(-el.z);
             }
         });
-        self.movements = [];
     };
     self.dontAllowMovement = function (direction) {
         self.allowAllMovements();

@@ -52,7 +52,7 @@ function detectCollisions(userCharacter, collisionObjects) {
         const ray = new THREE.Raycaster(userCharacter.position, directionVector.clone().normalize());
         const collisionResults = ray.intersectObjects(collisionObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-            collisions.push([collisionResults[0].distance - directionVector.length(), directionVector]);
+            collisions.push([collisionResults[0].distance - directionVector.length(), directionVector, collisionResults[0]]);
         }
     }
     return collisions;

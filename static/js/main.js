@@ -3,8 +3,8 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    document.getElementById('login-form').hidden = true;
-    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
+    // document.getElementById('login-form').hidden = true;
+    // beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
@@ -363,6 +363,21 @@ function beginGame(username) {
         if (collisions.length !== 0) {
             controls.undoMovement();
             controls.dontAllowMovement(collisions[0][1]);
+            // console.log(collisions[0][2])
+            // const faccia = collisions[0][2].face.normal;
+            // if (faccia.x <=-0.9 ){
+            //     camera.position.x = camera.position.x -30
+            // }
+            // if (faccia.x >=0.9 ){
+            //     camera.position.x = camera.position.x +30
+            // }
+            // if (faccia.z <=-0.9 ){
+            //     camera.position.z = camera.position.z -30
+            // }
+            // if (faccia.z >=0.9 ){
+            //     camera.position.z = camera.position.z +30
+            // }
+
         } else {
             controls.allowAllMovements();
         }
