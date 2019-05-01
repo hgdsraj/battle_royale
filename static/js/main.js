@@ -61,7 +61,7 @@ function setupCameraAndControls() {
         0.1, // Near clipping pane
         12000, // Far clipping pane
     );
-    camera.position.set(0, 100, 200);
+    camera.position.set(-100, 100, 500);
 
     camera.lookAt(new THREE.Vector3(0, 15, 0));
     const controls = new THREE.FirstPersonControls(camera, domElement);
@@ -100,7 +100,6 @@ function beginGame(username) {
     let attacks =  {};
 
     userCharacter = new Character(username, noFace = true);
-    userCharacter.position.set(30, 15, 40);
     scene.add(userCharacter);
     const box = new THREE.Box3().setFromObject(userCharacter);
     camera.position.y = box.getSize().y;

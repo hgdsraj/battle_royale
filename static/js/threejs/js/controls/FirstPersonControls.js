@@ -43,7 +43,6 @@ THREE.FirstPersonControls = function (camera, domElement) {
     self.verticalMin = 0;
     self.verticalMax = Math.PI;
 
-    self.autoSpeedFactor = 0.0;
 
     self.mouseX = 0;
     self.mouseY = 0;
@@ -271,13 +270,6 @@ THREE.FirstPersonControls = function (camera, domElement) {
         return function update(delta) {
             if (self.enabled === false) return;
 
-            if (self.heightSpeed) {
-                const y = THREE.Math.clamp(self.camera.position.y, self.heightMin, self.heightMax);
-                const heightDelta = y - self.heightMin;
-                self.autoSpeedFactor = delta * (heightDelta * self.heightCoef);
-            } else {
-                self.autoSpeedFactor = 0.0;
-            }
             const actualMoveSpeed = delta * self.movementSpeed;
             if (self.jump && self.allowPositiveYMovement && self.jumpVelocity > 0) {
                 self.camera.position.y += self.jumpVelocity;
@@ -294,9 +286,9 @@ THREE.FirstPersonControls = function (camera, domElement) {
             }
 
 
-            if ((self.moveForward || (self.autoForward && !self.moveBackward)) && self.allowNegativeZMovement) {
-                self.camera.translateZ(-(actualMoveSpeed + self.autoSpeedFactor));
-                self.pushMovement({ z: -(actualMoveSpeed + self.autoSpeedFactor) });
+            if (self.moveForward && self.allowNegativeZMovement) {
+                self.camera.translateZ(-actualMoveSpeed);
+                self.pushMovement({ z: -actualMoveSpeed });
             }
 
             if (self.moveBackward && self.allowPositiveZMovement) {

@@ -33,6 +33,95 @@ class Mirror extends THREE.Group {
         this.add(mirrorBase);
     }
 }
+
+class Wall extends THREE.Group {
+    constructor(width, height, color, door = false, windows = false) {
+        super();
+        if (door === false) {
+            const wall = new THREE.Mesh(
+                new THREE.BoxGeometry(width, height, 3),
+                new THREE.MeshStandardMaterial({
+                    color: color,
+                    flatShading: THREE.FlatShading,
+                    metalness: 0,
+                    roughness: 0.8,
+                    refractionRatio: 0.25,
+
+                }),
+            );
+            wall.receiveShadow = true;
+            wall.rotateY(radians(90));
+            wall.position.y += height/2;
+            this.add(wall);
+
+        } else {
+            const doorWidth = 50;
+            const doorHeight = 100;
+            const doorWidthDividedBy2 = doorWidth / 2;
+            const wall = new THREE.Mesh(
+                new THREE.BoxGeometry(width/2 - doorWidthDividedBy2 , doorHeight, 3),
+                new THREE.MeshStandardMaterial({
+                    color: color,
+                    flatShading: THREE.FlatShading,
+                    metalness: 0,
+                    roughness: 0.8,
+                    refractionRatio: 0.25,
+
+                }),
+            );
+            wall.receiveShadow = true;
+            wall.rotateY(radians(90));
+            wall.position.y += doorHeight/2;
+            this.add(wall);
+            
+            const wall2 = new THREE.Mesh(
+                new THREE.BoxGeometry(width/2 - doorWidthDividedBy2 , doorHeight, 3),
+                new THREE.MeshStandardMaterial({
+                    color: color,
+                    flatShading: THREE.FlatShading,
+                    metalness: 0,
+                    roughness: 0.8,
+                    refractionRatio: 0.25,
+
+                }),
+            );
+            wall2.position.z += width/2 + doorWidthDividedBy2;
+            wall2.receiveShadow = true;
+            wall2.rotateY(radians(90));
+            wall2.position.y += doorHeight/2;
+
+            this.add(wall2);
+
+            const wall3 = new THREE.Mesh(
+                new THREE.BoxGeometry(width , height - doorHeight, 3),
+                new THREE.MeshStandardMaterial({
+                    color: color,
+                    flatShading: THREE.FlatShading,
+                    metalness: 0,
+                    roughness: 0.8,
+                    refractionRatio: 0.25,
+
+                }),
+            );
+            // wall3.position.z += width/2 + doorWidthDividedBy2;
+            wall3.receiveShadow = true;
+            wall3.rotateY(radians(90));
+            wall3.position.z += width/4 + doorWidth/4;
+            wall3.position.y += (height - doorHeight)/2 + doorHeight;
+            this.add(wall3);
+            this.position.z -= width/4 + doorWidth/4
+
+        }
+    }
+}
+
+class Ceiling extends THREE.Group {
+    constructor(width, length) {
+        super();
+        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+        this.add(ceiling);
+    }
+}
 class Ramp extends THREE.Group {
     constructor(length, width, angle, position) {
         super();

@@ -55,13 +55,12 @@ function setupMap(scene) {
     scene.add(snowman3);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));
 
-    floor = new THREE.Mesh(new THREE.PlaneGeometry(10000, 20000, 1, 1), new THREE.MeshPhongMaterial({ color: 0x964B00 }));
+    floor = new THREE.Mesh(new THREE.PlaneGeometry(10000, 20000, 1, 1), new THREE.MeshPhongMaterial({color: 0x964B00}));
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
-    floor.y = 0;
     scene.add(floor);
 
-
+    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200));
     const verticalMirror = new Mirror();
     verticalMirror.position.y = 60;
     verticalMirror.position.x = 0;
@@ -69,19 +68,19 @@ function setupMap(scene) {
     scene.add(verticalMirror);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(verticalMirror));
 
-    const ramp = new Ramp(640, 160, 45, { x: 120, y: 200, z: 200 });
+    const ramp = new Ramp(640, 160, 45, {x: 400, y: 200, z: 200});
     scene.add(ramp);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(ramp));
 
-    // const mapDynamics = setupSnow(scene); // TODO removed snow...maybe add back?
-    const mapDynamics = () => {};
+    const mapDynamics = setupSnow(scene); //TODO removed snow...maybe add back?
+    // const mapDynamics = () => {};
     const trees = setupTrees(scene);
     collidableMeshList = collidableMeshList.concat(trees);
-    return { collidableMeshList, mapDynamics };
+    return {collidableMeshList, mapDynamics};
 }
 
 function setupSnow(scene) {
-    const particleCount = 50000;
+    const particleCount = 30000;
     const pMaterial = new THREE.PointsMaterial({
         color: 0xFFFFFF,
         size: 4,
@@ -105,18 +104,18 @@ function setupSnow(scene) {
     }
 
     const particleSystem = new THREE.Points(particles, pMaterial);
-    particleSystem.position.y = 200;
+    particleSystem.position.y = 0;
     scene.add(particleSystem);
 
     return moveParticles = function () {
         let pCount = particleCount;
         while (pCount--) {
             const particle = particles.vertices[pCount];
-            if (particle.y < -190 && pCount < 20000) {
+            if (pCount < 10000 && particle.y >= 10 && particle.y <= 11) {
                 particle.velocity.y = 0;
                 particle.velocity.x = 0;
-            } else if (particle.y < -200) {
-                particle.y = 200;
+            } else if (particle.y < 0) {
+                particle.y = Math.random() * 2000 - 1000;
                 particle.velocity.y = -0.5;
                 particle.velocity.y -= Math.random() * 0.2;
                 particle.velocity.x = -0.2 + Math.random() * 0.4;
@@ -150,4 +149,57 @@ function setupTrees(scene) {
 
     scene.add(treeGroup);
     return collisions;
+}
+
+function createBuilding(scene, width, height) {
+    let walls = [];
+    const wall = new Wall(width, height, 0x4e555b);
+    wall.position.z += width;
+    wall.rotation.y = radians(90);
+
+    scene.add(wall);
+    walls = walls.concat(calculateCollisionPoints(wall));
+
+    const wall2 = new Wall(width, height, 0x4e555b, door = true);
+    wall2.position.z += 450;
+    wall2.position.x -= 150;
+    scene.add(wall2);
+    walls = walls.concat(calculateCollisionPoints(wall2));
+
+    const wall3 = new Wall(width, height, 0x4e555b);
+    wall3.position.z += 600;
+    wall3.rotation.y = radians(90);
+    scene.add(wall3);
+    walls = walls.concat(calculateCollisionPoints(wall3));
+
+    const wall4 = new Wall(width, height, 0x4e555b);
+    wall4.position.z += 450;
+    wall4.position.x += 150;
+    scene.add(wall4);
+    walls = walls.concat(calculateCollisionPoints(wall4));
+
+    const ceiling = new Ceiling(width, width);
+    ceiling.position.z += 450;
+    ceiling.position.y += height;
+    ceiling.rotation.x = -Math.PI / 2;
+    ceiling.receiveShadow = true;
+    scene.add(ceiling);
+    walls = walls.concat(calculateCollisionPoints(ceiling));
+
+    const pointLight = new THREE.SpotLight(0xffffff, 1);
+    pointLight.position.set(ceiling.position.x, ceiling.position.y, ceiling.position.z);
+    scene.add(pointLight);
+    pointLight.angle = radians(180);
+
+    const lightSphere = new THREE.Mesh(new THREE.SphereGeometry(12, 12, 52), new THREE.MeshPhongMaterial({
+        refractionRatio: 0.1,
+        reflectivity: 0.04,
+        color: 0xf5f3ce,
+    }));
+    lightSphere.position.set(ceiling.position.x, ceiling.position.y, ceiling.position.z);
+
+    scene.add(lightSphere);
+
+
+    return walls
 }
