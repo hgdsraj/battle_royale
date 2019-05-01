@@ -3,8 +3,8 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    // document.getElementById('login-form').hidden = true;
-    // beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
+    document.getElementById('login-form').hidden = true;
+    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
@@ -65,7 +65,8 @@ function setupCameraAndControls() {
 
     camera.lookAt(new THREE.Vector3(0, 15, 0));
     const controls = new THREE.FirstPersonControls(camera, domElement);
-
+    scene.background = new THREE.Color(0x5C646C);
+    scene.fog = new THREE.FogExp2( 0x5C646C, 0.0003);
 
     controls.movementSpeed = 500;
     controls.lookSpeed = 0.2;
@@ -352,10 +353,12 @@ function beginGame(username) {
     });
     console.log(collidableMeshList);
     console.log(userCharacter);
-
-    function loop() {
-        controls.update(clock.getDelta());
-
+    function moveMapParticles() {
+        mapDynamics();
+        setTimeout(moveMapParticles, 5)
+    }
+    moveMapParticles();
+    function calculateCollisions() {
         const collisionBoundsOfCharacter = userCharacter.children[0].clone();
         collisionBoundsOfCharacter.matrix = userCharacter.matrix;
         collisionBoundsOfCharacter.position.add(userCharacter.position);
@@ -381,17 +384,23 @@ function beginGame(username) {
         } else {
             controls.allowAllMovements();
         }
+        lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
+
+        setTimeout(calculateCollisions, 1)
+    }
+    calculateCollisions();
+
+
+    function loop() {
+        controls.update(clock.getDelta());
+
+
         camera.getWorldDirection(vector);
         theta = Math.atan2(vector.x, vector.z);
-        lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
-        if (lineOfSight.length > 0 && shooting) {
-            // console.log(lineOfSight)
-        }
         userCharacter.rotation.y = theta;
         userCharacter.position.x = camera.position.x;
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 37;
-        mapDynamics();
         // moveNPCs();
         renderer.render(scene, camera);
         requestAnimationFrame(loop);

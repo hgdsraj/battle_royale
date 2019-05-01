@@ -3,7 +3,7 @@ class Handler {
     constructor(username, endpoint) {
         this.username = username;
         const self = this;
-        this.ws = new WebSocket(`wss://${window.location.host}${endpoint}`);
+        this.ws = new WebSocket(`ws://${window.location.host}${endpoint}`);
         this.keepAlive(this.ws);
     }
 

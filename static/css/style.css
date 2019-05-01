@@ -73,14 +73,14 @@ body {
 }
 
 #chat-form-wrapper {
-    bottom:0;
+    bottom:5px;
     position:fixed;
-    right:0;
+    right:20px;
 }
 
 #chat-wrapper {
-    bottom:0;
-    left:0;
+    bottom:5px;
+    left:20px;
     position:fixed;
 }
 
@@ -93,9 +93,9 @@ body {
 
 #info-wrapper {
     position:fixed;
-    right:0;
+    right:20px;
     text-align:right;
-    top:0;
+    top:5px;
 }
 
 #info-messages {
@@ -125,9 +125,9 @@ body {
 }
 
 #health-wrapper {
-    bottom:0;
+    bottom:5px;
     position:fixed;
-    right:0;
+    right:20px;
     text-align:right;
 }
 
@@ -140,17 +140,17 @@ body {
     border:7px solid #006400;
     color:#defff1;
     font-size:18px;
-    margin-left:250px;
+    margin-left:500px;
     opacity:0.8;
     padding:10px;
     position:fixed;
     text-align:left;
     top:30%;
-    width:500px;
+    width:500px
 }
 
 #pause-menu {
-    top:0;
+    top:40px;
 }
 
 #scoreboard th,td {

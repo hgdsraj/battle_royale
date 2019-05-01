@@ -311,12 +311,12 @@ THREE.FirstPersonControls = function (camera, domElement) {
             }
 
             if (self.moveUp && self.allowPositiveYMovement) {
-                self.camera.translateY(actualMoveSpeed);
-                self.pushMovement({ y: actualMoveSpeed });
+                self.camera.translateY(actualMoveSpeed*10);
+                self.pushMovement({ y: actualMoveSpeed*10 });
             }
             if (self.moveDown && self.allowNegativeYMovement) {
-                self.camera.translateY(-actualMoveSpeed);
-                self.pushMovement({ y: -actualMoveSpeed });
+                self.camera.translateY(-actualMoveSpeed*10);
+                self.pushMovement({ y: -actualMoveSpeed *10});
             }
         };
     }());

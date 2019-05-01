@@ -45,11 +45,10 @@ class Wall extends THREE.Group {
                     flatShading: THREE.FlatShading,
                     metalness: 0,
                     roughness: 0.8,
-                    refractionRatio: 0.25,
-
                 }),
             );
             wall.receiveShadow = true;
+            wall.castShadow = true;
             wall.rotateY(radians(90));
             wall.position.y += height/2;
             this.add(wall);
@@ -65,11 +64,11 @@ class Wall extends THREE.Group {
                     flatShading: THREE.FlatShading,
                     metalness: 0,
                     roughness: 0.8,
-                    refractionRatio: 0.25,
-
                 }),
             );
             wall.receiveShadow = true;
+            wall.castShadow = true;
+
             wall.rotateY(radians(90));
             wall.position.y += doorHeight/2;
             this.add(wall);
@@ -81,12 +80,11 @@ class Wall extends THREE.Group {
                     flatShading: THREE.FlatShading,
                     metalness: 0,
                     roughness: 0.8,
-                    refractionRatio: 0.25,
-
                 }),
             );
             wall2.position.z += width/2 + doorWidthDividedBy2;
             wall2.receiveShadow = true;
+            wall2.castShadow = true;
             wall2.rotateY(radians(90));
             wall2.position.y += doorHeight/2;
 
@@ -97,14 +95,11 @@ class Wall extends THREE.Group {
                 new THREE.MeshStandardMaterial({
                     color: color,
                     flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                    refractionRatio: 0.25,
-
                 }),
             );
             // wall3.position.z += width/2 + doorWidthDividedBy2;
             wall3.receiveShadow = true;
+            wall3.castShadow = true;
             wall3.rotateY(radians(90));
             wall3.position.z += width/4 + doorWidth/4;
             wall3.position.y += (height - doorHeight)/2 + doorHeight;
@@ -120,6 +115,44 @@ class Ceiling extends THREE.Group {
         super();
         const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
         this.add(ceiling);
+    }
+}
+class Cloud extends THREE.Group {
+    constructor(size) {
+        super();
+        const material = new THREE.MeshPhongMaterial({
+            color:0xffffff,
+            flatShading:true,
+            refractionRatio: 0.1,
+            reflectivity: 0.04,
+            transparent: true
+        });
+        material.opacity = 0.7;
+        const noiseAmount = Math.floor(size/3);
+        const tuft1 = new THREE.Mesh(
+            addNoise(new THREE.SphereGeometry(size,7,8), noiseAmount, noiseAmount, noiseAmount),
+            material
+        );
+        tuft1.position.x -= size;
+        tuft1.castShadow = true;
+        this.add(tuft1);
+
+        const tuft2 = new THREE.Mesh(
+            addNoise(new THREE.SphereGeometry(size,7,8), noiseAmount, noiseAmount, noiseAmount),
+            material
+        );
+        tuft2.position.x += size;
+        tuft2.castShadow = true;
+
+        this.add(tuft2);
+
+        const tuft3 = new THREE.Mesh(
+            addNoise(new THREE.SphereGeometry(size*1.3,7,8), noiseAmount, noiseAmount, noiseAmount),
+            material
+        );
+        tuft3.castShadow = true;
+
+        this.add(tuft3);
     }
 }
 class Ramp extends THREE.Group {
@@ -164,7 +197,7 @@ class Character extends THREE.Group {
 
         });
         const bottom = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(17, 1), 2),
+            addNoise(new THREE.OctahedronGeometry(17, 1), 2,2,2),
             snowMaterial,
         );
         bottom.castShadow = true;
@@ -176,7 +209,7 @@ class Character extends THREE.Group {
 
         // A Torus to represent the top hook
         const body = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(10, 1), 2),
+            addNoise(new THREE.OctahedronGeometry(10, 1), 2,2,2),
             snowMaterial,
         );
         body.position.y += 22;
@@ -188,7 +221,7 @@ class Character extends THREE.Group {
         this.add(body);
         // A Torus to represent the top hook
         const head = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(7, 1), 2),
+            addNoise(new THREE.OctahedronGeometry(7, 1), 2,2,2),
             snowMaterial,
         );
         head.name = 'head';
@@ -346,7 +379,7 @@ class Tree extends THREE.Group {
         });
 
         const trunk = new THREE.Mesh(
-            addNoise(new THREE.CylinderGeometry(20, 20, 20, 4), 2),
+            addNoise(new THREE.CylinderGeometry(20, 20, 20, 4), 2,2,2),
             new THREE.MeshPhongMaterial({
                 color: trunkColor,
                 flatShading: THREE.FlatShading,
@@ -370,17 +403,17 @@ class Tree extends THREE.Group {
         trunk.castShadow = true;
         trunk.receiveShadow = true;
         this.add(trunk);
-        const bottom = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 50, 120, 18), 11), treeMaterial);
+        const bottom = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 50, 120, 18), 11,11,11), treeMaterial);
         bottom.position.y = 80;
         bottom.castShadow = true;
         bottom.receiveShadow = true;
         this.add(bottom);
-        const mid = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 40, 100, 17), 11), treeMaterial);
+        const mid = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 40, 100, 17), 11,11,11), treeMaterial);
         mid.position.y = 110;
         mid.castShadow = true;
         mid.receiveShadow = true;
         this.add(mid);
-        const top = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 30, 80, 14), 11), treeMaterial);
+        const top = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 30, 80, 14), 11,11,11), treeMaterial);
         top.position.y = 140;
         top.castShadow = true;
         top.receiveShadow = true;
