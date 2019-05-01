@@ -1,4 +1,6 @@
 function setupMap(scene) {
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.004);
+    scene.add(ambientLight);
     const spotLightPosition = [100, 10000, -7000];
     const spotLight = new THREE.SpotLight(0xffffff, 1);
     let collidableMeshList = [];
