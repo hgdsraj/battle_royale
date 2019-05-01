@@ -3,6 +3,7 @@ function setupMap(scene) {
     scene.add(ambientLight);
     const spotLightPosition = [100, 10000, -7000];
     const spotLight = new THREE.SpotLight(0xffffff, 1);
+    // const spotLight = new THREE.DirectionalLight(0xffffff, 1);
     let collidableMeshList = [];
     spotLight.position.set(spotLightPosition[0], spotLightPosition[1], spotLightPosition[2]);
 
@@ -26,7 +27,7 @@ function setupMap(scene) {
     scene.add(moon);
 
     const spotLight2 = new THREE.SpotLight(0xffffff, 100000);
-    spotLight2.position.set(-30, 1000, 5000);
+    spotLight2.position.set(-30, 4000, 5000);
 
     spotLight2.castShadow = true;
 
@@ -60,7 +61,8 @@ function setupMap(scene) {
     floor.receiveShadow = true;
     scene.add(floor);
 
-    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200));
+    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, -50));
+    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 250));
     const verticalMirror = new Mirror();
     verticalMirror.position.y = 60;
     verticalMirror.position.x = 0;
@@ -68,11 +70,12 @@ function setupMap(scene) {
     scene.add(verticalMirror);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(verticalMirror));
 
-    const ramp = new Ramp(640, 160, 45, {x: 400, y: 200, z: 200});
+    const ramp = new Ramp(640, 160, 60, {x: 300, y: 0, z: -25});
+    ramp.rotation.y = radians(180)
     scene.add(ramp);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(ramp));
 
-    const mapDynamics = setupSnow(scene); //TODO removed snow...maybe add back?
+    const mapDynamics = setupSnow(scene);
     // const mapDynamics = () => {};
     const trees = setupTrees(scene);
     collidableMeshList = collidableMeshList.concat(trees);
@@ -82,7 +85,7 @@ function setupMap(scene) {
 }
 
 function setupSnow(scene) {
-    const particleCount = 30000;
+    const particleCount = 100000;
     const pMaterial = new THREE.PointsMaterial({
         color: 0xFFFFFF,
         size: 4,
@@ -96,7 +99,7 @@ function setupSnow(scene) {
 
     for (let i = 0; i < particleCount; i++) {
         let pX = Math.random() * 6000 - 2000,
-            pY = Math.random() * 2000 - 1000,
+            pY = Math.random()*5000,
             pZ = Math.random() * 6000 - 2000,
             particle = new THREE.Vector3(pX, pY, pZ);
         particle.velocity = {};
@@ -113,11 +116,11 @@ function setupSnow(scene) {
         let pCount = particleCount;
         while (pCount--) {
             const particle = particles.vertices[pCount];
-            if (pCount < 10000 && particle.y >= 10 && particle.y <= 11) {
+            if (pCount < 35000 && particle.y >= 10 && particle.y <= 11) {
                 particle.velocity.y = 0;
                 particle.velocity.x = 0;
             } else if (particle.y < 0) {
-                particle.y = Math.random() * 2000 - 1000;
+                particle.y = Math.random()*5000;
                 particle.velocity.y = -0.5;
                 particle.velocity.y -= Math.random() * 0.2;
                 particle.velocity.x = -0.2 + Math.random() * 0.4;
@@ -181,44 +184,67 @@ function setupClouds(scene) {
 
 }
 
-function createBuilding(scene, width, height) {
+function createBuilding(scene, width, height, x, y, z) {
     let walls = [];
     const wall = new Wall(width, height, 0x4e555b);
     wall.position.z += width;
     wall.rotation.y = radians(90);
-
+    wall.position.x += x;
+    wall.position.y += y;
+    wall.position.z += z;
     scene.add(wall);
     walls = walls.concat(calculateCollisionPoints(wall));
 
     const wall2 = new Wall(width, height, 0x4e555b, door = true);
     wall2.position.z += 450;
     wall2.position.x -= 150;
+    wall2.position.x += x;
+    wall2.position.y += y;
+    wall2.position.z += z;
     scene.add(wall2);
     walls = walls.concat(calculateCollisionPoints(wall2));
 
     const wall3 = new Wall(width, height, 0x4e555b);
     wall3.position.z += 600;
     wall3.rotation.y = radians(90);
+    wall3.position.x += x;
+    wall3.position.y += y;
+    wall3.position.z += z;
     scene.add(wall3);
     walls = walls.concat(calculateCollisionPoints(wall3));
 
     const wall4 = new Wall(width, height, 0x4e555b);
     wall4.position.z += 450;
     wall4.position.x += 150;
+    wall4.position.x += x;
+    wall4.position.y += y;
+    wall4.position.z += z;
     scene.add(wall4);
     walls = walls.concat(calculateCollisionPoints(wall4));
 
-    const ceiling = new Ceiling(width, width);
+    const ceiling = new Ceiling(width, width, 0x4e555b);
     ceiling.position.z += 450;
     ceiling.position.y += height;
     ceiling.rotation.x = -Math.PI / 2;
+    ceiling.position.x += x;
+    ceiling.position.y += y;
+    ceiling.position.z += z;
     ceiling.receiveShadow = true;
     scene.add(ceiling);
-    walls = walls.concat(calculateCollisionPoints(ceiling));
+    const floor = new Ceiling(width, width, 0x4e555b);
+    floor.position.z += 450;
+    floor.position.y += 1;
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    floor.position.x += x;
+    floor.position.y += y;
+    floor.position.z += z;
+    scene.add(floor);
+    // walls = walls.concat(calculateCollisionPoints(floor)); // todo - removed this
 
     const spotLight = new THREE.SpotLight(0xffffff, 1);
-    spotLight.position.set(ceiling.position.x, ceiling.position.y-100, ceiling.position.z);
-
+    spotLight.position.set(ceiling.position.x, ceiling.position.y-5, ceiling.position.z);
+    console.log(spotLight.position)
     spotLight.castShadow = true;
     spotLight.shadowDarkness = 1;
     spotLight.shadow.mapSize.width = 300;
@@ -227,7 +253,8 @@ function createBuilding(scene, width, height) {
     spotLight.shadow.camera.near = 0.01;
     spotLight.shadow.camera.far = 10;
     spotLight.shadow.camera.fov = 360;
-
+    spotLight.target = floor;
+    spotLight.angle = radians(190);
     scene.add(spotLight);
 
     const lightSphere = new THREE.Mesh(new THREE.SphereGeometry(12, 12, 52), new THREE.MeshPhongMaterial({
@@ -235,7 +262,7 @@ function createBuilding(scene, width, height) {
         reflectivity: 0.04,
         color: 0xf5f3ce,
     }));
-    lightSphere.position.set(ceiling.position.x, ceiling.position.y-100, ceiling.position.z);
+    lightSphere.position.set(ceiling.position.x, ceiling.position.y-5, ceiling.position.z);
 
     scene.add(lightSphere);
 

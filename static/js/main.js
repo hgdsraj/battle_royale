@@ -3,8 +3,8 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    // document.getElementById('login-form').hidden = true;
-    // beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
+    document.getElementById('login-form').hidden = true;
+    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
@@ -59,7 +59,7 @@ function setupCameraAndControls() {
         90, // Field of view
         window.innerWidth / window.innerHeight, // Aspect ratio
         0.1, // Near clipping pane
-        12000, // Far clipping pane
+        10000, // Far clipping pane
     );
     camera.position.set(-100, 100, 450);
 
@@ -355,7 +355,7 @@ function beginGame(username) {
     console.log(userCharacter);
     function moveMapParticles() {
         mapDynamics();
-        setTimeout(moveMapParticles, 5)
+        setTimeout(moveMapParticles, 1)
     }
     moveMapParticles();
     function calculateCollisions() {
@@ -392,7 +392,7 @@ function beginGame(username) {
 
 
     function loop() {
-        controls.update(clock.getDelta());
+        setTimeout(controls.update(clock.getDelta()), 0);
 
 
         camera.getWorldDirection(vector);

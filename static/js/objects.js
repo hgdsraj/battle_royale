@@ -111,9 +111,9 @@ class Wall extends THREE.Group {
 }
 
 class Ceiling extends THREE.Group {
-    constructor(width, length) {
+    constructor(width, length, color) {
         super();
-        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 1, 1), new THREE.MeshPhongMaterial({ color: color }));
         this.add(ceiling);
     }
 }
