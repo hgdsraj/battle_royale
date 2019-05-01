@@ -1,11 +1,35 @@
+const config = new Config();
+
 window.onload = function init() {
-    setupLogin();
+    fetch('./config.json')
+        .then(
+            function(response) {
+                if (response.status !== 200) {
+                    console.log('Looks like there was a problem. Status Code: ' +
+                        response.status);
+                    return;
+                }
+
+                // Examine the text in the response
+                response.json().then(function(data) {
+                    config.protocol = data.protocol;
+                    config.local = data.local;
+                    setupLogin();
+                });
+            }
+        )
+        .catch(function(err) {
+            console.log('Fetch Error :-S', err);
+            setupLogin();
+        });
+
 };
 
 function setupLogin() {
-    document.getElementById('login-form').hidden = true;
-    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
-
+    if (config.local) {
+        document.getElementById('login-form').hidden = true;
+        beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
+    }
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/lib/pq"
@@ -18,6 +19,7 @@ var chatClients = make(map[*websocket.Conn]bool) // connected clients
 var messageBroadcast = make(chan Message)           // broadcast channel
 var userBroadcast = make(chan User)           // broadcast channel
 var users Users;
+var config Config;
 
 func openDb() *sql.DB {
     url := os.Getenv("DATABASE_URL")
@@ -39,7 +41,10 @@ var upgrader = websocket.Upgrader{
 	},
 	HandshakeTimeout: time.Hour * 1000, //TODO this is really dumb.
 }
-
+type Config struct {
+	Protocol string `json:"protocol"`
+	Local bool `json:"local"`
+}
 type attack struct {
 	Username string `json:"username"`
 	Damage int `json:"damage"`
@@ -82,6 +87,14 @@ func main() {
 	users.Users = make(map[string]User)
 	users.SocketMap = make(map[*websocket.Conn]string)
 	users.Mutex = &sync.Mutex{}
+	production := os.Getenv("HEROKU");
+	if production != "" {
+		config.Local = false
+		config.Protocol = "wss://"
+	} else {
+		config.Local = true
+		config.Protocol = "ws://"
+	}
 	//db := openDb()
 	//if err := db.Ping(); err != nil {
 	//	panic("should be able to ping db!")
@@ -93,6 +106,7 @@ func main() {
 	// Configure websocket route
 	http.HandleFunc("/ws", handleUserUpdate)
 	http.HandleFunc("/chat", handleChat)
+	http.HandleFunc("/config.json", handleConfig)
 
 	// Start listening for incoming chat messages
 	go handleMessages()
@@ -179,6 +193,24 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 		userBroadcast <- user
 	}
+}
+
+func handleConfig(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var err error
+	bytes, err := json.Marshal(config)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err := w.Write([]byte(fmt.Sprintf("Error: %v", err)))
+		if err != nil {
+			log.Printf("error: %v", err);
+		}
+		return
+	}
+	_, err = w.Write(bytes)
+
+
 }
 
 func handleUsers() {
