@@ -3,8 +3,8 @@ window.onload = function init() {
 };
 
 function setupLogin() {
-    // document.getElementById('login-form').hidden = true;
-    // beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
+    document.getElementById('login-form').hidden = true;
+    beginGame('veryRealUsername' + Math.floor(Math.random().toString() * 1000))
 
     const loginButton = document.getElementById('login-submit');
     const chatButton = document.getElementById('chat-submit');
@@ -61,7 +61,7 @@ function setupCameraAndControls() {
         0.1, // Near clipping pane
         12000, // Far clipping pane
     );
-    camera.position.set(-100, 100, 500);
+    camera.position.set(-100, 100, 450);
 
     camera.lookAt(new THREE.Vector3(0, 15, 0));
     const controls = new THREE.FirstPersonControls(camera, domElement);
@@ -134,7 +134,7 @@ function beginGame(username) {
             }
             enemies[enemy.username].position.set(enemy.x, enemy.y, enemy.z);
             enemies[enemy.username].rotation.y = enemy.theta;
-            enemies[enemy.username].healthBar.scale.x = enemy.health / 100;
+            enemies[enemy.username].healthBar.scale.x = Math.max(enemy.health / 100, 0.0000001);
             enemies[enemy.username].health = enemy.health;
             // = userCharacter.rotation;
             enemyUsername = enemies[enemy.username].rotateUserInfo(theta);
@@ -174,6 +174,7 @@ function beginGame(username) {
                 if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
                     infoMessages.push(username, enemy.username, 'killed by', '');
                     userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username);
+                    camera.position.set(-100, 100, 450);
                 }
                 attacks[enemy.attack.uuid] = true;
             }
@@ -230,15 +231,25 @@ function beginGame(username) {
     }
 
     handleKills();
+    const bloodSphere = new THREE.Mesh(new THREE.SphereGeometry(3, 52, 52), new THREE.MeshPhongMaterial({
+        refractionRatio: 0.1,
+        reflectivity: 0.04,
+        color: 0xff0000,
+    }));
+
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
+        scene.remove(bloodSphere);
         controls.recoil();
-        if (lineOfSight.length > 0) {
+        if (lineOfSight.length > 0 && lineOfSight[0].object.parent.username !== undefined) {
             const enemy = lineOfSight[0];
-            if (enemy.object.parent.username !== undefined) {
-                const attack = {'username': enemy.object.parent.username, 'damage': 2};
-                userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
-            }
+            point = enemy.point;
+            bloodSphere.position.set(point.x, point.y, point.z);
+
+            scene.add(bloodSphere);
+
+            const attack = {'username': enemy.object.parent.username, 'damage': 2};
+            userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
         }
 
         if (shooting === true) { //  TODO this doesn't work...shooting true when called so stays true
