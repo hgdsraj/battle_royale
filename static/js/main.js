@@ -293,7 +293,7 @@ function beginGame(username) {
             const collisionObject = lineOfSight[0];
             const point = collisionObject.point;
 
-            const bulletHole = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), new THREE.MeshPhongMaterial({
+            const bulletHole = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), new THREE.MeshMatcapMaterial({
                 color: 0x4e555b,
             }));
             bulletHole.position.set(point.x, point.y, point.z);
