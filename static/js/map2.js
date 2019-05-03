@@ -233,7 +233,7 @@ function createBuilding(scene, width, height, x, y, z) {
     scene.add(ceiling);
     const floor = new Ceiling(width, width, 0x4e555b);
     floor.position.z += 450;
-    floor.position.y += 1;
+    floor.position.y += 5;
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     floor.position.x += x;

@@ -67,6 +67,7 @@ type User struct {
 type killLog struct {
 	KillCount map[string]int `json:"kill_count"`
 	Kills map[string]map[string]int `json:"kills"`
+	Damage map[string]int `json:"damage"`
 }
 
 var globalKillLog = killLog{}
@@ -83,7 +84,7 @@ type Message struct {
 func main() {
 	globalKillLog.KillCount = make(map[string]int)
 	globalKillLog.Kills = make(map[string]map[string]int)
-
+	globalKillLog.Damage = make(map[string]int)
 	users.Users = make(map[string]User)
 	users.SocketMap = make(map[*websocket.Conn]string)
 	users.Mutex = &sync.Mutex{}
@@ -175,12 +176,24 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		users.Mutex.Unlock()
 		//fmt.Println(user.Attack)
 		// Send the newly received message to the broadcast channel
+
+		if globalKillLog.Kills[user.Username] == nil {
+			killLogMutex.Lock()
+			globalKillLog.Kills[user.Username] = make(map[string]int)
+			globalKillLog.KillCount[user.Username] = 0
+			globalKillLog.Damage[user.Username] = 0
+			killLogMutex.Unlock()
+
+		}
+		if user.Attack.Username != "" {
+			killLogMutex.Lock()
+			globalKillLog.Damage[user.Username] += user.Attack.Damage
+			killLogMutex.Unlock()
+		}
+
 		if user.KilledBy != "" {
 			killLogMutex.Lock()
 			globalKillLog.KillCount[user.KilledBy] += 1
-			if globalKillLog.Kills[user.KilledBy] == nil {
-				globalKillLog.Kills[user.KilledBy] = make(map[string]int)
-			}
 			globalKillLog.Kills[user.KilledBy][user.Username] += 1
 			killLogMutex.Unlock()
 

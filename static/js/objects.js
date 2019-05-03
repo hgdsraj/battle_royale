@@ -281,6 +281,8 @@ class Character extends THREE.Group {
 
                 }),
             );
+            console.log(username)
+
             eye2.position.y += 40;
             eye2.castShadow = true;
             eye2.receiveShadow = true;
@@ -329,7 +331,19 @@ class Character extends THREE.Group {
             health.position.y += 60;
             self.healthBar = health;
             self.add(health);
+
         }
+        this.gun = new Gun(1, 7, 20, 35);
+        // const gun = new THREE.Mesh(new THREE.BoxGeometry(1, 7/5, 20, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+
+        // this.gun.applyMatrix( new THREE.Matrix4().makeTranslation(-10, 30, 20) );
+        this.gun.translateX(-10);
+        this.gun.translateY(30);
+
+        this.gun.rotation.z = radians(180);
+        // this.gun.rotation.x = radians(-1);
+        this.add(this.gun)
+
     }
 
     rotateUserInfo(theta) {
@@ -425,5 +439,39 @@ class Tree extends THREE.Group {
         this.scale.y = 1 + this.variation;
         this.scale.z = 1 + this.variation;
         this.rotation.y = Math.random() * Math.PI;
+    }
+}
+
+
+class Gun extends THREE.Group  {
+    constructor(width, height, length, zOffset) {
+        super();
+        this.recoilAmount = radians(20);
+
+        this.zOffset = zOffset;
+        this.gun = new THREE.Group();
+        this.makeGun(width, height, length, zOffset);
+        this.add(this.gun)
+        this.gun.position.z -= zOffset;
+
+    }
+    makeGun(width, height, length) {
+        const barrel = new THREE.Mesh(new THREE.BoxGeometry(width, height/5, length, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+        this.gun.add(barrel);
+        const handleHeight = 4*height/5;
+        const handleLength = length/10;
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(width, handleHeight, handleLength, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+        handle.position.y = barrel.position.y - (handleHeight)/2;
+        handle.position.z += length/2 - handleLength/2;
+        this.gun.add(handle);
+        this.barrel = barrel;
+        this.handle = handle;
+
+    }
+    recoil(timeout) {
+        this.gun.position.z += this.zOffset;
+        this.gun.rotation.x = this.recoilAmount;
+        this.gun.position.z -= this.zOffset;
+        setTimeout(() => {this.gun.rotation.x = 0}, timeout)
     }
 }

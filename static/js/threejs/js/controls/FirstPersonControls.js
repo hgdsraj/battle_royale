@@ -20,6 +20,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
     self.allowPositiveXMovement = true;
     self.allowPositiveYMovement = true;
     self.allowPositiveZMovement = true;
+    self.recoilTimeout = null;
 
     self.domElement = (domElement !== undefined) ? domElement : document;
     self.targetPosition = {};
@@ -130,16 +131,18 @@ THREE.FirstPersonControls = function (camera, domElement) {
         camera.quaternion.setFromEuler(self.euler);
     };
 
-    self.recoil = function () {
-        if (self.recoilUp) {
-            self.euler.x += 0.04;
-            self.recoilUp = false;
-        } else {
-            self.euler.x -= 0.03;
-            self.recoilUp = true;
+    self.recoil = function (multiplier, recoilAmount) {
+        if (recoilAmount > 0 && self.recoilTimeout !== null) {
+            clearTimeout(self.recoilTimeout);
+            self.recoilTimeout = null;
         }
+        self.euler.x += recoilAmount;
         self.euler.x = Math.max(-PI_2, Math.min(PI_2, self.euler.x));
         camera.quaternion.setFromEuler(self.euler);
+        if (multiplier > 1) {
+            self.recoilTimeout = setTimeout(() => {self.recoil(multiplier-1, recoilAmount)}, 5);
+        }
+
     };
 
     function onPointerlockChange() {

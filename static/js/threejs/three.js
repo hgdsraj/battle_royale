@@ -1249,7 +1249,7 @@
 
 		},
 
-		setFromAxisAngle: function ( axis, angle ) {
+		 setFromAxisAngle: function ( axis, angle ) {
 
 			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
 

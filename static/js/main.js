@@ -92,7 +92,7 @@ function setupCameraAndControls() {
     scene.background = new THREE.Color(0x5C646C);
     scene.fog = new THREE.FogExp2( 0x5C646C, 0.0003);
 
-    controls.movementSpeed = 500;
+    controls.movementSpeed = 250;
     controls.lookSpeed = 0.2;
     controls.lookVertical = true;
     controls.activeLook = false;
@@ -109,8 +109,10 @@ function beginGame(username) {
     const chatHandler = new ChatHandler(username);
     const userHandler = new UserHandler(username);
     let theta = 0;
+    let numRecoils = 0;
+    const recoilMax = 10;
+    const recoilAmount = 0.02;
     const sceneControlsCamera = setupCameraAndControls();
-    console.log(sceneControlsCamera);
     const scene = sceneControlsCamera.scene;
     const camera = sceneControlsCamera.camera;
     const controls = sceneControlsCamera.controls;
@@ -122,10 +124,12 @@ function beginGame(username) {
     let shooting = false;
     let lineOfSight = [];
     let killCount = {};
+    let damage = {};
     let attacks =  {};
-
-    userCharacter = new Character(username, noFace = true);
+    let shootingTimeout = null;
+    let userCharacter = new Character(username, noFace = true);
     scene.add(userCharacter);
+
     const box = new THREE.Box3().setFromObject(userCharacter);
     camera.position.y = box.getSize().y;
     controls.initialY = camera.position.y;
@@ -148,6 +152,7 @@ function beginGame(username) {
         for (let i = 0; i < othersKeys.length; i++) {
             const enemy = userHandler.others[othersKeys[i]];
             killCount = enemy.kill_log.kill_count;
+            damage = enemy.kill_log.damage;
             if (enemy.username === username) {
                 continue;
             }
@@ -249,37 +254,59 @@ function beginGame(username) {
         let kills = '';
         const keys = Object.keys(killCount);
         for (let i = 0; i < keys.length; i++) {
-            kills += `<tr> <td> ${keys[i]}</td> <td>${killCount[keys[i]]}</td></tr>`;
+            kills += `<tr> <td> ${keys[i]}</td> <td>${killCount[keys[i]]}</td><td>${damage[keys[i]]}</td></tr>`;
         }
         document.getElementById('kills').innerHTML = kills;
         setTimeout(handleKills, 10);
     }
 
     handleKills();
-    const bloodSphere = new THREE.Mesh(new THREE.SphereGeometry(3, 52, 52), new THREE.MeshPhongMaterial({
-        refractionRatio: 0.1,
-        reflectivity: 0.04,
-        color: 0xff0000,
-    }));
-
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
-        scene.remove(bloodSphere);
-        controls.recoil();
+        if (numRecoils < recoilMax) {
+            controls.recoil(1,recoilAmount);
+            numRecoils += 1;
+        } else {
+            controls.recoil(1, recoilAmount);
+            setTimeout(() => {controls.recoil(1, -recoilAmount)}, 65)
+        }
+        userCharacter.gun.recoil(65);
         if (lineOfSight.length > 0 && lineOfSight[0].object.parent.username !== undefined) {
             const enemy = lineOfSight[0];
-            point = enemy.point;
+            const point = enemy.point;
+            const bloodSphere = new THREE.Mesh(new THREE.SphereGeometry(3, 52, 52), new THREE.MeshPhongMaterial({
+                refractionRatio: 0.1,
+                reflectivity: 0.04,
+                color: 0xff0000,
+            }));
             bloodSphere.position.set(point.x, point.y, point.z);
 
-            scene.add(bloodSphere);
+            function removeBloodSphere() {
+                scene.remove(bloodSphere)
+            }
 
+            scene.add(bloodSphere);
+            setTimeout(removeBloodSphere, 500)
             const attack = {'username': enemy.object.parent.username, 'damage': 2};
             userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
+        } else if (lineOfSight.length > 0) {
+            const collisionObject = lineOfSight[0];
+            const point = collisionObject.point;
+
+            const bulletHole = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), new THREE.MeshPhongMaterial({
+                color: 0x4e555b,
+            }));
+            bulletHole.position.set(point.x, point.y, point.z);
+
+            function removeBulletHole() {
+                scene.remove(bulletHole)
+            }
+
+            scene.add(bulletHole);
+            setTimeout(removeBulletHole, 10000)
         }
 
-        if (shooting === true) { //  TODO this doesn't work...shooting true when called so stays true
-            setTimeout(handleShooting, 100);
-        }
+        shootingTimeout = setTimeout(handleShooting, 100);
     }
 
 
@@ -305,7 +332,12 @@ function beginGame(username) {
         if (controls.enabled) {
             if (e.button === 0) {
                 shooting = false;
-                clearTimeout(handleShooting)
+                if (shootingTimeout !== null) {
+                    clearTimeout(shootingTimeout);
+                    shootingTimeout = null;
+                    controls.recoil(numRecoils, -recoilAmount);
+                    numRecoils = 0;
+                }
             } else if (e.button === 2) {
                 zoomOut();
             }
@@ -420,11 +452,27 @@ function beginGame(username) {
 
 
         camera.getWorldDirection(vector);
+        console.log(vector)
         theta = Math.atan2(vector.x, vector.z);
+        // const thetaX = Math.atan2(vector.x, vector.y); //
+        // const thetaX = Math.atan2(vector.z, vector.y); //
+        // const thetaX = Math.acos(vector.z, vector.y);
+        // const thetaX = Math.atan2(vector.z, vector.x); // does not work
+
+
+        const thetaX = -Math.asin(vector.y, 1) + radians(180);
         userCharacter.rotation.y = theta;
+        console.log(userCharacter.gun.rotation.y);
+        console.log();
+        console.log(thetaX)
+        // userCharacter.gun.rotateOnAxis(new THREE.Vector3(1,0,0), userCharacter.gun.rotation.x - thetaX);
+        userCharacter.gun.rotation.x = thetaX;
+
         userCharacter.position.x = camera.position.x;
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 37;
+
+
         // moveNPCs();
         renderer.render(scene, camera);
         requestAnimationFrame(loop);
