@@ -1,21 +1,31 @@
-onmessage = function(e) {
-    const pCount= e.data[0][0];
-    const particles= e.data[0][1];
-    while (pCount--) {
-        const particle = particles.vertices[pCount];
-        if (pCount < 35000 && particle.y >= 10 && particle.y <= 11) {
-            particle.velocity.y = 0;
-            particle.velocity.x = 0;
-        } else if (particle.y < 0) {
-            particle.y = Math.random()*5000;
-            particle.velocity.y = -0.5;
-            particle.velocity.y -= Math.random() * 0.2;
-            particle.velocity.x = -0.2 + Math.random() * 0.4;
-        }
+function normalized(x, mapSize) {
+    let val =  (x - -mapSize) / (mapSize - -mapSize);
 
-        particle.y += particle.velocity.y;
-        particle.x += particle.velocity.x;
+    if (val > 1) {
+        return 1
+    } else if (val < 0) {
+        return 0
     }
-    particles.verticesNeedUpdate = true;
-    e.data[0]();
+    return val
+}
+
+onmessage = function(e) {
+    const keys = Object.keys(e.data['enemies']);
+    let html = '';
+    const mapSize = e.data['mapSize'];
+    const username = e.data['username'];
+    const width = e.data['width'];
+    const height = e.data['height'];
+    const offset = e.data['offset'];
+    for (let i = 0; i < keys.length; i++) {
+        const enemy = e.data['enemies'][keys[i]];
+        let addedClasses = '';
+        if (enemy.username === username) {
+            addedClasses = 'friendly-arrow';
+        }
+        html += `<i class="hud arrow ${addedClasses}" style="transform: rotate(${-enemy.theta* 180.0 / Math.PI + 45}deg); left: ${normalized(enemy.x, mapSize)*width + offset}px; top: ${normalized(enemy.z, mapSize)*height + offset}px"> </i>`
+
+    }
+    postMessage(html);
 };
+

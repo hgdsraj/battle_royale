@@ -120,6 +120,7 @@ function beginGame(username) {
     const vector = new THREE.Vector3();
     const map = setupMap(scene);
     const collidableMeshList = map.collidableMeshList;
+    const mapSize = map.mapSize;
     const mapDynamics = map.mapDynamics;
     let shooting = false;
     let lineOfSight = [];
@@ -414,6 +415,19 @@ function beginGame(username) {
         setTimeout(moveMapParticles, 1)
     }
     moveMapParticles();
+    const myWorker = new Worker("js/worker.js");
+
+    function createMiniMap() {
+        myWorker.postMessage({'enemies': userHandler.others, 'width': 200, 'height': 200, 'offset': 20, 'mapSize': mapSize, 'username': username});
+        setTimeout(createMiniMap, 1)
+    }
+    const mapSelector = document.getElementById('map-wrapper');
+    mapSelector.hidden = false;
+    myWorker.onmessage = function(e) {
+        mapSelector.innerHTML = `<div id="map">${e.data}</div>`;
+    };
+    createMiniMap();
+
     function calculateCollisions() {
         const collisionBoundsOfCharacter = userCharacter.children[0].clone();
         collisionBoundsOfCharacter.matrix = userCharacter.matrix;
@@ -424,7 +438,7 @@ function beginGame(username) {
             controls.dontAllowMovement(collisions[0][1]);
             // console.log(collisions[0][2])
             // const faccia = collisions[0][2].face.normal;
-            // if (faccia.x <=-0.9 ){
+            // if (faccia.x <=-0.9 ){p
             //     camera.position.x = camera.position.x -30
             // }
             // if (faccia.x >=0.9 ){
@@ -452,20 +466,10 @@ function beginGame(username) {
 
 
         camera.getWorldDirection(vector);
-        console.log(vector)
         theta = Math.atan2(vector.x, vector.z);
-        // const thetaX = Math.atan2(vector.x, vector.y); //
-        // const thetaX = Math.atan2(vector.z, vector.y); //
-        // const thetaX = Math.acos(vector.z, vector.y);
-        // const thetaX = Math.atan2(vector.z, vector.x); // does not work
-
 
         const thetaX = -Math.asin(vector.y, 1) + radians(180);
         userCharacter.rotation.y = theta;
-        console.log(userCharacter.gun.rotation.y);
-        console.log();
-        console.log(thetaX)
-        // userCharacter.gun.rotateOnAxis(new THREE.Vector3(1,0,0), userCharacter.gun.rotation.x - thetaX);
         userCharacter.gun.rotation.x = thetaX;
 
         userCharacter.position.x = camera.position.x;

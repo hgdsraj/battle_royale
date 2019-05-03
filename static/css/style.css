@@ -114,14 +114,28 @@ body {
     color:#c19605;
 }
 
-#crosshair {
+.crosshair {
     background-color:#bb0069;
     border-radius:50%;
-    bottom:50%;
     display:inline-block;
     height:10px;
-    right:50%;
     width:10px;
+}
+
+.arrow {
+    border: solid #bb0011;
+    border-width: 0 5px 5px 0;
+    display: inline-block;
+    padding: 5px;
+    opacity: 1.0;
+}
+.friendly-arrow {
+    border-color: #00bb04;
+}
+
+#crosshair {
+    bottom: 50%;
+    right: 50%;
 }
 
 #health-wrapper {
@@ -161,4 +175,12 @@ body {
 #scoreboard tr {
     padding-left:20px;
     width:100%;
+}
+#map-wrapper {
+    background-color: #32383e;
+    margin:15px;
+    min-width: 210px;
+    min-height: 210px;
+    opacity: 0.5;
+    border: 4px solid #000;
 }

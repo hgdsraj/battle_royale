@@ -11,7 +11,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
     self.euler = new THREE.Euler(0, 0, 0, 'YXZ');
     self.recoilUp = true;
     const PI_2 = Math.PI / 2;
-
+    self.sprinting = false;
     self.isLocked = false;
 
     self.allowNegativeXMovement = true;
@@ -235,6 +235,10 @@ THREE.FirstPersonControls = function (camera, domElement) {
             case 32: /* space */
                 self.jump = true;
                 break;
+            case 16: /* Shift */
+                self.sprinting = true;
+                break;
+
         }
     };
 
@@ -266,6 +270,9 @@ THREE.FirstPersonControls = function (camera, domElement) {
             case 70: /* F */
                 self.moveDown = false;
                 break;
+            case 16: /* Shift */
+                self.sprinting = false;
+                break;
 
             // case 32: /*space*/ self.jump = false; break;
         }
@@ -276,7 +283,10 @@ THREE.FirstPersonControls = function (camera, domElement) {
         return function update(delta) {
             if (self.enabled === false) return;
 
-            const actualMoveSpeed = delta * self.movementSpeed;
+            let actualMoveSpeed = delta * self.movementSpeed;
+            if (self.sprinting) {
+                actualMoveSpeed *= 2;
+            }
             if (self.jump && self.allowPositiveYMovement && self.jumpVelocity > 0) {
                 self.camera.position.y += self.jumpVelocity;
                 self.jumpVelocity -= 1;
