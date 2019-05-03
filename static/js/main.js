@@ -88,6 +88,8 @@ function setupCameraAndControls() {
     camera.position.set(-100, 100, 450);
 
     camera.lookAt(new THREE.Vector3(0, 15, 0));
+
+
     const controls = new THREE.FirstPersonControls(camera, domElement);
     scene.background = new THREE.Color(0x5C646C);
     scene.fog = new THREE.FogExp2( 0x5C646C, 0.0003);
@@ -137,7 +139,36 @@ function beginGame(username) {
 
     renderer.render(scene, camera);
 
+    var listener = new THREE.AudioListener();
+    camera.add( listener );
+    var shootingSound = new THREE.Audio( listener );
+    var footstepSound = new THREE.Audio( listener );
+    var audioLoader = new THREE.AudioLoader();
+    audioLoader.load( 'audio/gun.mp3', function( buffer ) {
+        shootingSound.setBuffer( buffer );
+        // sound.setLoop( true );
+        shootingSound.setVolume( 0.25 );
+        // sound.play();
+    });
+    var footstepSound = new THREE.Audio( listener );
 
+    audioLoader.load( 'audio/footstep.wav', function( buffer ) {
+        footstepSound.setBuffer( buffer );
+        // sound.setLoop( true );
+        footstepSound.setVolume( 0.5 );
+        // sound.play();
+    });
+    controls.footstepSound = footstepSound;
+
+    var jumpSound = new THREE.Audio( listener );
+
+    audioLoader.load( 'audio/jump1.wav', function( buffer ) {
+        jumpSound.setBuffer( buffer );
+        // sound.setLoop( true );
+        jumpSound.setVolume( 0.5 );
+        // sound.play();
+    });
+    controls.jumpSound = jumpSound;
     const clock = new THREE.Clock();
     const enemies = {};
     let collidableEnemies = []; // holds meshes of enemies for collisions
@@ -264,6 +295,11 @@ function beginGame(username) {
     handleKills();
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
+        if (shootingSound.isPlaying) {
+            shootingSound.stop();
+        }
+
+        shootingSound.play();
         if (numRecoils < recoilMax) {
             controls.recoil(1,recoilAmount);
             numRecoils += 1;
