@@ -138,6 +138,9 @@ THREE.FirstPersonControls = function (camera, domElement) {
         }
         self.euler.x += recoilAmount;
         self.euler.x = Math.max(-PI_2, Math.min(PI_2, self.euler.x));
+        if (recoilAmount > 0 ) {
+            self.euler.y += (Math.random() - 0.5) * recoilAmount;
+        }
         camera.quaternion.setFromEuler(self.euler);
         if (multiplier > 1) {
             self.recoilTimeout = setTimeout(() => {self.recoil(multiplier-1, recoilAmount)}, 5);
