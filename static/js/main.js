@@ -131,6 +131,7 @@ function beginGame(username) {
     let attacks =  {};
     let shootingTimeout = null;
     let userCharacter = new Character(username, noFace = true);
+    const hitmarkerSelector = document.getElementById("hitmarker-wrapper");
     scene.add(userCharacter);
 
     const box = new THREE.Box3().setFromObject(userCharacter);
@@ -141,31 +142,38 @@ function beginGame(username) {
 
     var listener = new THREE.AudioListener();
     camera.add( listener );
-    var shootingSound = new THREE.Audio( listener );
-    var footstepSound = new THREE.Audio( listener );
     var audioLoader = new THREE.AudioLoader();
+
+    var shootingSound = new THREE.Audio( listener );
     audioLoader.load( 'audio/gun.mp3', function( buffer ) {
         shootingSound.setBuffer( buffer );
         // sound.setLoop( true );
         shootingSound.setVolume( 0.25 );
         // sound.play();
     });
-    var footstepSound = new THREE.Audio( listener );
 
+    var hitmarkerSound = new THREE.Audio( listener );
+    audioLoader.load( 'audio/hitmarker.mp3', function( buffer ) {
+        hitmarkerSound.setBuffer( buffer );
+        // sound.setLoop( true );
+        hitmarkerSound.setVolume( 0.5 );
+        // sound.play();
+    });
+
+    var footstepSound = new THREE.Audio( listener );
     audioLoader.load( 'audio/footstep.wav', function( buffer ) {
         footstepSound.setBuffer( buffer );
         // sound.setLoop( true );
-        footstepSound.setVolume( 0.5 );
+        footstepSound.setVolume( 0.8 );
         // sound.play();
     });
     controls.footstepSound = footstepSound;
 
     var jumpSound = new THREE.Audio( listener );
-
     audioLoader.load( 'audio/jump1.wav', function( buffer ) {
         jumpSound.setBuffer( buffer );
         // sound.setLoop( true );
-        jumpSound.setVolume( 0.5 );
+        jumpSound.setVolume( 0.8 );
         // sound.play();
     });
     controls.jumpSound = jumpSound;
@@ -175,7 +183,10 @@ function beginGame(username) {
     const kills = {};
 
     const infoMessages = new InfoMessages();
-
+    let hideHitmarkerTimeout;
+    function hideHitmarker() {
+        hitmarkerSelector.hidden = true;
+    }
     function handleEnemies() {
         userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {});
         collidableEnemies = [];
@@ -185,7 +196,23 @@ function beginGame(username) {
             const enemy = userHandler.others[othersKeys[i]];
             killCount = enemy.kill_log.kill_count;
             damage = enemy.kill_log.damage;
+
             if (enemy.username === username) {
+                if (damage[username] !== userCharacter.damage) {
+                    console.log(damage[username], userCharacter.damage)
+                    userCharacter.damage = damage[username];
+                    if (hitmarkerSound.isPlaying) {
+                        hitmarkerSound.stop();
+                    }
+                    hitmarkerSound.play();
+                    if (hitmarkerSelector.hidden === true) {
+                        clearTimeout(hideHitmarkerTimeout);
+                        hitmarkerSelector.hidden = false;
+                        hideHitmarkerTimeout = setTimeout(hideHitmarker, 500)
+                    }
+
+
+                }
                 continue;
             }
             // todo: terrible way to recieve damage. others can max this value.
@@ -309,9 +336,11 @@ function beginGame(username) {
         }
         userCharacter.gun.recoil(65);
         if (lineOfSight.length > 0 && lineOfSight[0].object.parent.username !== undefined) {
+
+
             const enemy = lineOfSight[0];
             const point = enemy.point;
-            const bloodSphere = new THREE.Mesh(new THREE.SphereGeometry(3, 52, 52), new THREE.MeshPhongMaterial({
+            const bloodSphere = new THREE.Mesh(new THREE.SphereGeometry(2, 52, 52), new THREE.MeshPhongMaterial({
                 refractionRatio: 0.1,
                 reflectivity: 0.04,
                 color: 0xff0000,
@@ -347,12 +376,16 @@ function beginGame(username) {
     }
 
 
+    let zoomingIn = false;
+    let zoomingOut = false;
+    let zoomInTimeout;
+    let zoomOutTimeout;
     function zoomIn() {
         camera.zoom += 0.1;
 
         camera.updateProjectionMatrix();
         if (camera.zoom < 1.5) {
-            setTimeout(zoomIn, 1);
+            zoomInTimeout = setTimeout(zoomIn, 1);
         }
     }
 
@@ -361,7 +394,7 @@ function beginGame(username) {
 
         camera.updateProjectionMatrix();
         if (camera.zoom > 1) {
-            setTimeout(zoomOut, 1);
+            zoomOutTimeout = setTimeout(zoomOut, 1);
         }
     }
 
@@ -375,7 +408,10 @@ function beginGame(username) {
                     controls.recoil(numRecoils, -recoilAmount);
                     numRecoils = 0;
                 }
-            } else if (e.button === 2) {
+            } else if (e.button === 2 && zoomingOut === false) {
+                zoomingOut = true;
+                clearTimeout(zoomInTimeout);
+                zoomingIn = false;
                 zoomOut();
             }
         }
@@ -385,7 +421,10 @@ function beginGame(username) {
             if (e.button === 0) {
                 shooting = true;
                 handleShooting();
-            } else if (e.button === 2) {
+            } else if (e.button === 2 && zoomingIn === false) {
+                zoomingIn = true;
+                clearTimeout(zoomOutTimeout);
+                zoomingOut = false;
                 zoomIn();
             }
         }

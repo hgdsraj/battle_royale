@@ -185,6 +185,7 @@ class Character extends THREE.Group {
         super();
         this.health = 100;
         this.username = username;
+        this.damage = 0;
         const colors = ['#ff0051', '#f56762', '#a53c6c', '#f19fa0', '#72bdbf', '#47689b'];
         // The main bauble is an Octahedron
         const snowMaterial = new THREE.MeshPhysicalMaterial({
@@ -300,13 +301,8 @@ class Character extends THREE.Group {
                 });
                 const usernameMesh = new THREE.Mesh(
                     usernameText,
-                    new THREE.MeshStandardMaterial({
+                    new THREE.MeshMatcapMaterial({
                         color: globalColors.green,
-                        flatShading: THREE.FlatShading,
-                        metalness: 0,
-                        roughness: 0.8,
-                        refractionRatio: 0.25,
-
                     }),
                 );
                 usernameMesh.name = 'username';
@@ -318,12 +314,8 @@ class Character extends THREE.Group {
             });
             const health = new THREE.Mesh(
                 new THREE.BoxGeometry(40, 2, 2),
-                new THREE.MeshStandardMaterial({
+                new THREE.MeshMatcapMaterial({
                     color: 0xff0051,
-                    flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                    refractionRatio: 0.25,
 
                 }),
             );

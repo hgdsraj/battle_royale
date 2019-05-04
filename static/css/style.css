@@ -133,9 +133,41 @@ body {
     border-color: #00bb04;
 }
 
+.hitmarker-line {
+    border-left: 3px solid #73787a;
+    min-width: 5px;
+    min-height: 20px;
+    opacity: 0.5;
+}
+
+#hitmarker-line-up-right {
+    right: 47.9%;
+    top: 46%;
+    transform: rotate(45deg)
+}
+#hitmarker-line-up-left {
+    left: 48.1%;
+    top: 46%;
+    transform: rotate(-45deg)
+}
+#hitmarker-line-down-right {
+    right: 47.9%;
+    bottom: 46%;
+    transform: rotate(-45deg)
+}
+#hitmarker-line-down-left {
+    left: 48.1%;
+    bottom: 46%;
+    transform: rotate(45deg)
+}
+#hitmarker-line-right {
+    right: 49.75%;
+    top: 40%;
+}
 #crosshair {
-    bottom: 50%;
-    right: 50%;
+    bottom: 49.5%;
+    right: 49.5%;
+    opacity: 0.7;
 }
 
 #health-wrapper {

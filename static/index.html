@@ -58,7 +58,7 @@
     <tr>
         <th> Username</th>
         <th> Kill Count</th>
-        <th> Damagep</th>
+        <th> Damage</th>
     </tr>
     <tbody id="kills">
 
@@ -75,13 +75,24 @@
     <div id="info-messages"></div>
 
 </div>
-<span class="hud crosshair" id="crosshair" >
+<span class="hud crosshair" id="crosshair">
 </span>
+<div id="hitmarker-wrapper" class="hud" hidden>
+    <span class="hitmarker-line hud" id="hitmarker-line-up-right">
+    </span>
+    <span class="hitmarker-line hud" id="hitmarker-line-up-left">
+    </span>
+    <span class="hitmarker-line hud" id="hitmarker-line-down-right">
+    </span>
+
+    <span class="hitmarker-line hud " id="hitmarker-line-down-left">
+    </span>
+</div>
 <span class="hud" id="health-wrapper">
     Health: <span id="health"></span>
 </span>
-<div id="map-wrapper" class = "hud" hidden>
-<div id="map" ></div>
+<div id="map-wrapper" class="hud" hidden>
+    <div id="map"></div>
 </div>
 <script type="text/javascript" src="js/config.js"></script>
 <script type="text/javascript" src="js/threejs/min3.js"></script>

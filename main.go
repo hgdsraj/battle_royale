@@ -194,7 +194,9 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		if user.KilledBy != "" {
 			killLogMutex.Lock()
 			globalKillLog.KillCount[user.KilledBy] += 1
-			globalKillLog.Kills[user.KilledBy][user.Username] += 1
+			if _, ok := globalKillLog.Kills[user.KilledBy]; ok {
+				globalKillLog.Kills[user.KilledBy][user.Username] += 1
+			}
 			killLogMutex.Unlock()
 
 			u := uuid.NewV4()
