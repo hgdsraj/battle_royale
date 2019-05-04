@@ -67,6 +67,8 @@ function setupCameraAndControls() {
     document.getElementById('pause-menu').toggleAttribute('hidden');
 
     const renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -92,7 +94,7 @@ function setupCameraAndControls() {
 
     const controls = new THREE.FirstPersonControls(camera, domElement);
     scene.background = new THREE.Color(0x5C646C);
-    scene.fog = new THREE.FogExp2( 0x5C646C, 0.0003);
+    scene.fog = new THREE.FogExp2( 0x5C646C, 0.0005);
 
     controls.movementSpeed = 250;
     controls.lookSpeed = 0.2;

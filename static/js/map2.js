@@ -1,23 +1,24 @@
 function setupMap(scene) {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.004);
     scene.add(ambientLight);
-    const spotLightPosition = [100, 10000, -7000];
-    const spotLight = new THREE.SpotLight(0xffffff, 1);
+    const spotLightPosition = [0, 6500, -5000];
+    const spotLight = new THREE.SpotLight(0xffffff, 2);
     // const spotLight = new THREE.DirectionalLight(0xffffff, 1);
     let collidableMeshList = [];
     spotLight.position.set(spotLightPosition[0], spotLightPosition[1], spotLightPosition[2]);
-
+    spotLight.penumbra = 1;
     spotLight.castShadow = true;
+    spotLight.angle = 1;
 
     spotLight.shadow.mapSize.width = 1024;
     spotLight.shadow.mapSize.height = 1024;
 
     spotLight.shadow.camera.near = 300;
     spotLight.shadow.camera.far = 4000;
-    spotLight.shadow.camera.fov = 90;
+    spotLight.shadow.camera.fov = 180;
 
     scene.add(spotLight);
-    const moon = new THREE.Mesh(new THREE.SphereGeometry(1500, 12, 52), new THREE.MeshPhongMaterial({
+    const moon = new THREE.Mesh(new THREE.SphereGeometry(1500, 12, 52), new THREE.MeshStandardMaterial({
         refractionRatio: 0.1,
         reflectivity: 0.04,
         color: 0xf5f3ce,
@@ -55,11 +56,26 @@ function setupMap(scene) {
     snowman3.position.set(-30, 20, -12);
     scene.add(snowman3);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));
+    var texture = new THREE.TextureLoader().load( "textures/snow.jpg" );
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set( 2000, 2000);
 
-    floor = new THREE.Mesh(new THREE.PlaneGeometry(100000, 200000, 1, 1), new THREE.MeshLambertMaterial({color: 0x964B00}));
+    floor = new THREE.Mesh(new THREE.PlaneGeometry(100000, 200000, 1, 1), new THREE.MeshPhysicalMaterial({
+        map: texture,
+        envMap: texture,
+        shininess: 0.1,
+        reflectivity: 0,
+        roughness: 0.9,
+        specular: 0x000000,
+        emissive: 0x000000,
+    }));
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
+    floor.castShadow = true;
     scene.add(floor);
+    collidableMeshList = collidableMeshList.concat([floor]);
+
 
     collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, -50));
     collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 250));
@@ -71,7 +87,8 @@ function setupMap(scene) {
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(verticalMirror));
 
     const ramp = new Ramp(640, 160, 60, {x: 300, y: 0, z: -25});
-    ramp.rotation.y = radians(180)
+    ramp.rotation.y = radians(180);
+    ramp.castShadow = true;
     scene.add(ramp);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(ramp));
 
@@ -242,20 +259,20 @@ function createBuilding(scene, width, height, x, y, z) {
     scene.add(floor);
     // walls = walls.concat(calculateCollisionPoints(floor)); // todo - removed this
 
-    const spotLight = new THREE.SpotLight(0xffffff, 1);
-    spotLight.position.set(ceiling.position.x, ceiling.position.y-5, ceiling.position.z);
-    console.log(spotLight.position)
-    spotLight.castShadow = true;
-    spotLight.shadowDarkness = 1;
-    spotLight.shadow.mapSize.width = 300;
-    spotLight.shadow.mapSize.height = 300;
+    const pointLight = new THREE.PointLight(0xffffff, 50, 100);
+    pointLight.position.set(ceiling.position.x, ceiling.position.y-70, ceiling.position.z);
+    // var sphereSize = 5;
+    // var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
+    // scene.add( pointLightHelper );
 
-    spotLight.shadow.camera.near = 0.01;
-    spotLight.shadow.camera.far = 10;
-    spotLight.shadow.camera.fov = 360;
-    spotLight.target = floor;
-    spotLight.angle = radians(190);
-    scene.add(spotLight);
+    // pointLight.castShadow = true;
+    // pointLight.shadowDarkness = 1;
+    // pointLight.shadow.mapSize.width = 300;
+    // pointLight.shadow.mapSize.height = 300;
+    //
+    // pointLight.target = floor;
+    // pointLight.rotation.z = radians(190);
+    scene.add(pointLight);
 
     const lightSphere = new THREE.Mesh(new THREE.SphereGeometry(12, 12, 52), new THREE.MeshPhongMaterial({
         refractionRatio: 0.1,
@@ -264,7 +281,7 @@ function createBuilding(scene, width, height, x, y, z) {
     }));
     lightSphere.position.set(ceiling.position.x, ceiling.position.y-5, ceiling.position.z);
 
-    scene.add(lightSphere);
+    // scene.add(lightSphere);
 
 
     return walls

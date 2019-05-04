@@ -114,6 +114,8 @@ class Ceiling extends THREE.Group {
     constructor(width, length, color) {
         super();
         const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 1, 1), new THREE.MeshPhongMaterial({ color: color }));
+        ceiling.receiveShadow = true;
+        ceiling.castShadow = true;
         this.add(ceiling);
     }
 }
