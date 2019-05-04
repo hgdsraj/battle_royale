@@ -71,6 +71,9 @@ class Wall extends THREE.Group {
 
             wall.rotateY(radians(90));
             wall.position.y += doorHeight/2;
+            console.log(width, doorWidth);
+            console.log(width/2 - doorWidth);
+            wall.position.z -= width/4 + doorWidth / 4;
             this.add(wall);
             
             const wall2 = new THREE.Mesh(
@@ -82,7 +85,7 @@ class Wall extends THREE.Group {
                     roughness: 0.8,
                 }),
             );
-            wall2.position.z += width/2 + doorWidthDividedBy2;
+            wall2.position.z += width/4 + doorWidth / 4;
             wall2.receiveShadow = true;
             wall2.castShadow = true;
             wall2.rotateY(radians(90));
@@ -97,14 +100,12 @@ class Wall extends THREE.Group {
                     flatShading: THREE.FlatShading,
                 }),
             );
-            // wall3.position.z += width/2 + doorWidthDividedBy2;
             wall3.receiveShadow = true;
             wall3.castShadow = true;
             wall3.rotateY(radians(90));
-            wall3.position.z += width/4 + doorWidth/4;
             wall3.position.y += (height - doorHeight)/2 + doorHeight;
+
             this.add(wall3);
-            this.position.z -= width/4 + doorWidth/4
 
         }
     }

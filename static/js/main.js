@@ -242,7 +242,7 @@ function beginGame(username) {
                 collidableEnemies = collidableEnemies.concat(calculateCollisionPoints(enemies[enemyKeys[i]]));
             }
         }
-        setTimeout(handleEnemies, 20);
+        setTimeout(handleEnemies, 1);
     }
 
     handleEnemies();
@@ -492,8 +492,7 @@ function beginGame(username) {
         setTimeout(moveMapParticles, 1)
     }
     moveMapParticles();
-    const myWorker = new Worker("js/worker.js");
-
+    const myWorker = new Worker("js/minimap-worker.js");
     function createMiniMap() {
         myWorker.postMessage({'enemies': userHandler.others, 'width': 200, 'height': 200, 'offset': 20, 'mapSize': mapSize, 'username': username});
         setTimeout(createMiniMap, 1)
@@ -504,13 +503,16 @@ function beginGame(username) {
         mapSelector.innerHTML = `<div id="map">${e.data}</div>`;
     };
     createMiniMap();
-
-    function calculateCollisions() {
-
-
-        setTimeout(calculateCollisions, 1)
-    }
-    calculateCollisions();
+    //todo handle enemies here
+    // const enemiesWorker = new Worker("js/enemies-worker.js");
+    // function enemiesHandler() {
+    //     w.postMessage({'enemies': Object.keys(enemies)});
+    //     setTimeout(enemiesHandler, 1)
+    // }
+    // enemiesWorker.onmessage = function(e) {
+    //     // console.log(test);
+    // };
+    // enemiesHandler();
 
 
     function loop() {

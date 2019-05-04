@@ -76,8 +76,8 @@ function setupMap(scene) {
     collidableMeshList = collidableMeshList.concat([floor]);
 
 
-    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, -50));
-    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 250));
+    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 400));
+    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 650));
     const verticalMirror = new Mirror();
     verticalMirror.position.y = 60;
     verticalMirror.position.x = 0;
@@ -92,7 +92,6 @@ function setupMap(scene) {
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(ramp));
 
     const mapDynamics = setupSnow(scene);
-    // const mapDynamics = () => {};
     const trees = setupTrees(scene);
     collidableMeshList = collidableMeshList.concat(trees);
 
@@ -205,58 +204,36 @@ function createBuilding(scene, width, height, x, y, z) {
     const wall = new Wall(width, height, 0x4e555b);
     wall.position.z += width;
     wall.rotation.y = radians(90);
-    wall.position.x += x;
-    wall.position.y += y;
-    wall.position.z += z;
+    wall.position.set(x,y,z - width/ 2);
     scene.add(wall);
     walls = walls.concat(calculateCollisionPoints(wall));
 
     const wall2 = new Wall(width, height, 0x4e555b, door = true);
-    wall2.position.z += 450;
-    wall2.position.x -= 150;
-    wall2.position.x += x;
-    wall2.position.y += y;
-    wall2.position.z += z;
+    wall2.position.set(x - width/ 2, y, z);
     scene.add(wall2);
     walls = walls.concat(calculateCollisionPoints(wall2));
 
     const wall3 = new Wall(width, height, 0x4e555b);
-    wall3.position.z += 600;
+    wall3.position.set(x, y, z + width/ 2)
     wall3.rotation.y = radians(90);
-    wall3.position.x += x;
-    wall3.position.y += y;
-    wall3.position.z += z;
     scene.add(wall3);
     walls = walls.concat(calculateCollisionPoints(wall3));
 
     const wall4 = new Wall(width, height, 0x4e555b);
-    wall4.position.z += 450;
-    wall4.position.x += 150;
-    wall4.position.x += x;
-    wall4.position.y += y;
-    wall4.position.z += z;
+    wall4.position.set(width/ 2 + x, y,  z);
     scene.add(wall4);
     walls = walls.concat(calculateCollisionPoints(wall4));
 
     const ceiling = new Ceiling(width, width, 0x4e555b);
-    ceiling.position.z += 450;
-    ceiling.position.y += height;
+    ceiling.position.set(x, y + height, z );
     ceiling.rotation.x = -Math.PI / 2;
-    ceiling.position.x += x;
-    ceiling.position.y += y;
-    ceiling.position.z += z;
-    ceiling.receiveShadow = true;
     scene.add(ceiling);
     walls = walls.concat(calculateCollisionPoints(ceiling));
 
     const floor = new Ceiling(width, width, 0x4e555b);
-    floor.position.z += 450;
-    floor.position.y += 5;
+    floor.position.set(x, y + 5, z);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
-    floor.position.x += x;
-    floor.position.y += y;
-    floor.position.z += z;
     scene.add(floor);
     // walls = walls.concat(calculateCollisionPoints(floor)); // todo - removed this
 
