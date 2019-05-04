@@ -175,7 +175,7 @@ function beginGame(username) {
     audioLoader.load( 'audio/jump1.wav', function( buffer ) {
         jumpSound.setBuffer( buffer );
         // sound.setLoop( true );
-        jumpSound.setVolume( 0.8 );
+        jumpSound.setVolume( 1.5 );
         // sound.play();
     });
     controls.jumpSound = jumpSound;
@@ -310,6 +310,7 @@ function beginGame(username) {
 
     handleHealth();
 
+    const damageAmount = 5;
     function handleKills() {
         let kills = '';
         const keys = Object.keys(killCount);
@@ -354,7 +355,7 @@ function beginGame(username) {
 
             scene.add(bloodSphere);
             window.requestIdleCallback(removeBloodSphere, {'timeout': 500});
-            const attack = {'username': enemy.object.parent.username, 'damage': 2};
+            const attack = {'username': enemy.object.parent.username, 'damage': damageAmount};
             userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
         } else if (lineOfSight.length > 0) {
             const collisionObject = lineOfSight[0];
