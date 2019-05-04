@@ -132,7 +132,7 @@ function beginGame(username) {
     let damage = {};
     let attacks =  {};
     let shootingTimeout = null;
-    let userCharacter = new Character(username, noFace = true);
+    let userCharacter = new Character(username, noFace = true, isMainCharcter = true);
     const hitmarkerSelector = document.getElementById("hitmarker-wrapper");
     scene.add(userCharacter);
 
@@ -506,32 +506,7 @@ function beginGame(username) {
     createMiniMap();
 
     function calculateCollisions() {
-        const collisionBoundsOfCharacter = userCharacter.children[0].clone();
-        collisionBoundsOfCharacter.matrix = userCharacter.matrix;
-        collisionBoundsOfCharacter.position.add(userCharacter.position);
-        const collisions = detectCollisions(collisionBoundsOfCharacter, collidableMeshList.concat(collidableEnemies));
-        if (collisions.length !== 0) {
-            controls.undoMovement();
-            controls.dontAllowMovement(collisions[0][1]);
-            // console.log(collisions[0][2])
-            // const faccia = collisions[0][2].face.normal;
-            // if (faccia.x <=-0.9 ){p
-            //     camera.position.x = camera.position.x -30
-            // }
-            // if (faccia.x >=0.9 ){
-            //     camera.position.x = camera.position.x +30
-            // }
-            // if (faccia.z <=-0.9 ){
-            //     camera.position.z = camera.position.z -30
-            // }
-            // if (faccia.z >=0.9 ){
-            //     camera.position.z = camera.position.z +30
-            // }
 
-        } else {
-            controls.allowAllMovements();
-        }
-        lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
 
         setTimeout(calculateCollisions, 1)
     }
@@ -539,6 +514,17 @@ function beginGame(username) {
 
 
     function loop() {
+        const collisionBoundsOfCharacter = userCharacter.children[0].clone();
+        collisionBoundsOfCharacter.matrix = userCharacter.matrix;
+        collisionBoundsOfCharacter.position.add(userCharacter.position);
+        const collisions = detectCollisions(collisionBoundsOfCharacter, collidableMeshList.concat(collidableEnemies));
+        if (collisions.length !== 0) {
+            controls.undoMovement();
+            controls.dontAllowMovement(collisions[0][1]);
+        } else {
+            controls.allowAllMovements();
+        }
+        lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
         setTimeout(controls.update(clock.getDelta()), 0);
 
 

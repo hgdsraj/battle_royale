@@ -183,7 +183,7 @@ class Ramp extends THREE.Group {
 }
 
 class Character extends THREE.Group {
-    constructor(username, noFace = false) {
+    constructor(username, noFace = false, isMainCharacter = false) {
         super();
         this.health = 100;
         this.username = username;
@@ -333,8 +333,11 @@ class Character extends THREE.Group {
         // this.gun.applyMatrix( new THREE.Matrix4().makeTranslation(-10, 30, 20) );
         this.gun.translateX(-10);
         this.gun.translateY(30);
-
-        this.gun.rotation.z = radians(180);
+        if (isMainCharacter) {
+            this.gun.rotation.z = radians(180);
+        } else {
+            this.gun.rotation.y = radians(180);
+        }
         // this.gun.rotation.x = radians(-1);
         this.add(this.gun)
 

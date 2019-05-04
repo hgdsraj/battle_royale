@@ -63,7 +63,6 @@ function setupMap(scene) {
 
     floor = new THREE.Mesh(new THREE.PlaneGeometry(100000, 200000, 1, 1), new THREE.MeshPhysicalMaterial({
         map: texture,
-        envMap: texture,
         shininess: 0.1,
         reflectivity: 0,
         roughness: 0.9,
@@ -248,6 +247,8 @@ function createBuilding(scene, width, height, x, y, z) {
     ceiling.position.z += z;
     ceiling.receiveShadow = true;
     scene.add(ceiling);
+    walls = walls.concat(calculateCollisionPoints(ceiling));
+
     const floor = new Ceiling(width, width, 0x4e555b);
     floor.position.z += 450;
     floor.position.y += 5;
