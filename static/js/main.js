@@ -201,16 +201,15 @@ function beginGame(username) {
 
             if (enemy.username === username) {
                 if (damage[username] !== userCharacter.damage) {
-                    console.log(damage[username], userCharacter.damage)
                     userCharacter.damage = damage[username];
                     if (hitmarkerSound.isPlaying) {
                         hitmarkerSound.stop();
                     }
                     hitmarkerSound.play();
                     if (hitmarkerSelector.hidden === true) {
-                        clearTimeout(hideHitmarkerTimeout);
+                        window.cancelIdleCallback(hideHitmarkerTimeout);
                         hitmarkerSelector.hidden = false;
-                        hideHitmarkerTimeout = setTimeout(hideHitmarker, 500)
+                        hideHitmarkerTimeout = window.requestIdleCallback(hideHitmarker, {'timeout': 500})
                     }
 
 
@@ -242,7 +241,7 @@ function beginGame(username) {
                 collidableEnemies = collidableEnemies.concat(calculateCollisionPoints(enemies[enemyKeys[i]]));
             }
         }
-        setTimeout(handleEnemies, 1);
+        window.requestIdleCallback(handleEnemies, {'timeout': 1});
     }
 
     handleEnemies();
@@ -272,7 +271,7 @@ function beginGame(username) {
 
         }
 
-        setTimeout(handleDamageAndKills, 1);
+        window.requestIdleCallback(handleDamageAndKills, {'timeout': 1});
 
     }
 
@@ -288,7 +287,7 @@ function beginGame(username) {
             }
         }
         document.getElementById('chat-messages').innerHTML = txt;
-        setTimeout(handleMessages, 20);
+        window.requestIdleCallback(handleMessages, {'timeout': 1});
     }
 
     handleMessages();
@@ -299,14 +298,14 @@ function beginGame(username) {
             txt += `${i.message}<br>`;
         });
         document.getElementById('info-messages').innerHTML = txt;
-        setTimeout(handleInfos, 20);
+        window.requestIdleCallback(handleInfos, {'timeout': 20});
     }
 
     handleInfos();
 
     function handleHealth() {
         document.getElementById('health').innerHTML = userCharacter.health;
-        setTimeout(handleHealth, 10);
+        window.requestIdleCallback(handleHealth, {'timeout': 20});
     }
 
     handleHealth();
@@ -318,7 +317,7 @@ function beginGame(username) {
             kills += `<tr> <td> ${keys[i]}</td> <td>${killCount[keys[i]]}</td><td>${damage[keys[i]]}</td></tr>`;
         }
         document.getElementById('kills').innerHTML = kills;
-        setTimeout(handleKills, 10);
+        window.requestIdleCallback(handleKills, {'timeout': 20});
     }
 
     handleKills();
@@ -334,7 +333,7 @@ function beginGame(username) {
             numRecoils += 1;
         } else {
             controls.recoil(1, recoilAmount);
-            setTimeout(() => {controls.recoil(1, -recoilAmount)}, 65)
+            window.requestIdleCallback(() => {controls.recoil(1, -recoilAmount)}, {'timeout': 65})
         }
         userCharacter.gun.recoil(65);
         if (lineOfSight.length > 0 && lineOfSight[0].object.parent.username !== undefined) {
@@ -354,7 +353,7 @@ function beginGame(username) {
             }
 
             scene.add(bloodSphere);
-            setTimeout(removeBloodSphere, 500)
+            window.requestIdleCallback(removeBloodSphere, {'timeout': 500});
             const attack = {'username': enemy.object.parent.username, 'damage': 2};
             userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
         } else if (lineOfSight.length > 0) {
@@ -371,10 +370,10 @@ function beginGame(username) {
             }
 
             scene.add(bulletHole);
-            setTimeout(removeBulletHole, 10000)
+            window.requestIdleCallback(removeBulletHole, {'timeout': 10000})
         }
 
-        shootingTimeout = setTimeout(handleShooting, 100);
+        shootingTimeout = window.requestIdleCallback(handleShooting, {'timeout': 100});
     }
 
 
@@ -387,7 +386,7 @@ function beginGame(username) {
 
         camera.updateProjectionMatrix();
         if (camera.zoom < 1.5) {
-            zoomInTimeout = setTimeout(zoomIn, 1);
+            zoomInTimeout = window.requestIdleCallback(zoomIn, {'timeout': 1});
         }
     }
 
@@ -396,7 +395,7 @@ function beginGame(username) {
 
         camera.updateProjectionMatrix();
         if (camera.zoom > 1) {
-            zoomOutTimeout = setTimeout(zoomOut, 1);
+            zoomOutTimeout = window.requestIdleCallback(zoomOut, {'timeout': 1});
         }
     }
 
@@ -405,14 +404,14 @@ function beginGame(username) {
             if (e.button === 0) {
                 shooting = false;
                 if (shootingTimeout !== null) {
-                    clearTimeout(shootingTimeout);
+                    window.cancelIdleCallback(shootingTimeout);
                     shootingTimeout = null;
                     controls.recoil(numRecoils, -recoilAmount);
                     numRecoils = 0;
                 }
             } else if (e.button === 2 && zoomingOut === false) {
                 zoomingOut = true;
-                clearTimeout(zoomInTimeout);
+                window.cancelIdleCallback(zoomInTimeout);
                 zoomingIn = false;
                 zoomOut();
             }
@@ -425,7 +424,7 @@ function beginGame(username) {
                 handleShooting();
             } else if (e.button === 2 && zoomingIn === false) {
                 zoomingIn = true;
-                clearTimeout(zoomOutTimeout);
+                window.cancelIdleCallback(zoomOutTimeout);
                 zoomingOut = false;
                 zoomIn();
             }
@@ -489,13 +488,13 @@ function beginGame(username) {
     console.log(userCharacter);
     function moveMapParticles() {
         mapDynamics();
-        setTimeout(moveMapParticles, 1)
+        window.requestIdleCallback(moveMapParticles, {'timeout': 1})
     }
     moveMapParticles();
     const myWorker = new Worker("js/minimap-worker.js");
     function createMiniMap() {
         myWorker.postMessage({'enemies': userHandler.others, 'width': 200, 'height': 200, 'offset': 20, 'mapSize': mapSize, 'username': username});
-        setTimeout(createMiniMap, 1)
+        window.requestIdleCallback(createMiniMap, {'timeout': 1})
     }
     const mapSelector = document.getElementById('map-wrapper');
     mapSelector.hidden = false;
@@ -507,7 +506,7 @@ function beginGame(username) {
     // const enemiesWorker = new Worker("js/enemies-worker.js");
     // function enemiesHandler() {
     //     w.postMessage({'enemies': Object.keys(enemies)});
-    //     setTimeout(enemiesHandler, 1)
+    //     window.requestIdleCallback(enemiesHandler, 1)
     // }
     // enemiesWorker.onmessage = function(e) {
     //     // console.log(test);
@@ -516,6 +515,8 @@ function beginGame(username) {
 
 
     function loop() {
+        var t0 = performance.now();
+
         const collisionBoundsOfCharacter = userCharacter.children[0].clone();
         collisionBoundsOfCharacter.matrix = userCharacter.matrix;
         collisionBoundsOfCharacter.position.add(userCharacter.position);
@@ -527,8 +528,7 @@ function beginGame(username) {
             controls.allowAllMovements();
         }
         lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
-        setTimeout(controls.update(clock.getDelta()), 0);
-
+        controls.update(clock.getDelta());
 
         camera.getWorldDirection(vector);
         theta = Math.atan2(vector.x, vector.z);
@@ -540,6 +540,8 @@ function beginGame(username) {
         userCharacter.position.x = camera.position.x;
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 37;
+
+
 
 
         // moveNPCs();
