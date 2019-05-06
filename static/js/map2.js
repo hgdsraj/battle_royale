@@ -135,10 +135,10 @@ function setupSnow(scene) {
                 particle.velocity.y = 0;
                 particle.velocity.x = 0;
             } else if (particle.y < 0) {
-                particle.y = Math.random()*5000;
-                particle.velocity.y = -0.5;
-                particle.velocity.y -= Math.random() * 0.2;
-                particle.velocity.x = -0.2 + Math.random() * 0.4;
+                const particleRandomness = Math.random();
+                particle.y = particleRandomness*5000;
+                particle.velocity.y =  -0.5 + particleRandomness * 0.2;
+                particle.velocity.x = -0.2 +  particleRandomness* 0.4;
             }
 
             particle.y += particle.velocity.y;
