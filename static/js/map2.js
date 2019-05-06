@@ -1,7 +1,7 @@
 function setupMap(scene) {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.004);
     scene.add(ambientLight);
-    const spotLightPosition = [0, 6500, -5000];
+    const spotLightPosition = [0, 4000, -3000];
     const spotLight = new THREE.SpotLight(0xffffff, 2);
     // const spotLight = new THREE.DirectionalLight(0xffffff, 1);
     let collidableMeshList = [];
@@ -10,15 +10,15 @@ function setupMap(scene) {
     spotLight.castShadow = true;
     spotLight.angle = 1;
 
-    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.width = 2000;
     spotLight.shadow.mapSize.height = 1024;
 
-    spotLight.shadow.camera.near = 300;
-    spotLight.shadow.camera.far = 4000;
+    spotLight.shadow.camera.near = 10;
+    spotLight.shadow.camera.far = 7000;
     spotLight.shadow.camera.fov = 180;
 
     scene.add(spotLight);
-    const moon = new THREE.Mesh(new THREE.SphereGeometry(1500, 12, 52), new THREE.MeshStandardMaterial({
+    const moon = new THREE.Mesh(new THREE.SphereGeometry(100, 12, 52), new THREE.MeshStandardMaterial({
         refractionRatio: 0.1,
         reflectivity: 0.04,
         color: 0xf5f3ce,
@@ -183,11 +183,11 @@ function setupClouds(scene) {
     const cloudGroup = new THREE.Group();
     for (let z = -10; z < 10; z++) {
         for (let x = -10; x < 10; x++) {
-            const cloud = new Cloud(Math.random() * 300 + 30);
+            const cloud = new Cloud(Math.random() * 100 + 100);
             const variation = (Math.random() - 0.5) * 1000;
             cloud.position.z = (z * (Math.random() * 51 + 700)) - (10 * 80) + variation;
             cloud.position.x = (x * (Math.random() * 51 + 700)) - (8 * 80) + variation;
-            cloud.position.y = Math.random() * 2000 + 3000;
+            cloud.position.y = Math.random() * 400 + 1500;
             cloudGroup.add(cloud);
         }
     }

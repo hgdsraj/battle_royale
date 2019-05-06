@@ -95,6 +95,7 @@ function setupCameraAndControls() {
     const controls = new THREE.FirstPersonControls(camera, domElement);
     scene.background = new THREE.Color(0x5C646C);
     scene.fog = new THREE.FogExp2(0x5C646C, 0.0009);
+    // scene.fog = new THREE.FogExp2(0x5C646C, 0.0001);
 
     controls.movementSpeed = 250;
     controls.lookSpeed = 0.2;

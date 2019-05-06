@@ -2,6 +2,7 @@ const globalColors = {
     snowman: '#bcfeff',
     carrot: '#ed9121',
     green: '#00ed06',
+    red: '#ff0000',
     eye: '#000000',
 };
 
@@ -27,6 +28,7 @@ class Mirror extends THREE.Group {
 
             }),
         );
+        mirrorBase.castShadow = true;
         mirrorBase.position.z += 3;
         mirrorBase.rotateY(radians(180));
         verticalMirror.rotateY(radians(180));
@@ -139,7 +141,6 @@ class Cloud extends THREE.Group {
             material
         );
         tuft1.position.x -= size;
-        tuft1.castShadow = true;
         this.add(tuft1);
 
         const tuft2 = new THREE.Mesh(
@@ -147,7 +148,6 @@ class Cloud extends THREE.Group {
             material
         );
         tuft2.position.x += size;
-        tuft2.castShadow = true;
 
         this.add(tuft2);
 
@@ -155,7 +155,6 @@ class Cloud extends THREE.Group {
             addNoise(new THREE.SphereGeometry(size * 1.3, 7, 8), noiseAmount, noiseAmount, noiseAmount),
             material
         );
-        tuft3.castShadow = true;
 
         this.add(tuft3);
     }
