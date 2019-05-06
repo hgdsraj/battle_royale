@@ -3,7 +3,7 @@ const config = new Config();
 window.onload = function init() {
     fetch('./config.json')
         .then(
-            function(response) {
+            function (response) {
                 if (response.status !== 200) {
                     console.log('Looks like there was a problem. Status Code: ' +
                         response.status);
@@ -11,14 +11,14 @@ window.onload = function init() {
                 }
 
                 // Examine the text in the response
-                response.json().then(function(data) {
+                response.json().then(function (data) {
                     config.protocol = data.protocol;
                     config.local = data.local;
                     setupLogin();
                 });
             }
         )
-        .catch(function(err) {
+        .catch(function (err) {
             console.log('Fetch Error :-S', err);
             setupLogin();
         });
@@ -94,7 +94,7 @@ function setupCameraAndControls() {
 
     const controls = new THREE.FirstPersonControls(camera, domElement);
     scene.background = new THREE.Color(0x5C646C);
-    scene.fog = new THREE.FogExp2( 0x5C646C, 0.0005);
+    scene.fog = new THREE.FogExp2(0x5C646C, 0.0005);
 
     controls.movementSpeed = 250;
     controls.lookSpeed = 0.2;
@@ -130,7 +130,7 @@ function beginGame(username) {
     let lineOfSight = [];
     let killCount = {};
     let damage = {};
-    let attacks =  {};
+    let attacks = {};
     let shootingTimeout = null;
     let userCharacter = new Character(username, noFace = true, isMainCharcter = true);
     const hitmarkerSelector = document.getElementById("hitmarker-wrapper");
@@ -143,39 +143,39 @@ function beginGame(username) {
     renderer.render(scene, camera);
 
     var listener = new THREE.AudioListener();
-    camera.add( listener );
+    camera.add(listener);
     var audioLoader = new THREE.AudioLoader();
 
-    var shootingSound = new THREE.Audio( listener );
-    audioLoader.load( 'audio/gun.mp3', function( buffer ) {
-        shootingSound.setBuffer( buffer );
+    var shootingSound = new THREE.Audio(listener);
+    audioLoader.load('audio/gun.mp3', function (buffer) {
+        shootingSound.setBuffer(buffer);
         // sound.setLoop( true );
-        shootingSound.setVolume( 0.25 );
+        shootingSound.setVolume(0.25);
         // sound.play();
     });
 
-    var hitmarkerSound = new THREE.Audio( listener );
-    audioLoader.load( 'audio/hitmarker.mp3', function( buffer ) {
-        hitmarkerSound.setBuffer( buffer );
+    var hitmarkerSound = new THREE.Audio(listener);
+    audioLoader.load('audio/hitmarker.mp3', function (buffer) {
+        hitmarkerSound.setBuffer(buffer);
         // sound.setLoop( true );
-        hitmarkerSound.setVolume( 0.5 );
+        hitmarkerSound.setVolume(0.5);
         // sound.play();
     });
 
-    var footstepSound = new THREE.Audio( listener );
-    audioLoader.load( 'audio/footstep.wav', function( buffer ) {
-        footstepSound.setBuffer( buffer );
+    var footstepSound = new THREE.Audio(listener);
+    audioLoader.load('audio/footstep.wav', function (buffer) {
+        footstepSound.setBuffer(buffer);
         // sound.setLoop( true );
-        footstepSound.setVolume( 0.8 );
+        footstepSound.setVolume(0.8);
         // sound.play();
     });
     controls.footstepSound = footstepSound;
 
-    var jumpSound = new THREE.Audio( listener );
-    audioLoader.load( 'audio/jump1.wav', function( buffer ) {
-        jumpSound.setBuffer( buffer );
+    var jumpSound = new THREE.Audio(listener);
+    audioLoader.load('audio/jump1.wav', function (buffer) {
+        jumpSound.setBuffer(buffer);
         // sound.setLoop( true );
-        jumpSound.setVolume( 1.5 );
+        jumpSound.setVolume(1.5);
         // sound.play();
     });
     controls.jumpSound = jumpSound;
@@ -186,9 +186,11 @@ function beginGame(username) {
 
     const infoMessages = new InfoMessages();
     let hideHitmarkerTimeout;
+
     function hideHitmarker() {
         hitmarkerSelector.hidden = true;
     }
+
     function handleEnemies() {
         userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {});
         collidableEnemies = [];
@@ -211,8 +213,6 @@ function beginGame(username) {
                         hitmarkerSelector.hidden = false;
                         hideHitmarkerTimeout = window.requestIdleCallback(hideHitmarker, {'timeout': 500})
                     }
-
-
                 }
                 continue;
             }
@@ -311,6 +311,7 @@ function beginGame(username) {
     handleHealth();
 
     const damageAmount = 5;
+
     function handleKills() {
         let kills = '';
         const keys = Object.keys(killCount);
@@ -322,6 +323,7 @@ function beginGame(username) {
     }
 
     handleKills();
+
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
         if (shootingSound.isPlaying) {
@@ -330,11 +332,13 @@ function beginGame(username) {
 
         shootingSound.play();
         if (numRecoils < recoilMax) {
-            controls.recoil(1,recoilAmount);
+            controls.recoil(1, recoilAmount);
             numRecoils += 1;
         } else {
             controls.recoil(1, recoilAmount);
-            window.requestIdleCallback(() => {controls.recoil(1, -recoilAmount)}, {'timeout': 65})
+            window.requestIdleCallback(() => {
+                controls.recoil(1, -recoilAmount)
+            }, {'timeout': 65})
         }
         userCharacter.gun.recoil(65);
         if (lineOfSight.length > 0 && lineOfSight[0].object.parent.username !== undefined) {
@@ -382,6 +386,7 @@ function beginGame(username) {
     let zoomingOut = false;
     let zoomInTimeout;
     let zoomOutTimeout;
+
     function zoomIn() {
         camera.zoom += 0.1;
 
@@ -487,19 +492,30 @@ function beginGame(username) {
     });
     console.log(collidableMeshList);
     console.log(userCharacter);
+
     function moveMapParticles() {
         mapDynamics();
         window.requestIdleCallback(moveMapParticles, {'timeout': 1})
     }
+
     moveMapParticles();
     const myWorker = new Worker("js/minimap-worker.js");
+
     function createMiniMap() {
-        myWorker.postMessage({'enemies': userHandler.others, 'width': 200, 'height': 200, 'offset': 20, 'mapSize': mapSize, 'username': username});
+        myWorker.postMessage({
+            'enemies': userHandler.others,
+            'width': 200,
+            'height': 200,
+            'offset': 20,
+            'mapSize': mapSize,
+            'username': username
+        });
         window.requestIdleCallback(createMiniMap, {'timeout': 1})
     }
+
     const mapSelector = document.getElementById('map-wrapper');
     mapSelector.hidden = false;
-    myWorker.onmessage = function(e) {
+    myWorker.onmessage = function (e) {
         mapSelector.innerHTML = `<div id="map">${e.data}</div>`;
     };
     createMiniMap();
@@ -541,8 +557,6 @@ function beginGame(username) {
         userCharacter.position.x = camera.position.x;
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 37;
-
-
 
 
         // moveNPCs();

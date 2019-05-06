@@ -1,5 +1,3 @@
-
-
 /**
  * Helper function to add random noise to geometry vertices
  *
@@ -42,6 +40,7 @@ function calculateCollisionPoints(group) {
     // }
     return group.children;
 }
+
 function detectCollisions(userCharacter, collisionObjects) {
     const collisions = [];
     for (let vertexIndex = 0; vertexIndex < userCharacter.geometry.vertices.length; vertexIndex++) {

@@ -56,10 +56,10 @@ function setupMap(scene) {
     snowman3.position.set(-30, 20, -12);
     scene.add(snowman3);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));
-    var texture = new THREE.TextureLoader().load( "textures/snow.jpg" );
+    var texture = new THREE.TextureLoader().load("textures/snow.jpg");
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set( 2000, 2000);
+    texture.repeat.set(2000, 2000);
 
     floor = new THREE.Mesh(new THREE.PlaneGeometry(100000, 200000, 1, 1), new THREE.MeshPhysicalMaterial({
         map: texture,
@@ -114,7 +114,7 @@ function setupSnow(scene) {
 
     for (let i = 0; i < particleCount; i++) {
         let pX = Math.random() * 6000 - 2000,
-            pY = Math.random()*5000,
+            pY = Math.random() * 5000,
             pZ = Math.random() * 6000 - 2000,
             particle = new THREE.Vector3(pX, pY, pZ);
         particle.velocity = {};
@@ -136,9 +136,9 @@ function setupSnow(scene) {
                 particle.velocity.x = 0;
             } else if (particle.y < 0) {
                 const particleRandomness = Math.random();
-                particle.y = particleRandomness*5000;
-                particle.velocity.y =  -0.5 + particleRandomness * 0.2;
-                particle.velocity.x = -0.2 +  particleRandomness* 0.4;
+                particle.y = particleRandomness * 5000;
+                particle.velocity.y = -0.5 + particleRandomness * 0.2;
+                particle.velocity.x = -0.2 + particleRandomness * 0.4;
             }
 
             particle.y += particle.velocity.y;
@@ -158,7 +158,7 @@ function setupTrees(scene) {
             tree.position.z = (z * (Math.random() * 51 + 250)) - (10 * 80) + variation;
             tree.position.x = (x * (Math.random() * 51 + 250)) - (8 * 80) + variation;
 
-            if (tree.position.x > -1900 && tree.position.x < -700  && tree.position.z > -1900 && tree.position.z < -700) {
+            if (tree.position.x > -1900 && tree.position.x < -700 && tree.position.z > -1900 && tree.position.z < -700) {
                 tree.position.x += 3000;
                 tree.position.z += 3000;
                 treeGroup.add(tree);
@@ -171,8 +171,8 @@ function setupTrees(scene) {
         }
     }
     const box = new THREE.Box3().setFromObject(treeGroup);
-    treeGroup.position.x += box.getSize().x/4;
-    treeGroup.position.z += box.getSize().z/4;
+    treeGroup.position.x += box.getSize().x / 4;
+    treeGroup.position.z += box.getSize().z / 4;
 
     scene.add(treeGroup);
 
@@ -183,17 +183,17 @@ function setupClouds(scene) {
     const cloudGroup = new THREE.Group();
     for (let z = -10; z < 10; z++) {
         for (let x = -10; x < 10; x++) {
-            const cloud = new Cloud(Math.random()*300 + 30);
+            const cloud = new Cloud(Math.random() * 300 + 30);
             const variation = (Math.random() - 0.5) * 1000;
             cloud.position.z = (z * (Math.random() * 51 + 700)) - (10 * 80) + variation;
             cloud.position.x = (x * (Math.random() * 51 + 700)) - (8 * 80) + variation;
-            cloud.position.y = Math.random()*2000 + 3000;
+            cloud.position.y = Math.random() * 2000 + 3000;
             cloudGroup.add(cloud);
         }
     }
     const box = new THREE.Box3().setFromObject(cloudGroup);
-    cloudGroup.position.x += box.getSize().x/4;
-    cloudGroup.position.z += box.getSize().z/4;
+    cloudGroup.position.x += box.getSize().x / 4;
+    cloudGroup.position.z += box.getSize().z / 4;
 
     scene.add(cloudGroup);
 
@@ -204,28 +204,28 @@ function createBuilding(scene, width, height, x, y, z) {
     const wall = new Wall(width, height, 0x4e555b);
     wall.position.z += width;
     wall.rotation.y = radians(90);
-    wall.position.set(x,y,z - width/ 2);
+    wall.position.set(x, y, z - width / 2);
     scene.add(wall);
     walls = walls.concat(calculateCollisionPoints(wall));
 
     const wall2 = new Wall(width, height, 0x4e555b, door = true);
-    wall2.position.set(x - width/ 2, y, z);
+    wall2.position.set(x - width / 2, y, z);
     scene.add(wall2);
     walls = walls.concat(calculateCollisionPoints(wall2));
 
     const wall3 = new Wall(width, height, 0x4e555b);
-    wall3.position.set(x, y, z + width/ 2)
+    wall3.position.set(x, y, z + width / 2)
     wall3.rotation.y = radians(90);
     scene.add(wall3);
     walls = walls.concat(calculateCollisionPoints(wall3));
 
     const wall4 = new Wall(width, height, 0x4e555b);
-    wall4.position.set(width/ 2 + x, y,  z);
+    wall4.position.set(width / 2 + x, y, z);
     scene.add(wall4);
     walls = walls.concat(calculateCollisionPoints(wall4));
 
     const ceiling = new Ceiling(width, width, 0x4e555b);
-    ceiling.position.set(x, y + height, z );
+    ceiling.position.set(x, y + height, z);
     ceiling.rotation.x = -Math.PI / 2;
     scene.add(ceiling);
     walls = walls.concat(calculateCollisionPoints(ceiling));
@@ -238,7 +238,7 @@ function createBuilding(scene, width, height, x, y, z) {
     // walls = walls.concat(calculateCollisionPoints(floor)); // todo - removed this
 
     const pointLight = new THREE.PointLight(0xffffff, 50, 100);
-    pointLight.position.set(ceiling.position.x, ceiling.position.y-70, ceiling.position.z);
+    pointLight.position.set(ceiling.position.x, ceiling.position.y - 70, ceiling.position.z);
     // var sphereSize = 5;
     // var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
     // scene.add( pointLightHelper );
@@ -257,7 +257,7 @@ function createBuilding(scene, width, height, x, y, z) {
         reflectivity: 0.04,
         color: 0xf5f3ce,
     }));
-    lightSphere.position.set(ceiling.position.x, ceiling.position.y-5, ceiling.position.z);
+    lightSphere.position.set(ceiling.position.x, ceiling.position.y - 5, ceiling.position.z);
 
     // scene.add(lightSphere);
 

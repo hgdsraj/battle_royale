@@ -1,4 +1,3 @@
-
 class Handler {
     constructor(username, endpoint) {
         this.username = username;
@@ -27,6 +26,7 @@ class Handler {
         keepAlive(keepAlive);
     }
 }
+
 class UserHandler extends Handler {
     constructor(username) {
         super(username, '/ws');
