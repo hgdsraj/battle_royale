@@ -169,6 +169,13 @@ body {
     right: 49.5%;
     opacity: 0.7;
 }
+#damage-indicator {
+    bottom: 55.5%;
+    left: 55.5%;
+    opacity: 0.6;
+    font-size: 30px;
+    color:#c10018;
+}
 
 #health-wrapper {
     bottom:5px;

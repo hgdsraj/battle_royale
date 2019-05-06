@@ -189,7 +189,23 @@ function beginGame(username) {
     function hideHitmarker() {
         hitmarkerSelector.hidden = true;
     }
+    let currentAttackDamage = {};
+    let currentAttackTimeouts = {};
+    let lastAttacked = '';
+    let damageIndicator = document.getElementById('damage-indicator');
+    function showDamageMarker(enemy, damage) {
+        if (enemy in currentAttackDamage) {
+            window.cancelIdleCallback(currentAttackTimeouts[enemy]);
+            currentAttackDamage[enemy] += damage;
+            damageIndicator.hidden = false;
+        } else {
+            currentAttackDamage[enemy] = damage;
+        }
+        currentAttackTimeouts[enemy] = window.requestIdleCallback(() => {damageIndicator.hidden = true; delete currentAttackDamage[enemy]}, {'timeout': 2000});
 
+        damageIndicator.innerText = currentAttackDamage[enemy];
+
+    }
     function handleEnemies() {
         userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {});
         collidableEnemies = [];
@@ -202,6 +218,8 @@ function beginGame(username) {
 
             if (enemy.username === username) {
                 if (damage[username] !== userCharacter.damage) {
+                    showDamageMarker(lastAttacked, damage[username] - userCharacter.damage); // todo what if negative
+
                     userCharacter.damage = damage[username];
                     if (hitmarkerSound.isPlaying) {
                         hitmarkerSound.stop();
@@ -370,6 +388,8 @@ function beginGame(username) {
             scene.add(bloodSphere);
             window.requestIdleCallback(removeBloodSphere, {'timeout': 500});
             const attack = {'username': enemy.object.parent.username, 'damage': finalDamageAmount};
+            lastAttacked = enemy.object.parent.username;
+
             userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
         } else if (lineOfSight.length > 0) {
             const collisionObject = lineOfSight[0];
