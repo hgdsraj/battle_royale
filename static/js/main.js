@@ -85,7 +85,7 @@ function setupCameraAndControls() {
         90, // Field of view
         window.innerWidth / window.innerHeight, // Aspect ratio
         0.1, // Near clipping pane
-        10000, // Far clipping pane
+        2000, // Far clipping pane
     );
     camera.position.set(-100, 100, 450);
 
@@ -94,7 +94,7 @@ function setupCameraAndControls() {
 
     const controls = new THREE.FirstPersonControls(camera, domElement);
     scene.background = new THREE.Color(0x5C646C);
-    scene.fog = new THREE.FogExp2(0x5C646C, 0.0005);
+    scene.fog = new THREE.FogExp2(0x5C646C, 0.0009);
 
     controls.movementSpeed = 250;
     controls.lookSpeed = 0.2;
@@ -149,34 +149,32 @@ function beginGame(username) {
     var shootingSound = new THREE.Audio(listener);
     audioLoader.load('audio/gun.mp3', function (buffer) {
         shootingSound.setBuffer(buffer);
-        // sound.setLoop( true );
         shootingSound.setVolume(0.25);
-        // sound.play();
+    });
+
+    var headshotSound = new THREE.Audio(listener);
+    audioLoader.load('audio/headshot.wav', function (buffer) {
+        headshotSound.setBuffer(buffer);
+        headshotSound.setVolume(1);
     });
 
     var hitmarkerSound = new THREE.Audio(listener);
     audioLoader.load('audio/hitmarker.mp3', function (buffer) {
         hitmarkerSound.setBuffer(buffer);
-        // sound.setLoop( true );
         hitmarkerSound.setVolume(0.5);
-        // sound.play();
     });
 
     var footstepSound = new THREE.Audio(listener);
     audioLoader.load('audio/footstep.wav', function (buffer) {
         footstepSound.setBuffer(buffer);
-        // sound.setLoop( true );
         footstepSound.setVolume(0.8);
-        // sound.play();
     });
     controls.footstepSound = footstepSound;
 
     var jumpSound = new THREE.Audio(listener);
     audioLoader.load('audio/jump1.wav', function (buffer) {
         jumpSound.setBuffer(buffer);
-        // sound.setLoop( true );
         jumpSound.setVolume(1.5);
-        // sound.play();
     });
     controls.jumpSound = jumpSound;
     const clock = new THREE.Clock();
@@ -216,7 +214,7 @@ function beginGame(username) {
                 }
                 continue;
             }
-            // todo: terrible way to recieve damage. others can max this value.
+            // todo: terrible way to receive damage. others can max this value.
             if (!(enemy.username in enemies)) {
                 enemies[enemy.username] = new Character(enemy.username);
                 scene.add(enemies[enemy.username]);
@@ -241,7 +239,7 @@ function beginGame(username) {
                 collidableEnemies = collidableEnemies.concat(calculateCollisionPoints(enemies[enemyKeys[i]]));
             }
         }
-        window.requestIdleCallback(handleEnemies, {'timeout': 1});
+        window.requestIdleCallback(handleEnemies, {'timeout': 30});
     }
 
     handleEnemies();
@@ -271,7 +269,7 @@ function beginGame(username) {
 
         }
 
-        window.requestIdleCallback(handleDamageAndKills, {'timeout': 1});
+        window.requestIdleCallback(handleDamageAndKills, {'timeout': 30});
 
     }
 
@@ -287,7 +285,7 @@ function beginGame(username) {
             }
         }
         document.getElementById('chat-messages').innerHTML = txt;
-        window.requestIdleCallback(handleMessages, {'timeout': 1});
+        window.requestIdleCallback(handleMessages, {'timeout': 30});
     }
 
     handleMessages();
@@ -298,14 +296,14 @@ function beginGame(username) {
             txt += `${i.message}<br>`;
         });
         document.getElementById('info-messages').innerHTML = txt;
-        window.requestIdleCallback(handleInfos, {'timeout': 20});
+        window.requestIdleCallback(handleInfos, {'timeout': 30});
     }
 
     handleInfos();
 
     function handleHealth() {
         document.getElementById('health').innerHTML = userCharacter.health;
-        window.requestIdleCallback(handleHealth, {'timeout': 20});
+        window.requestIdleCallback(handleHealth, {'timeout': 30});
     }
 
     handleHealth();
@@ -326,11 +324,22 @@ function beginGame(username) {
 
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
+
         if (shootingSound.isPlaying) {
             shootingSound.stop();
         }
 
+        if (headshotSound.isPlaying) {
+            headshotSound.stop();
+        }
+
+        let finalDamageAmount = damageAmount;
+        if (lineOfSight.length > 0 && lineOfSight[0].object.name === 'head') {
+            finalDamageAmount *= 2.5;
+            headshotSound.play();
+        }
         shootingSound.play();
+
         if (numRecoils < recoilMax) {
             controls.recoil(1, recoilAmount);
             numRecoils += 1;
@@ -359,7 +368,7 @@ function beginGame(username) {
 
             scene.add(bloodSphere);
             window.requestIdleCallback(removeBloodSphere, {'timeout': 500});
-            const attack = {'username': enemy.object.parent.username, 'damage': damageAmount};
+            const attack = {'username': enemy.object.parent.username, 'damage': finalDamageAmount};
             userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
         } else if (lineOfSight.length > 0) {
             const collisionObject = lineOfSight[0];
@@ -388,21 +397,21 @@ function beginGame(username) {
     let zoomOutTimeout;
 
     function zoomIn() {
-        camera.zoom += 0.1;
+        camera.zoom = 1.5;
 
         camera.updateProjectionMatrix();
-        if (camera.zoom < 1.5) {
-            zoomInTimeout = window.requestIdleCallback(zoomIn, {'timeout': 1});
-        }
+        // if (camera.zoom < 1.5) {
+            // zoomInTimeout = window.requestIdleCallback(zoomIn, {'timeout': 1}); // TODO smooth zoom lags
+        // }
     }
 
     function zoomOut() {
-        camera.zoom -= 0.1;
+        camera.zoom = 1;
 
         camera.updateProjectionMatrix();
-        if (camera.zoom > 1) {
-            zoomOutTimeout = window.requestIdleCallback(zoomOut, {'timeout': 1});
-        }
+        // if (camera.zoom > 1) {
+            // zoomOutTimeout = window.requestIdleCallback(zoomOut, {'timeout': 1}); // TODO smooth zoom lags
+        // }
     }
 
     window.addEventListener('mouseup', (e) => {
@@ -495,7 +504,7 @@ function beginGame(username) {
 
     function moveMapParticles() {
         mapDynamics();
-        window.requestIdleCallback(moveMapParticles, {'timeout': 1})
+        window.requestIdleCallback(moveMapParticles, {'timeout': 30})
     }
 
     moveMapParticles();
@@ -510,7 +519,7 @@ function beginGame(username) {
             'mapSize': mapSize,
             'username': username
         });
-        window.requestIdleCallback(createMiniMap, {'timeout': 1})
+        window.requestIdleCallback(createMiniMap, {'timeout': 30})
     }
 
     const mapSelector = document.getElementById('map-wrapper');
@@ -532,7 +541,6 @@ function beginGame(username) {
 
 
     function loop() {
-        var t0 = performance.now();
 
         const collisionBoundsOfCharacter = userCharacter.children[0].clone();
         collisionBoundsOfCharacter.matrix = userCharacter.matrix;

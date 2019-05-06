@@ -47,7 +47,7 @@ type Config struct {
 }
 type attack struct {
 	Username string `json:"username"`
-	Damage int `json:"damage"`
+	Damage float64 `json:"damage"`
 	UUID string `json:"uuid"`
 }
 // Define our message object
@@ -57,7 +57,7 @@ type User struct {
 	Y  float32 `json:"y"`
 	Z  float32 `json:"z"`
 	Theta  float32 `json:"theta"`
-	Health  float32 `json:"health"`
+	Health  float64 `json:"health"`
 	Attack attack `json:"attack"`
 	KilledBy string `json:"killed_by"`
 	KilledByUUID string `json:"killed_by_uuid"`
@@ -67,7 +67,7 @@ type User struct {
 type killLog struct {
 	KillCount map[string]int `json:"kill_count"`
 	Kills map[string]map[string]int `json:"kills"`
-	Damage map[string]int `json:"damage"`
+	Damage map[string]float64 `json:"damage"`
 }
 
 var globalKillLog = killLog{}
@@ -84,7 +84,7 @@ type Message struct {
 func main() {
 	globalKillLog.KillCount = make(map[string]int)
 	globalKillLog.Kills = make(map[string]map[string]int)
-	globalKillLog.Damage = make(map[string]int)
+	globalKillLog.Damage = make(map[string]float64)
 	users.Users = make(map[string]User)
 	users.SocketMap = make(map[*websocket.Conn]string)
 	users.Mutex = &sync.Mutex{}
