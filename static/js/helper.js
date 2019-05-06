@@ -40,7 +40,9 @@ function calculateCollisionPoints(group) {
     // }
     return group.children;
 }
+const collisionsRay = new THREE.Raycaster();
 
+//todo since return first value, don't need array
 function detectCollisions(userCharacter, collisionObjects) {
     const collisions = [];
     for (let vertexIndex = 0; vertexIndex < userCharacter.geometry.vertices.length; vertexIndex++) {
@@ -48,16 +50,18 @@ function detectCollisions(userCharacter, collisionObjects) {
         const globalVertex = localVertex.applyMatrix4(userCharacter.matrix);
         const directionVector = globalVertex.sub(userCharacter.position);
 
-        const ray = new THREE.Raycaster(userCharacter.position, directionVector.clone().normalize());
-        const collisionResults = ray.intersectObjects(collisionObjects);
+        collisionsRay.set(userCharacter.position, directionVector.clone().normalize());
+        const collisionResults = collisionsRay.intersectObjects(collisionObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
             collisions.push([collisionResults[0].distance - directionVector.length(), directionVector, collisionResults[0]]);
+            return collisions;
         }
     }
     return collisions;
 }
+const bulletsRay = new THREE.Raycaster();
 
 function detectBullets(position, vector, collisionObjects) {
-    const ray = new THREE.Raycaster(position, vector.clone().normalize());
-    return ray.intersectObjects(collisionObjects);
+    bulletsRay.set(position, vector.clone().normalize());
+    return bulletsRay.intersectObjects(collisionObjects);
 }

@@ -73,7 +73,7 @@ function setupMap(scene) {
     floor.receiveShadow = true;
     floor.castShadow = true;
     scene.add(floor);
-    collidableMeshList = collidableMeshList.concat([floor]);
+    // collidableMeshList = collidableMeshList.concat([floor]); //todo removed this
 
 
     collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 400));

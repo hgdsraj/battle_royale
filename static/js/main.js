@@ -340,7 +340,12 @@ function beginGame(username) {
     }
 
     handleKills();
-
+    const bloodGeometry = new THREE.SphereGeometry(2, 52, 52);
+    const bloodMaterial = new THREE.MeshPhongMaterial({
+        refractionRatio: 0.1,
+        reflectivity: 0.04,
+        color: 0xff0000,
+    });
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
 
@@ -374,11 +379,7 @@ function beginGame(username) {
 
             const enemy = lineOfSight[0];
             const point = enemy.point;
-            const bloodSphere = new THREE.Mesh(new THREE.SphereGeometry(2, 52, 52), new THREE.MeshPhongMaterial({
-                refractionRatio: 0.1,
-                reflectivity: 0.04,
-                color: 0xff0000,
-            }));
+            const bloodSphere = new THREE.Mesh(bloodGeometry, bloodMaterial);
             bloodSphere.position.set(point.x, point.y, point.z);
 
             function removeBloodSphere() {
@@ -386,7 +387,7 @@ function beginGame(username) {
             }
 
             scene.add(bloodSphere);
-            window.requestIdleCallback(removeBloodSphere, {'timeout': 500});
+            window.requestIdleCallback(removeBloodSphere, {'timeout': 100});
             const attack = {'username': enemy.object.parent.username, 'damage': finalDamageAmount};
             lastAttacked = enemy.object.parent.username;
 
@@ -560,13 +561,19 @@ function beginGame(username) {
     // };
     // enemiesHandler();
 
+    const size = box.getSize();
+    const characterBox = new THREE.Mesh(
+        new THREE.BoxGeometry(size.x, size.y, size.z),
+        new THREE.MeshMatcapMaterial({
+            color: 0xff0051,
+        }),
+    );
 
     function loop() {
 
-        const collisionBoundsOfCharacter = userCharacter.children[0].clone();
-        collisionBoundsOfCharacter.matrix = userCharacter.matrix;
-        collisionBoundsOfCharacter.position.add(userCharacter.position);
-        const collisions = detectCollisions(collisionBoundsOfCharacter, collidableMeshList.concat(collidableEnemies));
+        characterBox.matrix = userCharacter.matrix;
+        characterBox.position.set(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z);
+        const collisions = detectCollisions(characterBox, collidableMeshList.concat(collidableEnemies));
         if (collisions.length !== 0) {
             controls.undoMovement();
             controls.dontAllowMovement(collisions[0][1]);
