@@ -353,7 +353,7 @@ function beginGame(username) {
         }
 
         let finalDamageAmount = damageAmount;
-        if (lineOfSight.length > 0 && lineOfSight[0].object.name === 'head') {
+        if (lineOfSight.length > 0 && lineOfSight[0].object.isHead === true) {
             finalDamageAmount *= 2.5;
             headshotSound.play();
         }

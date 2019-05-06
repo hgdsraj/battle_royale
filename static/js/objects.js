@@ -231,6 +231,7 @@ class Character extends THREE.Group {
             snowMaterial,
         );
         head.name = 'head';
+        head.isHead = true;
         head.position.y += 37;
         head.castShadow = true;
         head.receiveShadow = true;
@@ -257,6 +258,7 @@ class Character extends THREE.Group {
             nose.rotateZ(radians(90));
             nose.rotateX(radians(getRandomInt(60, 90)));
             nose.position.z += 7;
+            nose.isHead = true;
             this.add(nose);
 
             const eye1 = new THREE.Mesh(
@@ -275,6 +277,7 @@ class Character extends THREE.Group {
             eye1.receiveShadow = true;
             eye1.position.z += 4;
             eye1.position.x -= 2;
+            eye1.isHead = true;
             this.add(eye1);
             const eye2 = new THREE.Mesh(
                 new THREE.SphereGeometry(2, 10, 32),
@@ -294,6 +297,7 @@ class Character extends THREE.Group {
             eye2.receiveShadow = true;
             eye2.position.z += 4;
             eye2.position.x += 2;
+            eye2.isHead = true;
             this.add(eye2);
             const loader = new THREE.FontLoader();
             const self = this;
