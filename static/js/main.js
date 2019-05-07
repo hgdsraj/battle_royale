@@ -88,19 +88,19 @@ function setupCameraAndControls() {
         90, // Field of view
         window.innerWidth / window.innerHeight, // Aspect ratio
         0.1, // Near clipping pane
-        2000, // Far clipping pane
+        20, // Far clipping pane
     );
-    camera.position.set(-100, 100, 450);
+    camera.position.set(-1, 1, 4.5);
 
     camera.lookAt(new THREE.Vector3(0, 15, 0));
 
 
     const controls = new THREE.FirstPersonControls(camera, domElement);
     scene.background = new THREE.Color(0x5C646C);
-    scene.fog = new THREE.FogExp2(0x5C646C, 0.0009);
+    scene.fog = new THREE.FogExp2(0x5C646C, 0.09);
     // scene.fog = new THREE.FogExp2(0x5C646C, 0.0001);
 
-    controls.movementSpeed = 250;
+    controls.movementSpeed = 2.50;
     controls.lookSpeed = 0.2;
     controls.lookVertical = true;
     controls.activeLook = false;
@@ -139,7 +139,7 @@ function beginGame(username) {
     let userCharacter = new Character(username, noFace = true, isMainCharcter = true);
     const hitmarkerSelector = document.getElementById("hitmarker-wrapper");
     scene.add(userCharacter);
-    makeNPCs(scene);
+    // makeNPCs(scene);
 
     const box = new THREE.Box3().setFromObject(userCharacter);
     camera.position.y = box.getSize().y;
@@ -334,7 +334,7 @@ function beginGame(username) {
                 if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
                     infoMessages.push(username, enemy.username, 'killed by', '');
                     userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username, shooting);
-                    camera.position.set(300, 70, 400);
+                    camera.position.set(3, 0.70, 4);
                 }
                 attacks[enemy.attack.uuid] = true;
             }
@@ -393,7 +393,7 @@ function beginGame(username) {
     }
 
     handleKills();
-    const bloodGeometry = new THREE.SphereGeometry(2, 52, 52);
+    const bloodGeometry = new THREE.SphereGeometry(0.02, 52, 52);
     const bloodMaterial = new THREE.MeshPhongMaterial({
         refractionRatio: 0.1,
         reflectivity: 0.04,
@@ -449,7 +449,7 @@ function beginGame(username) {
             const collisionObject = lineOfSight[0];
             const point = collisionObject.point;
 
-            const bulletHole = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), new THREE.MeshMatcapMaterial({
+            const bulletHole = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.03), new THREE.MeshMatcapMaterial({
                 color: 0x4e555b,
             }));
             bulletHole.position.set(point.x, point.y, point.z);
@@ -646,7 +646,7 @@ function beginGame(username) {
 
         userCharacter.position.x = camera.position.x;
         userCharacter.position.z = camera.position.z;
-        userCharacter.position.y = camera.position.y - 37;
+        userCharacter.position.y = camera.position.y - 0.37;
 
 
         // moveNPCs();

@@ -1,7 +1,7 @@
 function setupMap(scene) {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.004);
     scene.add(ambientLight);
-    const spotLightPosition = [0, 4000, -3000];
+    const spotLightPosition = [0, 40, -30];
     const spotLight = new THREE.SpotLight(0xffffff, 2);
     // const spotLight = new THREE.DirectionalLight(0xffffff, 1);
     let collidableMeshList = [];
@@ -13,12 +13,12 @@ function setupMap(scene) {
     spotLight.shadow.mapSize.width = 2000;
     spotLight.shadow.mapSize.height = 1024;
 
-    spotLight.shadow.camera.near = 10;
-    spotLight.shadow.camera.far = 7000;
+    spotLight.shadow.camera.near = 0.10;
+    spotLight.shadow.camera.far = 70;
     spotLight.shadow.camera.fov = 180;
 
     scene.add(spotLight);
-    const moon = new THREE.Mesh(new THREE.SphereGeometry(100, 12, 52), new THREE.MeshStandardMaterial({
+    const moon = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 52), new THREE.MeshStandardMaterial({
         refractionRatio: 0.1,
         reflectivity: 0.04,
         color: 0xf5f3ce,
@@ -27,34 +27,34 @@ function setupMap(scene) {
 
     scene.add(moon);
 
-    const spotLight2 = new THREE.SpotLight(0xffffff, 100000);
-    spotLight2.position.set(-30, 4000, 5000);
+    const spotLight2 = new THREE.SpotLight(0xffffff, 1000);
+    spotLight2.position.set(-3, 40, 50);
 
     spotLight2.castShadow = true;
 
     spotLight2.shadow.mapSize.width = 1024;
     spotLight2.shadow.mapSize.height = 1024;
 
-    spotLight2.shadow.camera.near = 500;
-    spotLight2.shadow.camera.far = 4000;
+    spotLight2.shadow.camera.near = 5;
+    spotLight2.shadow.camera.far = 40;
     spotLight2.shadow.camera.fov = 5;
     spotLight2.angle = radians(10);
     spotLight2.target = moon;
     scene.add(spotLight2);
     const snowman1 = new Character('');
-    snowman1.position.y += 10;
-    // scene.add(snowman1);
+    snowman1.position.y += 0.10;
+    scene.add(snowman1);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman1));
 
     const snowman2 = new Character('');
-    snowman2.position.set(30, 15, -10);
+    snowman2.position.set(0.30, 0.15, -0.10);
     snowman2.scale.set(0.8, 0.8, 0.8);
-    // scene.add(snowman2);
+    scene.add(snowman2);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman2));
 
     const snowman3 = new Character('');
-    snowman3.position.set(-30, 20, -12);
-    // scene.add(snowman3);
+    snowman3.position.set(-0.30, 0.20, -0.12);
+    scene.add(snowman3);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));
     var texture = new THREE.TextureLoader().load("textures/snow.jpg");
     texture.encoding = THREE.sRGBEncoding;
@@ -62,7 +62,7 @@ function setupMap(scene) {
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(8192, 8192);
 
-    floor = new THREE.Mesh(new THREE.PlaneGeometry(100000, 100000, 1, 1), new THREE.MeshPhysicalMaterial({
+    floor = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000, 1, 1), new THREE.MeshPhysicalMaterial({
         map: texture,
         shininess: 0.1,
         reflectivity: 0,
@@ -86,7 +86,7 @@ function setupMap(scene) {
     scene.add(verticalMirror);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(verticalMirror));
 
-    const ramp = new Ramp(640, 160, 60, {x: 300, y: 0, z: -25});
+    const ramp = new Ramp(6.4, 1.60, 60, {x: 3, y: 0, z: -0.25});
     ramp.rotation.y = radians(180);
     ramp.castShadow = true;
     scene.add(ramp);

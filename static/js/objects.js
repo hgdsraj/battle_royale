@@ -117,7 +117,7 @@ class Wall extends THREE.Group {
 class Ceiling extends THREE.Group {
     constructor(width, length, color) {
         super();
-        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 1, 1), new THREE.MeshPhongMaterial({color: color}));
+        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 0.01, 1), new THREE.MeshPhongMaterial({color: color}));
         ceiling.receiveShadow = true;
         ceiling.castShadow = true;
         this.add(ceiling);
@@ -164,7 +164,7 @@ class Ramp extends THREE.Group {
     constructor(length, width, angle, position) {
         super();
         const material = new THREE.Mesh(
-            new THREE.BoxGeometry(width, length, 3),
+            new THREE.BoxGeometry(width, length, 0.03),
             new THREE.MeshStandardMaterial({
                 color: 0x6f7c7c,
                 flatShading: THREE.FlatShading,
@@ -174,14 +174,14 @@ class Ramp extends THREE.Group {
 
             }),
         );
-        material.position.z += 3;
+        material.position.z += 0.03;
         material.rotateY(radians(180));
         material.rotateX(radians(angle));
         this.add(material);
         this.position.x = position.x;
         this.position.y = position.y;
         this.position.z = position.z;
-        material.position.z += 3;
+        material.position.z += 0.03;
     }
 }
 
@@ -203,7 +203,7 @@ class Character extends THREE.Group {
 
         });
         const bottom = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(17, 1), 2, 2, 2),
+            addNoise(new THREE.OctahedronGeometry(0.17, 1), 0.02, 0.02, 0.02),
             snowMaterial,
         );
         bottom.castShadow = true;
@@ -215,10 +215,10 @@ class Character extends THREE.Group {
 
         // A Torus to represent the top hook
         const body = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(10, 1), 2, 2, 2),
+            addNoise(new THREE.OctahedronGeometry(0.10, 1), 0.02, 0.02, 0.02),
             snowMaterial,
         );
-        body.position.y += 22;
+        body.position.y += 0.22;
         body.castShadow = true;
         body.receiveShadow = true;
         body.rotateZ(Math.random() * Math.PI * 2);
@@ -227,12 +227,12 @@ class Character extends THREE.Group {
         this.add(body);
         // A Torus to represent the top hook
         const head = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(7, 1), 2, 2, 2),
+            addNoise(new THREE.OctahedronGeometry(0.07, 1), 0.02,0.02, 0.02),
             snowMaterial,
         );
         head.name = 'head';
         head.isHead = true;
-        head.position.y += 37;
+        head.position.y += 0.37;
         head.castShadow = true;
         head.receiveShadow = true;
         head.rotateZ(Math.random() * Math.PI * 2);
@@ -242,7 +242,7 @@ class Character extends THREE.Group {
         this.add(this.head);
         if (!noFace) {
             const nose = new THREE.Mesh(
-                new THREE.ConeGeometry(2, 10),
+                new THREE.ConeGeometry(0.02, 0.10),
                 new THREE.MeshStandardMaterial({
                     color: globalColors.carrot,
                     flatShading: THREE.FlatShading,
@@ -252,17 +252,17 @@ class Character extends THREE.Group {
 
                 }),
             );
-            nose.position.y += 37;
+            nose.position.y += 0.37;
             nose.castShadow = true;
             nose.receiveShadow = true;
             nose.rotateZ(radians(90));
             nose.rotateX(radians(getRandomInt(60, 90)));
-            nose.position.z += 7;
+            nose.position.z += 0.07;
             nose.isHead = true;
             this.add(nose);
 
             const eye1 = new THREE.Mesh(
-                new THREE.SphereGeometry(2, 10, 32),
+                new THREE.SphereGeometry(0.02, 10, 32),
                 new THREE.MeshStandardMaterial({
                     color: globalColors.eye,
                     flatShading: THREE.FlatShading,
@@ -272,15 +272,15 @@ class Character extends THREE.Group {
 
                 }),
             );
-            eye1.position.y += 40;
+            eye1.position.y += 0.40;
             eye1.castShadow = true;
             eye1.receiveShadow = true;
-            eye1.position.z += 4;
-            eye1.position.x -= 2;
+            eye1.position.z += 0.04;
+            eye1.position.x -= 0.02;
             eye1.isHead = true;
             this.add(eye1);
             const eye2 = new THREE.Mesh(
-                new THREE.SphereGeometry(2, 10, 32),
+                new THREE.SphereGeometry(0.02, 10, 32),
                 new THREE.MeshStandardMaterial({
                     color: globalColors.eye,
                     flatShading: THREE.FlatShading,
@@ -292,11 +292,11 @@ class Character extends THREE.Group {
             );
             console.log(username)
 
-            eye2.position.y += 40;
+            eye2.position.y += 0.40;
             eye2.castShadow = true;
             eye2.receiveShadow = true;
-            eye2.position.z += 4;
-            eye2.position.x += 2;
+            eye2.position.z += 0.04;
+            eye2.position.x += 0.02;
             eye2.isHead = true;
             this.add(eye2);
             const loader = new THREE.FontLoader();
@@ -304,8 +304,8 @@ class Character extends THREE.Group {
             loader.load('font.json', (font) => {
                 const usernameText = new THREE.TextGeometry(username, {
                     font,
-                    size: 8,
-                    height: 1,
+                    size: 0.08,
+                    height: 0.01,
                     curveSegments: 20,
                 });
                 const usernameMesh = new THREE.Mesh(
@@ -315,31 +315,31 @@ class Character extends THREE.Group {
                     }),
                 );
                 usernameMesh.name = 'username';
-                usernameMesh.position.y += 50;
+                usernameMesh.position.y += 0.50;
                 const size = new THREE.Box3().setFromObject(usernameMesh).getSize();
                 usernameMesh.geometry.translate(-Math.floor(size.x / 2), 0, 0);
                 self.add(usernameMesh);
                 self.usernameMesh = usernameMesh;
             });
             const health = new THREE.Mesh(
-                new THREE.BoxGeometry(40, 2, 2),
+                new THREE.BoxGeometry(0.40, 0.02, 0.02),
                 new THREE.MeshMatcapMaterial({
                     color: 0xff0051,
 
                 }),
             );
             health.name = 'health';
-            health.position.y += 60;
+            health.position.y += 0.60;
             self.healthBar = health;
             self.add(health);
 
         }
-        this.gun = new Gun(1, 7, 20, 35);
+        this.gun = new Gun(0.01, 0.07, 0.20, 0.35);
         // const gun = new THREE.Mesh(new THREE.BoxGeometry(1, 7/5, 20, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
 
         // this.gun.applyMatrix( new THREE.Matrix4().makeTranslation(-10, 30, 20) );
-        this.gun.translateX(-10);
-        this.gun.translateY(30);
+        this.gun.translateX(-0.10);
+        this.gun.translateY(0.30);
         if (isMainCharacter) {
             this.gun.rotation.z = radians(180);
         } else {
