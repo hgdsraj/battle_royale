@@ -98,7 +98,6 @@ function setupCameraAndControls() {
     const controls = new THREE.FirstPersonControls(camera, domElement);
     scene.background = new THREE.Color(0x5C646C);
     scene.fog = new THREE.FogExp2(0x5C646C, 0.09);
-    // scene.fog = new THREE.FogExp2(0x5C646C, 0.0001);
 
     controls.movementSpeed = 2.50;
     controls.lookSpeed = 0.2;
@@ -245,7 +244,7 @@ function beginGame(username) {
                 audioLoader.load( 'audio/gun.mp3', function( buffer ) {
                     enemies[enemy.username].shootingSound.setBuffer( buffer );
                     enemies[enemy.username].shootingSound.setVolume(0.25);
-                    enemies[enemy.username].shootingSound.setRefDistance( 40 );
+                    enemies[enemy.username].shootingSound.setRefDistance(0.40 );
 
                 });
 
@@ -253,7 +252,7 @@ function beginGame(username) {
                 audioLoader.load( 'audio/footstepenemy.wav', function( buffer ) {
                     enemies[enemy.username].footstepSound.setBuffer( buffer );
                     enemies[enemy.username].footstepSound.setVolume(0.8);
-                    enemies[enemy.username].footstepSound.setRefDistance( 40 );
+                    enemies[enemy.username].footstepSound.setRefDistance(0.40 );
 
                 });
 

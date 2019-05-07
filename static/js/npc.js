@@ -3,8 +3,8 @@ function makeNPCs(scene) {
     let npcHandlers = [];
     for (let i = 0; i < 5; i ++) {
         let s = {};
-        s['position'] = {'x': -1000 + Math.random() * 2000, 'y':15, 'z': -1000 + Math.random() * 2000};
-        s['velocity'] = {'x': -3 + Math.random() * 6, 'z': -3 + Math.random() * 6};
+        s['position'] = {'x': -10 + Math.random() * 20, 'y':0.15, 'z': -10 + Math.random() * 20};
+        s['velocity'] = {'x': -0.03 + Math.random() * 0.06, 'z': -0.03 + Math.random() * 0.06};
         s['counter'] = 0;
         npcHandlers.push(new UserHandler("NPC"+ i.toString()));
 
@@ -19,11 +19,11 @@ function makeNPCs(scene) {
             let npc = npcs[nCount];
             npcHandlers[nCount].send(npc['position']['x'], npc['position']['y'], npc['position']['z'], Math.random() * 3.14, 100, {}, '' ,Math.random() > 0.9 && nCount === 1);
 
-            if (npc['position']['z'] < 2000 && npc['position']['z'] > -2000 && npc['position']['x'] < 2000 && npc['position']['x'] > -2000) {
-                if (npc['counter'] > 100) {
-                    npc['velocity']['z'] =  -2 + Math.random() * 2;
-                    npc['velocity']['x'] =  -2 + Math.random() * 2;
-                    if (Math.abs(npc['velocity']['x']) < 1 || Math.abs(npc['velocity']['y']) < 1) {
+            if (npc['position']['z'] < 20 && npc['position']['z'] > -20 && npc['position']['x'] < 20 && npc['position']['x'] > -20) {
+                if (npc['counter'] > 1) {
+                    npc['velocity']['z'] =  -0.02 + Math.random() * 0.02;
+                    npc['velocity']['x'] =  -0.02 + Math.random() * 0.02;
+                    if (Math.abs(npc['velocity']['x']) < 0.01 || Math.abs(npc['velocity']['y']) < 0.01) {
                         npc['velocity']['z'] =  0;
                         npc['velocity']['x'] = 0;
 
