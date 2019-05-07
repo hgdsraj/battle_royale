@@ -57,11 +57,12 @@ function setupMap(scene) {
     scene.add(snowman3);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));
     var texture = new THREE.TextureLoader().load("textures/snow.jpg");
+    texture.encoding = THREE.sRGBEncoding;
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(2000, 2000);
+    texture.repeat.set(8192, 8192);
 
-    floor = new THREE.Mesh(new THREE.PlaneGeometry(100000, 200000, 1, 1), new THREE.MeshPhysicalMaterial({
+    floor = new THREE.Mesh(new THREE.PlaneGeometry(100000, 100000, 1, 1), new THREE.MeshPhysicalMaterial({
         map: texture,
         shininess: 0.1,
         reflectivity: 0,
