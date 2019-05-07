@@ -158,14 +158,16 @@ function setupTrees(scene) {
             const variation = (Math.random() - 0.5) * 50;
             tree.position.z = (z * (Math.random() * 51 + 250)) - (10 * 80) + variation;
             tree.position.x = (x * (Math.random() * 51 + 250)) - (8 * 80) + variation;
-
+            tree.matrixAutoUpdate = false;
             if (tree.position.x > -1900 && tree.position.x < -700 && tree.position.z > -1900 && tree.position.z < -700) {
                 tree.position.x += 3000;
                 tree.position.z += 3000;
+                tree.updateMatrix();
                 treeGroup.add(tree);
                 collisions = collisions.concat(calculateCollisionPoints(tree));
 
             } else {
+                tree.updateMatrix();
                 treeGroup.add(tree);
                 collisions = collisions.concat(calculateCollisionPoints(tree));
             }

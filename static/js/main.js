@@ -67,9 +67,12 @@ function setupCameraAndControls() {
     document.getElementById('pause-menu').toggleAttribute('hidden');
 
     const renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.gammaFactor = 2.2;
+    renderer.gammaOutput = true;
+    // renderer.physicallyCorrectLights = true; todo would prefer this but its mesed up.
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-
+    renderer.powerPreference = "high-performance";
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     renderer.setClearColor(0x000000);
@@ -301,6 +304,7 @@ function beginGame(username) {
                 infoMessages.push(enemies[enemyKeys[i]].username, '', 'has left the game', '');
 
                 scene.remove(enemies[enemyKeys[i]]);
+                enemies[enemyKeys[i]].material.dispose(); // todo also geometry?
                 delete enemies[enemyKeys[i]];
             } else {
                 collidableEnemies = collidableEnemies.concat(calculateCollisionPoints(enemies[enemyKeys[i]]));
