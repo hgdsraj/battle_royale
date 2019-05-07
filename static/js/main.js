@@ -127,7 +127,6 @@ function beginGame(username) {
     const collidableMeshList = map.collidableMeshList;
     const mapSize = map.mapSize;
     const mapDynamics = map.mapDynamics;
-    // const moveNPCs = makeNPCs(scene);
     let shooting = false;
     let lineOfSight = [];
     let killCount = {};
@@ -137,6 +136,7 @@ function beginGame(username) {
     let userCharacter = new Character(username, noFace = true, isMainCharcter = true);
     const hitmarkerSelector = document.getElementById("hitmarker-wrapper");
     scene.add(userCharacter);
+    // makeNPCs(scene);
 
     const box = new THREE.Box3().setFromObject(userCharacter);
     camera.position.y = box.getSize().y;
@@ -576,7 +576,6 @@ function beginGame(username) {
 
     function moveMapParticles() {
         mapDynamics();
-        // moveNPCs(userHandler);
         window.requestIdleCallback(moveMapParticles, {'timeout': 30})
     }
 

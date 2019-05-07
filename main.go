@@ -177,32 +177,29 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		users.Mutex.Unlock()
 		//fmt.Println(user.Attack)
 		// Send the newly received message to the broadcast channel
-
+		killLogMutex.Lock()
 		if globalKillLog.Kills[user.Username] == nil {
-			killLogMutex.Lock()
 			globalKillLog.Kills[user.Username] = make(map[string]int)
 			globalKillLog.KillCount[user.Username] = 0
 			globalKillLog.Damage[user.Username] = 0
-			killLogMutex.Unlock()
 
 		}
+
 		if user.Attack.Username != "" {
-			killLogMutex.Lock()
 			globalKillLog.Damage[user.Username] += user.Attack.Damage
-			killLogMutex.Unlock()
 		}
 
 		if user.KilledBy != "" {
-			killLogMutex.Lock()
 			globalKillLog.KillCount[user.KilledBy] += 1
 			if _, ok := globalKillLog.Kills[user.KilledBy]; ok {
 				globalKillLog.Kills[user.KilledBy][user.Username] += 1
 			}
-			killLogMutex.Unlock()
 
 			u := uuid.NewV4()
 			user.KilledByUUID = u.String()
 		}
+		killLogMutex.Unlock()
+
 		user.KillLog = globalKillLog
 		if user.Attack.Username != "" {
 			user.Attack.UUID = uuid.NewV4().String()
