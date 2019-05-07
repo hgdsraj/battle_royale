@@ -74,10 +74,14 @@ function setupCameraAndControls() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
     renderer.powerPreference = "high-performance";
+    renderer.setPixelRatio( window.devicePixelRatio); // can set to reduce image quality (with lower values)
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000);
     renderer.domElement.id = 'main-canvas';
+
     function resizeRenderer() {
+
+        renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
     window.onresize = resizeRenderer;
@@ -87,7 +91,7 @@ function setupCameraAndControls() {
 
     const camera = new THREE.PerspectiveCamera(
         90, // Field of view
-        window.innerWidth / window.innerHeight, // Aspect ratio
+        16 / 9, // Aspect ratio
         0.1, // Near clipping pane
         20, // Far clipping pane
     );
@@ -649,10 +653,10 @@ function beginGame(username) {
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 0.37;
 
-        // var t0 = performance.now();
+        var t0 = performance.now();
         renderer.render(scene, camera);
-        // var t1 = performance.now();
-        // console.log("Call to loop took " + (t1 - t0) + " milliseconds.")
+        var t1 = performance.now();
+        console.log("Call to loop took " + (t1 - t0) + " milliseconds.")
 
         requestAnimationFrame(loop);
     }
