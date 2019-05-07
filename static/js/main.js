@@ -330,7 +330,7 @@ function beginGame(username) {
                 if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
                     infoMessages.push(username, enemy.username, 'killed by', '');
                     userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username, shooting);
-                    camera.position.set(-100, 100, 450);
+                    camera.position.set(300, 70, 400);
                 }
                 attacks[enemy.attack.uuid] = true;
             }
@@ -376,7 +376,7 @@ function beginGame(username) {
 
     handleHealth();
 
-    const damageAmount = 5;
+    const damageAmount = 10;
 
     function handleKills() {
         let kills = '';

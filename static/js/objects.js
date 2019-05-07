@@ -370,9 +370,8 @@ class Character extends THREE.Group {
 
     receiveDamage(amount) {
         let death = false;
-        if (this.health > 0) {
-            this.health -= amount;
-        } else {
+        this.health -= amount;
+        if (this.health <= 0) {
             this.health = 100;
             death = true;
         }
