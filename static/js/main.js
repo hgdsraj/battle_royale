@@ -92,7 +92,7 @@ function setupCameraAndControls() {
     );
     camera.position.set(-1, 1, 4.5);
 
-    camera.lookAt(new THREE.Vector3(0, 15, 0));
+    camera.lookAt(new THREE.Vector3(0, 1, 0));
 
 
     const controls = new THREE.FirstPersonControls(camera, domElement);

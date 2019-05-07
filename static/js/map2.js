@@ -97,7 +97,7 @@ function setupMap(scene) {
     collidableMeshList = collidableMeshList.concat(trees);
 
     setupClouds(scene);
-    return {'collidableMeshList': collidableMeshList, 'mapDynamics': mapDynamics, 'mapSize': 2000};
+    return {'collidableMeshList': collidableMeshList, 'mapDynamics': mapDynamics, 'mapSize': 20};
 }
 
 function setupSnow(scene) {
