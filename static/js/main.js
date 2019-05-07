@@ -400,6 +400,7 @@ function beginGame(username) {
     });
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
+        lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
 
         if (shootingSound.isPlaying) {
             shootingSound.stop();
@@ -633,7 +634,6 @@ function beginGame(username) {
         } else {
             controls.allowAllMovements();
         }
-        lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
         controls.update(clock.getDelta());
 
         camera.getWorldDirection(vector);
