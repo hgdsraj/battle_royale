@@ -56,7 +56,7 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
     self.mouseDragOn = true;
     self.jump = false;
-    self.initialJumpVelocity = 20;
+    self.initialJumpVelocity = 0.20;
     self.initialGravityVelocity = 0;
     self.gravityVelocity = self.initialGravityVelocity;
     self.jumpVelocity = self.initialJumpVelocity;
@@ -297,11 +297,11 @@ THREE.FirstPersonControls = function (camera, domElement) {
             }
             if (self.jump && self.allowPositiveYMovement && self.jumpVelocity > 0) {
                 self.camera.position.y += self.jumpVelocity;
-                self.jumpVelocity -= 1;
+                self.jumpVelocity -= 0.01;
                 self.pushMovement({y: self.jumpVelocity});
             } else if (self.allowNegativeYMovement && self.camera.position.y > self.initialY) {
                 self.camera.position.y -= self.gravityVelocity;
-                self.gravityVelocity += 1;
+                self.gravityVelocity += 0.01;
                 self.pushMovement({y: -self.gravityVelocity});
             } else {
                 self.gravityVelocity = self.initialGravityVelocity;

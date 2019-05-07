@@ -186,11 +186,11 @@ function setupClouds(scene) {
     const cloudGroup = new THREE.Group();
     for (let z = -10; z < 10; z++) {
         for (let x = -10; x < 10; x++) {
-            const cloud = new Cloud(Math.random() * 100 + 100);
-            const variation = (Math.random() - 0.5) * 1000;
-            cloud.position.z = (z * (Math.random() * 51 + 700)) - (10 * 80) + variation;
-            cloud.position.x = (x * (Math.random() * 51 + 700)) - (8 * 80) + variation;
-            cloud.position.y = Math.random() * 400 + 1500;
+            const cloud = new Cloud(Math.random() + 1);
+            const variation = (Math.random() - 0.5) * 10;
+            cloud.position.z = (z * (Math.random() * 0.51 + 7)) - (8) + variation;
+            cloud.position.x = (x * (Math.random() * 0.51 + 7)) - (6.4) + variation;
+            cloud.position.y = Math.random() * 4 + 15;
             cloud.matrixAutoUpdate = false;
             cloud.updateMatrix();
             cloudGroup.add(cloud);
