@@ -317,7 +317,7 @@ class Character extends THREE.Group {
                 usernameMesh.name = 'username';
                 usernameMesh.position.y += 0.50;
                 const size = new THREE.Box3().setFromObject(usernameMesh).getSize();
-                usernameMesh.geometry.translate(-Math.floor(size.x / 2), 0, 0);
+                usernameMesh.geometry.translate(-size.x / 2, 0, 0);
                 self.add(usernameMesh);
                 self.usernameMesh = usernameMesh;
             });

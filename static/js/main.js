@@ -69,17 +69,18 @@ function setupCameraAndControls() {
     const renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.gammaFactor = 2.2;
     renderer.gammaOutput = true;
-    // renderer.physicallyCorrectLights = true; todo would prefer this but its mesed up.
+    renderer.precision = "lowp"; // TODO mediump? highp? system dependent?
+    renderer.alpha = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
     renderer.powerPreference = "high-performance";
     renderer.setSize(window.innerWidth, window.innerHeight);
-
     renderer.setClearColor(0x000000);
-
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.domElement.id = 'main-canvas';
+    function resizeRenderer() {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    window.onresize = resizeRenderer;
 
     document.body.appendChild(renderer.domElement);
     domElement = document.getElementById('main-canvas');
@@ -340,7 +341,7 @@ function beginGame(username) {
 
         }
 
-        window.requestIdleCallback(handleDamageAndKills, {'timeout': 1});
+        window.requestIdleCallback(handleDamageAndKills, {'timeout': 20});
 
     }
 
@@ -356,7 +357,7 @@ function beginGame(username) {
             }
         }
         document.getElementById('chat-messages').innerHTML = txt;
-        window.requestIdleCallback(handleMessages, {'timeout': 30});
+        window.requestIdleCallback(handleMessages, {'timeout': 1000});
     }
 
     handleMessages();
@@ -388,7 +389,8 @@ function beginGame(username) {
             kills += `<tr> <td> ${keys[i]}</td> <td>${killCount[keys[i]]}</td><td>${damage[keys[i]]}</td></tr>`;
         }
         document.getElementById('kills').innerHTML = kills;
-        window.requestIdleCallback(handleKills, {'timeout': 20});
+        window.requestIdleCallback(handleKills, {'timeout': 1000});
+
     }
 
     handleKills();
@@ -647,9 +649,11 @@ function beginGame(username) {
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 0.37;
 
-
-        // moveNPCs();
+        // var t0 = performance.now();
         renderer.render(scene, camera);
+        // var t1 = performance.now();
+        // console.log("Call to loop took " + (t1 - t0) + " milliseconds.")
+
         requestAnimationFrame(loop);
     }
 
