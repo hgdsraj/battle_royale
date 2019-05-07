@@ -9,7 +9,7 @@ const globalColors = {
 class Mirror extends THREE.Group {
     constructor() {
         super();
-        const geometry = new THREE.PlaneBufferGeometry(100, 100);
+        const geometry = new THREE.PlaneBufferGeometry(1, 1);
         const verticalMirror = new THREE.Reflector(geometry, {
             clipBias: 0.003,
             textureWidth: window.innerWidth * window.devicePixelRatio,
@@ -18,7 +18,7 @@ class Mirror extends THREE.Group {
             recursion: 1,
         });
         const mirrorBase = new THREE.Mesh(
-            new THREE.BoxGeometry(160, 160, 3),
+            new THREE.BoxGeometry(1.6, 1.6, 0.03),
             new THREE.MeshStandardMaterial({
                 color: 0x6f7c7c,
                 flatShading: THREE.FlatShading,
@@ -29,7 +29,7 @@ class Mirror extends THREE.Group {
             }),
         );
         mirrorBase.castShadow = true;
-        mirrorBase.position.z += 3;
+        mirrorBase.position.z += 0.03;
         mirrorBase.rotateY(radians(180));
         verticalMirror.rotateY(radians(180));
         this.add(verticalMirror);
@@ -42,7 +42,7 @@ class Wall extends THREE.Group {
         super();
         if (door === false) {
             const wall = new THREE.Mesh(
-                new THREE.BoxGeometry(width, height, 3),
+                new THREE.BoxGeometry(width, height, 0.03),
                 new THREE.MeshStandardMaterial({
                     color: color,
                     flatShading: THREE.FlatShading,
@@ -57,11 +57,11 @@ class Wall extends THREE.Group {
             this.add(wall);
 
         } else {
-            const doorWidth = 50;
-            const doorHeight = 100;
+            const doorWidth = 0.5;
+            const doorHeight = 1;
             const doorWidthDividedBy2 = doorWidth / 2;
             const wall = new THREE.Mesh(
-                new THREE.BoxGeometry(width / 2 - doorWidthDividedBy2, doorHeight, 3),
+                new THREE.BoxGeometry(width / 2 - doorWidthDividedBy2, doorHeight, 0.03),
                 new THREE.MeshStandardMaterial({
                     color: color,
                     flatShading: THREE.FlatShading,
@@ -80,7 +80,7 @@ class Wall extends THREE.Group {
             this.add(wall);
 
             const wall2 = new THREE.Mesh(
-                new THREE.BoxGeometry(width / 2 - doorWidthDividedBy2, doorHeight, 3),
+                new THREE.BoxGeometry(width / 2 - doorWidthDividedBy2, doorHeight, 0.03),
                 new THREE.MeshStandardMaterial({
                     color: color,
                     flatShading: THREE.FlatShading,
@@ -97,7 +97,7 @@ class Wall extends THREE.Group {
             this.add(wall2);
 
             const wall3 = new THREE.Mesh(
-                new THREE.BoxGeometry(width, height - doorHeight, 3),
+                new THREE.BoxGeometry(width, height - doorHeight, 0.03),
                 new THREE.MeshStandardMaterial({
                     color: color,
                     flatShading: THREE.FlatShading,

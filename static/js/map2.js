@@ -43,18 +43,18 @@ function setupMap(scene) {
     scene.add(spotLight2);
     const snowman1 = new Character('');
     snowman1.position.y += 10;
-    scene.add(snowman1);
+    // scene.add(snowman1);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman1));
 
     const snowman2 = new Character('');
     snowman2.position.set(30, 15, -10);
     snowman2.scale.set(0.8, 0.8, 0.8);
-    scene.add(snowman2);
+    // scene.add(snowman2);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman2));
 
     const snowman3 = new Character('');
     snowman3.position.set(-30, 20, -12);
-    scene.add(snowman3);
+    // scene.add(snowman3);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(snowman3));
     var texture = new THREE.TextureLoader().load("textures/snow.jpg");
     texture.encoding = THREE.sRGBEncoding;
@@ -77,12 +77,12 @@ function setupMap(scene) {
     // collidableMeshList = collidableMeshList.concat([floor]); //todo removed this
 
 
-    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 400));
-    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 300, 200, 300, 0, 650));
+    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 3, 2, 3, 0, 4));
+    collidableMeshList = collidableMeshList.concat(createBuilding(scene, 3, 2, 3, 0, 6.5));
     const verticalMirror = new Mirror();
-    verticalMirror.position.y = 60;
+    verticalMirror.position.y = 0.60;
     verticalMirror.position.x = 0;
-    verticalMirror.position.z = 50;
+    verticalMirror.position.z = 0.50;
     scene.add(verticalMirror);
     collidableMeshList = collidableMeshList.concat(calculateCollisionPoints(verticalMirror));
 
@@ -104,7 +104,7 @@ function setupSnow(scene) {
     const particleCount = 100000;
     const pMaterial = new THREE.PointsMaterial({
         color: 0xFFFFFF,
-        size: 4,
+        size: 0.04,
         blending: THREE.AdditiveBlending,
         depthTest: true,
         transparent: false,
@@ -114,13 +114,13 @@ function setupSnow(scene) {
     const particles = new THREE.Geometry();
 
     for (let i = 0; i < particleCount; i++) {
-        let pX = Math.random() * 6000 - 2000,
-            pY = Math.random() * 5000,
-            pZ = Math.random() * 6000 - 2000,
+        let pX = Math.random() * 60 - 20,
+            pY = Math.random() * 50,
+            pZ = Math.random() * 60 - 20,
             particle = new THREE.Vector3(pX, pY, pZ);
         particle.velocity = {};
-        particle.velocity.y = -1;
-        particle.velocity.x = -0.2 + Math.random() * 0.4;
+        particle.velocity.y = -0.01;
+        particle.velocity.x = -0.002 + Math.random() * 0.004;
         particles.vertices.push(particle);
     }
 
@@ -132,14 +132,14 @@ function setupSnow(scene) {
         let pCount = particleCount;
         while (pCount--) {
             const particle = particles.vertices[pCount];
-            if (pCount < 35000 && particle.y >= 10 && particle.y <= 11) {
+            if (pCount < 35000 && particle.y >= 0.10 && particle.y <= 0.11) {
                 particle.velocity.y = 0;
                 particle.velocity.x = 0;
             } else if (particle.y < 0) {
                 const particleRandomness = Math.random();
-                particle.y = particleRandomness * 5000;
-                particle.velocity.y = -0.5 + particleRandomness * 0.2;
-                particle.velocity.x = -0.2 + particleRandomness * 0.4;
+                particle.y = particleRandomness * 50;
+                particle.velocity.y = -0.005 + particleRandomness * 0.002;
+                particle.velocity.x = -0.002 + particleRandomness * 0.004;
             }
 
             particle.y += particle.velocity.y;
@@ -219,7 +219,7 @@ function createBuilding(scene, width, height, x, y, z) {
     walls = walls.concat(calculateCollisionPoints(wall2));
 
     const wall3 = new Wall(width, height, 0x4e555b);
-    wall3.position.set(x, y, z + width / 2)
+    wall3.position.set(x, y, z + width / 2);
     wall3.rotation.y = radians(90);
     scene.add(wall3);
     walls = walls.concat(calculateCollisionPoints(wall3));
@@ -236,7 +236,7 @@ function createBuilding(scene, width, height, x, y, z) {
     walls = walls.concat(calculateCollisionPoints(ceiling));
 
     const floor = new Ceiling(width, width, 0x4e555b);
-    floor.position.set(x, y + 5, z);
+    floor.position.set(x, y + 0.05, z);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     floor.matrixAutoUpdate = false;
@@ -244,8 +244,8 @@ function createBuilding(scene, width, height, x, y, z) {
     scene.add(floor);
     // walls = walls.concat(calculateCollisionPoints(floor)); // todo - removed this
 
-    const pointLight = new THREE.PointLight(0xffffff, 50, 100);
-    pointLight.position.set(ceiling.position.x, ceiling.position.y - 70, ceiling.position.z);
+    const pointLight = new THREE.PointLight(0xffffff, 0.50, 1);
+    pointLight.position.set(ceiling.position.x, ceiling.position.y - 0.70, ceiling.position.z);
     // var sphereSize = 5;
     // var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
     // scene.add( pointLightHelper );
@@ -259,12 +259,12 @@ function createBuilding(scene, width, height, x, y, z) {
     // pointLight.rotation.z = radians(190);
     scene.add(pointLight);
 
-    const lightSphere = new THREE.Mesh(new THREE.SphereGeometry(12, 12, 52), new THREE.MeshPhongMaterial({
+    const lightSphere = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 52), new THREE.MeshPhongMaterial({
         refractionRatio: 0.1,
         reflectivity: 0.04,
         color: 0xf5f3ce,
     }));
-    lightSphere.position.set(ceiling.position.x, ceiling.position.y - 5, ceiling.position.z);
+    lightSphere.position.set(ceiling.position.x, ceiling.position.y - 0.05, ceiling.position.z);
 
     // scene.add(lightSphere);
 
