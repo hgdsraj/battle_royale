@@ -53,7 +53,7 @@ class UserHandler extends Handler {
         this.ws.addEventListener('message', handler);
     }
 
-    send(x, y, z, theta, health, attack, killer) {
+    send(x, y, z, theta, health, attack, killer, shooting) {
         if (this.ws.readyState !== this.ws.OPEN) {
             console.log('not ready');
             return;
@@ -67,6 +67,7 @@ class UserHandler extends Handler {
             health,
             attack,
             killed_by: killer,
+            shooting,
         }));
     }
 }

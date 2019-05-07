@@ -179,6 +179,7 @@ function beginGame(username) {
     });
     controls.jumpSound = jumpSound;
     const clock = new THREE.Clock();
+
     const enemies = {};
     let collidableEnemies = []; // holds meshes of enemies for collisions
     const kills = {};
@@ -207,7 +208,7 @@ function beginGame(username) {
 
     }
     function handleEnemies() {
-        userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {});
+        userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, '' ,shooting);
         collidableEnemies = [];
         const usersSeen = {};
         const othersKeys = Object.keys(userHandler.others);
@@ -236,15 +237,61 @@ function beginGame(username) {
             // todo: terrible way to receive damage. others can max this value.
             if (!(enemy.username in enemies)) {
                 enemies[enemy.username] = new Character(enemy.username);
+                enemies[enemy.username].shootingSound = new THREE.PositionalAudio( listener );
+                audioLoader.load( 'audio/gun.mp3', function( buffer ) {
+                    enemies[enemy.username].shootingSound.setBuffer( buffer );
+                    enemies[enemy.username].footstepSound.setVolume(0.25);
+                    enemies[enemy.username].shootingSound.setRefDistance( 40 );
+
+                });
+
+                enemies[enemy.username].footstepSound = new THREE.PositionalAudio( listener );
+                audioLoader.load( 'audio/footstepenemy.wav', function( buffer ) {
+                    enemies[enemy.username].footstepSound.setBuffer( buffer );
+                    enemies[enemy.username].footstepSound.setVolume(0.8);
+                    enemies[enemy.username].footstepSound.setRefDistance( 40 );
+
+                });
+
+                enemies[enemy.username].shootingClock = new THREE.Clock();
+                enemies[enemy.username].shootingClock.timeInterval = 0;
+
+                enemies[enemy.username].footstepClock = new THREE.Clock();
+                enemies[enemy.username].footstepClock.timeInterval = 0;
+
                 scene.add(enemies[enemy.username]);
+                enemies[enemy.username].add(enemies[enemy.username].shootingSound);
+                enemies[enemy.username].add(enemies[enemy.username].footstepSound);
+
                 infoMessages.push(enemy.username, '', 'has entered the game', '');
             }
-            enemies[enemy.username].position.set(enemy.x, enemy.y, enemy.z);
-            enemies[enemy.username].rotation.y = enemy.theta;
-            enemies[enemy.username].healthBar.scale.x = Math.max(enemy.health / 100, 0.0000001);
-            enemies[enemy.username].health = enemy.health;
+            const currentEnemy = enemies[enemy.username];
+            if (currentEnemy.position.x !== enemy.x || currentEnemy.position.y !== enemy.y || currentEnemy.position.z !== enemy.z) {
+                currentEnemy.footstepClock.timeInterval += currentEnemy.footstepClock.getDelta();
+                if ( currentEnemy.footstepClock.timeInterval*10 > 1) {//todo  wtf it should be timeInterval / 1000 > 1 since timeInterval should be in seconds...
+                    currentEnemy.footstepClock.timeInterval = 0;
+                    if (currentEnemy.footstepSound.isPlaying) {
+                        currentEnemy.footstepSound.stop()
+                    }
+                    currentEnemy.footstepSound.play();
+                }
+            }
+            if (enemy.shooting) {
+                currentEnemy.shootingClock.timeInterval += currentEnemy.shootingClock.getDelta();
+                if (currentEnemy.shootingClock.timeInterval*10 > 1) {//todo  wtf it should be timeInterval / 1000 > 1 since timeInterval should be in seconds...
+                    currentEnemy.shootingClock.timeInterval = 0;
+                    if (currentEnemy.shootingSound.isPlaying) {
+                        currentEnemy.shootingSound.stop()
+                    }
+                    currentEnemy.shootingSound.play();
+                }
+            }
+            currentEnemy.position.set(enemy.x, enemy.y, enemy.z);
+            currentEnemy.rotation.y = enemy.theta;
+            currentEnemy.healthBar.scale.x = Math.max(enemy.health / 100, 0.0000001);
+            currentEnemy.health = enemy.health;
             // = userCharacter.rotation;
-            enemyUsername = enemies[enemy.username].rotateUserInfo(theta);
+            enemyUsername = currentEnemy.rotateUserInfo(theta);
             usersSeen[enemy.username] = true;
         }
         const enemyKeys = Object.keys(enemies);
@@ -278,9 +325,10 @@ function beginGame(username) {
             const enemy = userHandler.attacks.shift();
             if (!(enemy.attack.uuid in attacks)) {
                 death = userCharacter.receiveDamage(enemy.attack.damage);
+
                 if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
                     infoMessages.push(username, enemy.username, 'killed by', '');
-                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username);
+                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username, shooting);
                     camera.position.set(-100, 100, 450);
                 }
                 attacks[enemy.attack.uuid] = true;
@@ -288,7 +336,7 @@ function beginGame(username) {
 
         }
 
-        window.requestIdleCallback(handleDamageAndKills, {'timeout': 30});
+        window.requestIdleCallback(handleDamageAndKills, {'timeout': 1});
 
     }
 
@@ -362,7 +410,7 @@ function beginGame(username) {
             finalDamageAmount *= 2.5;
             headshotSound.play();
         }
-        shootingSound.play();
+        // shootingSound.play();
 
         if (numRecoils < recoilMax) {
             controls.recoil(1, recoilAmount);
@@ -391,7 +439,7 @@ function beginGame(username) {
             const attack = {'username': enemy.object.parent.username, 'damage': finalDamageAmount};
             lastAttacked = enemy.object.parent.username;
 
-            userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack);
+            userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack, '', shooting);
         } else if (lineOfSight.length > 0) {
             const collisionObject = lineOfSight[0];
             const point = collisionObject.point;
@@ -471,6 +519,7 @@ function beginGame(username) {
     let inChat = false;
     window.addEventListener('keydown', (event) => {
         if (event.key === 'p' && !inChat) {
+            listener.context.resume(); // need to resume context after user interaction
             const pauseMenu = document.getElementById('pause-menu');
             pauseMenu.toggleAttribute('hidden');
             if (pauseMenu.hidden === true) {
