@@ -430,9 +430,9 @@ function beginGame(username) {
             controls.recoil(1, recoilAmount);
             window.requestIdleCallback(() => {
                 controls.recoil(1, -recoilAmount)
-            }, {'timeout': 65})
+            }, {'timeout': 30})
         }
-        userCharacter.gun.recoil(65);
+        userCharacter.gun.recoil(30);
         if (lineOfSight.length > 0 && lineOfSight[0].object.parent.username !== undefined) {
 
 
