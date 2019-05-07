@@ -334,11 +334,11 @@ class Character extends THREE.Group {
             self.add(health);
 
         }
-        this.gun = new Gun(0.01, 0.07, 0.20, 0.35);
+        this.gun = new Gun(0.01, 0.07, 0.20, 0.25);
         // const gun = new THREE.Mesh(new THREE.BoxGeometry(1, 7/5, 20, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffffff }));
 
         // this.gun.applyMatrix( new THREE.Matrix4().makeTranslation(-10, 30, 20) );
-        this.gun.translateX(-0.10);
+        this.gun.translateX(-0.15);
         this.gun.translateY(0.30);
         if (isMainCharacter) {
             this.gun.rotation.z = radians(180);
@@ -460,14 +460,42 @@ class Gun extends THREE.Group {
     }
 
     makeGun(width, height, length) {
-        const barrel = new THREE.Mesh(new THREE.BoxGeometry(width, height / 5, length, 1, 1), new THREE.MeshPhongMaterial({color: 0xffffff}));
+        const underbarrel = new THREE.Mesh(new THREE.BoxGeometry(width, height / 5, length, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
+        this.gun.add(underbarrel);
+        const barrel = new THREE.Mesh(new THREE.CylinderGeometry(width, width, length*2), new THREE.MeshPhongMaterial({color: 0x000000}));
+        barrel.rotation.x = radians(90);
+        barrel.position.y += underbarrel.position.y + width;
+        barrel.position.z -= length/2;
         this.gun.add(barrel);
+
+        const scopeBack = new THREE.Mesh(new THREE.CylinderGeometry(width*2, width, length/2), new THREE.MeshPhongMaterial({color: 0x000000}));
+        scopeBack.rotation.x = radians(90);
+        scopeBack.position.y += barrel.position.y + 4*width;
+        scopeBack.position.z += length/2 - 0.1;
+        this.gun.add(scopeBack);
+
+        const scopeFront = new THREE.Mesh(new THREE.CylinderGeometry(width, width*1.5, length/2), new THREE.MeshPhongMaterial({color: 0x000000}));
+        scopeFront.rotation.x = radians(90);
+        scopeFront.position.y += barrel.position.y + 4*width;
+        scopeFront.position.z -= 0.1;
+
+        this.gun.add(scopeFront);
+
+        const scopeMount = new THREE.Mesh(new THREE.BoxGeometry(width, height/3, length/3, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
+        scopeMount.position.y += barrel.position.y + 2*width;
+        scopeMount.position.z -= 0.1/2;
+
+        this.gun.add(scopeMount);
+
+        // scopeFront.position.z -= length;
+
         const handleHeight = 4 * height / 5;
         const handleLength = length / 10;
-        const handle = new THREE.Mesh(new THREE.BoxGeometry(width, handleHeight, handleLength, 1, 1), new THREE.MeshPhongMaterial({color: 0xffffff}));
-        handle.position.y = barrel.position.y - (handleHeight) / 2;
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(width, handleHeight, handleLength, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
+        handle.position.y = underbarrel.position.y - (handleHeight) / 2;
         handle.position.z += length / 2 - handleLength / 2;
         this.gun.add(handle);
+        this.underbarrel = underbarrel;
         this.barrel = barrel;
         this.handle = handle;
 

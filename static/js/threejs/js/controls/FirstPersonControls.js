@@ -154,7 +154,6 @@ THREE.FirstPersonControls = function (camera, domElement) {
     function onPointerlockChange() {
         self.isLocked = document.pointerLockElement === domElement;
         self.enabled = self.isLocked;
-        console.log('wuddup', self.isLocked);
     }
 
     function onPointerlockError() {
