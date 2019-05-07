@@ -396,7 +396,7 @@ class Tree extends THREE.Group {
         });
 
         const trunk = new THREE.Mesh(
-            addNoise(new THREE.CylinderGeometry(20, 20, 20, 4), 2, 2, 2),
+            addNoise(new THREE.CylinderGeometry(0.20, 0.20, 0.20, 4), 0.002, 0.002, 0.002),
             new THREE.MeshPhongMaterial({
                 color: trunkColor,
                 flatShading: THREE.FlatShading,
@@ -416,22 +416,22 @@ class Tree extends THREE.Group {
         //     })
         // );
 
-        trunk.position.y = 10;
+        trunk.position.y = 0.10;
         trunk.castShadow = true;
         trunk.receiveShadow = true;
         this.add(trunk);
-        const bottom = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 50, 120, 18), 11, 11, 11), treeMaterial);
-        bottom.position.y = 80;
+        const bottom = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 0.50, 1.20, 18), 0.11, 0.11, 0.11), treeMaterial);
+        bottom.position.y = 0.80;
         bottom.castShadow = true;
         bottom.receiveShadow = true;
         this.add(bottom);
-        const mid = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 40, 100, 17), 11, 11, 11), treeMaterial);
-        mid.position.y = 110;
+        const mid = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 0.40, 1.00, 17), 0.11, 0.11, 0.11), treeMaterial);
+        mid.position.y = 1.10;
         mid.castShadow = true;
         mid.receiveShadow = true;
         this.add(mid);
-        const top = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 30, 80, 14), 11, 11, 11), treeMaterial);
-        top.position.y = 140;
+        const top = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 0.30, 0.80, 14), 0.11, 0.11, 0.11), treeMaterial);
+        top.position.y = 1.40;
         top.castShadow = true;
         top.receiveShadow = true;
         this.add(top);

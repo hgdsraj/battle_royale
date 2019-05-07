@@ -155,13 +155,13 @@ function setupTrees(scene) {
     for (let z = -10; z < 10; z++) {
         for (let x = -10; x < 10; x++) {
             const tree = new Tree();
-            const variation = (Math.random() - 0.5) * 50;
-            tree.position.z = (z * (Math.random() * 51 + 250)) - (10 * 80) + variation;
-            tree.position.x = (x * (Math.random() * 51 + 250)) - (8 * 80) + variation;
+            const variation = (Math.random() - 0.5) * 0.50;
+            tree.position.z = (z * (Math.random() * 0.51 + 2.50)) - (8.00) + variation;
+            tree.position.x = (x * (Math.random() * 0.51 + 2.50)) - (6.40) + variation;
             tree.matrixAutoUpdate = false;
-            if (tree.position.x > -1900 && tree.position.x < -700 && tree.position.z > -1900 && tree.position.z < -700) {
-                tree.position.x += 3000;
-                tree.position.z += 3000;
+            if (tree.position.x > -19 && tree.position.x < -7 && tree.position.z > -19 && tree.position.z < -7) {
+                tree.position.x += 30;
+                tree.position.z += 30;
                 tree.updateMatrix();
                 treeGroup.add(tree);
                 collisions = collisions.concat(calculateCollisionPoints(tree));
