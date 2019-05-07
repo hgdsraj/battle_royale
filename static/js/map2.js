@@ -191,6 +191,8 @@ function setupClouds(scene) {
             cloud.position.z = (z * (Math.random() * 51 + 700)) - (10 * 80) + variation;
             cloud.position.x = (x * (Math.random() * 51 + 700)) - (8 * 80) + variation;
             cloud.position.y = Math.random() * 400 + 1500;
+            cloud.matrixAutoUpdate = false;
+            cloud.updateMatrix();
             cloudGroup.add(cloud);
         }
     }
@@ -237,6 +239,8 @@ function createBuilding(scene, width, height, x, y, z) {
     floor.position.set(x, y + 5, z);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
+    floor.matrixAutoUpdate = false;
+    floor.updateMatrix();
     scene.add(floor);
     // walls = walls.concat(calculateCollisionPoints(floor)); // todo - removed this
 

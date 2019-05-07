@@ -139,7 +139,7 @@ function beginGame(username) {
     let userCharacter = new Character(username, noFace = true, isMainCharcter = true);
     const hitmarkerSelector = document.getElementById("hitmarker-wrapper");
     scene.add(userCharacter);
-    // makeNPCs(scene);
+    makeNPCs(scene);
 
     const box = new THREE.Box3().setFromObject(userCharacter);
     camera.position.y = box.getSize().y;
