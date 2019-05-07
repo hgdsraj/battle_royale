@@ -53,13 +53,13 @@ class UserHandler extends Handler {
         this.ws.addEventListener('message', handler);
     }
 
-    send(x, y, z, theta, health, attack, killer, shooting) {
+    send(x, y, z, theta, health, attack, killer, shooting, username = null) { // TODO super hackable as you can send any username
         if (this.ws.readyState !== this.ws.OPEN) {
             console.log('not ready');
             return;
         }
         this.ws.send(JSON.stringify({
-            username: this.username,
+            username: username == null ? this.username : username,
             x,
             y,
             z,
@@ -69,6 +69,9 @@ class UserHandler extends Handler {
             killed_by: killer,
             shooting,
         }));
+    }
+    sendNPC(x, y, z, theta, health, attack, killer, shooting, username) {
+        this.send(x, y, z, theta, health, attack, killer, shooting, username = username)
     }
 }
 

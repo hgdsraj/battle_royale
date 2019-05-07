@@ -1,6 +1,6 @@
-function make_npcs(scene) {
+function makeNPCs(scene) {
     let npcs = [];
-    for (let i = 0; i < 20; i ++) {
+    for (let i = 0; i < 5; i ++) {
         let s = new Character('');
         s.position.set(-1000 + Math.random() * 2000, 15, -1000 + Math.random() * 2000);
         npcs.push(s);
@@ -13,14 +13,22 @@ function make_npcs(scene) {
 
     }
 
-    let moveNPCs = function () {
+    let moveNPCs = function (userHandler) {
+
         let nCount = npcs.length;
         while (nCount--) {
             let npc = npcs[nCount];
+            userHandler.sendNPC(npc.position.x, npc.position.y, npc.position.z, npc.rotation.y, npc.health, {}, '' ,Math.random() > 0.9 && nCount === 1, "NPC" + nCount.toString());
+
             if (npc.position.z < 2000 && npc.position.z > -2000 && npc.position.x < 2000 && npc.position.x > -2000) {
                 if (npc.counter > 100) {
-                    npc.velocity.z = -5 + Math.random() * 10;
-                    npc.velocity.x = -5 + Math.random() * 10;
+                    npc.velocity.z =  -2 + Math.random() * 2;
+                    npc.velocity.x =  -2 + Math.random() * 2;
+                    if (Math.abs(npc.velocity.x) < 1 || Math.abs(npc.velocity.y) < 1) {
+                        npc.velocity.z =  0;
+                        npc.velocity.x = 0;
+
+                    }
                     npc.counter = 0;
                 } else {
                     npc.counter = npc.counter + 1;
@@ -37,5 +45,5 @@ function make_npcs(scene) {
         }
 
     };
-    return moveNPCs();
+    return moveNPCs;
 }

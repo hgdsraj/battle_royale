@@ -127,6 +127,7 @@ function beginGame(username) {
     const collidableMeshList = map.collidableMeshList;
     const mapSize = map.mapSize;
     const mapDynamics = map.mapDynamics;
+    // const moveNPCs = makeNPCs(scene);
     let shooting = false;
     let lineOfSight = [];
     let killCount = {};
@@ -240,7 +241,7 @@ function beginGame(username) {
                 enemies[enemy.username].shootingSound = new THREE.PositionalAudio( listener );
                 audioLoader.load( 'audio/gun.mp3', function( buffer ) {
                     enemies[enemy.username].shootingSound.setBuffer( buffer );
-                    enemies[enemy.username].footstepSound.setVolume(0.25);
+                    enemies[enemy.username].shootingSound.setVolume(0.25);
                     enemies[enemy.username].shootingSound.setRefDistance( 40 );
 
                 });
@@ -410,7 +411,7 @@ function beginGame(username) {
             finalDamageAmount *= 2.5;
             headshotSound.play();
         }
-        // shootingSound.play();
+        shootingSound.play();
 
         if (numRecoils < recoilMax) {
             controls.recoil(1, recoilAmount);
@@ -575,6 +576,7 @@ function beginGame(username) {
 
     function moveMapParticles() {
         mapDynamics();
+        // moveNPCs(userHandler);
         window.requestIdleCallback(moveMapParticles, {'timeout': 30})
     }
 
