@@ -259,6 +259,7 @@ class Character extends THREE.Group {
             nose.rotateX(radians(getRandomInt(60, 90)));
             nose.position.z += 0.07;
             nose.isHead = true;
+            this.nose = nose;
             this.add(nose);
 
             const eye1 = new THREE.Mesh(
@@ -278,6 +279,8 @@ class Character extends THREE.Group {
             eye1.position.z += 0.04;
             eye1.position.x -= 0.02;
             eye1.isHead = true;
+            this.eye1 = eye1;
+
             this.add(eye1);
             const eye2 = new THREE.Mesh(
                 new THREE.SphereGeometry(0.02, 10, 32),
@@ -299,6 +302,7 @@ class Character extends THREE.Group {
             eye2.position.x += 0.02;
             eye2.isHead = true;
             this.add(eye2);
+            this.eye2 = eye2;
             const loader = new THREE.FontLoader();
             const self = this;
             loader.load('font.json', (font) => {

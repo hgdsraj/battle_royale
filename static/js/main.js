@@ -121,6 +121,7 @@ function beginGame(username) {
     const chatHandler = new ChatHandler(username);
     const userHandler = new UserHandler(username);
     let theta = 0;
+    let gunThetaX = 0;
     let numRecoils = 0;
     const recoilMax = 10;
     const recoilAmount = 0.02;
@@ -216,7 +217,7 @@ function beginGame(username) {
 
     }
     function handleEnemies() {
-        userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, '' ,shooting);
+        userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.gun.rotation.x, userCharacter.health, {}, '' ,shooting);
         collidableEnemies = [];
         const usersSeen = {};
         const othersKeys = Object.keys(userHandler.others);
@@ -296,6 +297,11 @@ function beginGame(username) {
             }
             currentEnemy.position.set(enemy.x, enemy.y, enemy.z);
             currentEnemy.rotation.y = enemy.theta;
+            currentEnemy.gun.rotation.x = enemy.gunThetaX - radians(180);
+            currentEnemy.head.rotation.x = enemy.gunThetaX - radians(180);
+            // currentEnemy.eye1.rotation.x = enemy.gunThetaX - radians(180); // todo (make head a single group that can be rotated)
+            // currentEnemy.eye2.rotation.x = enemy.gunThetaX - radians(180);
+            // currentEnemy.nose.rotation.x = enemy.gunThetaX - radians(180);
             currentEnemy.healthBar.scale.x = Math.max(enemy.health / 100, 0.0000001);
             currentEnemy.health = enemy.health;
             // = userCharacter.rotation;
@@ -337,7 +343,7 @@ function beginGame(username) {
 
                 if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
                     infoMessages.push(username, enemy.username, 'killed by', '');
-                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, {}, enemy.username, shooting);
+                    userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.gun.rotation.x, userCharacter.health, {}, enemy.username, shooting);
                     camera.position.set(3, 0.70, 4);
                 }
                 attacks[enemy.attack.uuid] = true;
@@ -450,7 +456,7 @@ function beginGame(username) {
             const attack = {'username': enemy.object.parent.username, 'damage': finalDamageAmount};
             lastAttacked = enemy.object.parent.username;
 
-            userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.health, attack, '', shooting);
+            userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.gun.rotation.x, userCharacter.health, attack, '', shooting);
         } else if (lineOfSight.length > 0) {
             const collisionObject = lineOfSight[0];
             const point = collisionObject.point;
@@ -645,18 +651,18 @@ function beginGame(username) {
         camera.getWorldDirection(vector);
         theta = Math.atan2(vector.x, vector.z);
 
-        const thetaX = -Math.asin(vector.y, 1) + radians(180);
+        gunThetaX = -Math.asin(vector.y, 1) + radians(180);
         userCharacter.rotation.y = theta;
-        userCharacter.gun.rotation.x = thetaX;
+        userCharacter.gun.rotation.x = gunThetaX;
 
         userCharacter.position.x = camera.position.x;
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 0.37;
 
-        var t0 = performance.now();
+        // var t0 = performance.now();
         renderer.render(scene, camera);
-        var t1 = performance.now();
-        console.log("Call to loop took " + (t1 - t0) + " milliseconds.")
+        // var t1 = performance.now();
+        // console.log("Call to loop took " + (t1 - t0) + " milliseconds.")
 
         requestAnimationFrame(loop);
     }

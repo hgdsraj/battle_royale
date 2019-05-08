@@ -57,6 +57,7 @@ type User struct {
 	Y  float32 `json:"y"`
 	Z  float32 `json:"z"`
 	Theta  float32 `json:"theta"`
+	GunThetaX  float32 `json:"gunThetaX"`
 	Health  float64 `json:"health"`
 	Attack attack `json:"attack"`
 	Shooting bool `json:"shooting"`
