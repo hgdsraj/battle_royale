@@ -387,9 +387,9 @@ class Character extends THREE.Group {
 }
 
 class Tree extends THREE.Group {
-    constructor() {
+    constructor(scaleVariation) {
         super();
-
+        this.scaleVariation = scaleVariation;
         const trunkColor = '#ffaa00';
         const treeColors = ['#4d9e3a', '#36662b', '#2a7519', '#367727', '#d9e0d7'];
         const treeMaterial = new THREE.MeshPhongMaterial({
@@ -440,11 +440,10 @@ class Tree extends THREE.Group {
         top.receiveShadow = true;
         this.add(top);
 
-        this.variation = (Math.random() - 0.5) - 0.1;
 
-        this.scale.x = 1 + this.variation;
-        this.scale.y = 1 + this.variation;
-        this.scale.z = 1 + this.variation;
+        this.scale.x = 1 + this.scaleVariation;
+        this.scale.y = 1 + this.scaleVariation;
+        this.scale.z = 1 + this.scaleVariation;
         this.rotation.y = Math.random() * Math.PI;
     }
 }

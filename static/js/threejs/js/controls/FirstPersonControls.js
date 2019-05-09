@@ -124,8 +124,8 @@ THREE.FirstPersonControls = function (camera, domElement) {
 
         self.euler.setFromQuaternion(camera.quaternion);
 
-        self.euler.y -= movementX * 0.002;
-        self.euler.x -= movementY * 0.002;
+        self.euler.y -= movementX * self.lookSpeed;
+        self.euler.x -= movementY * self.lookSpeed;
 
         self.euler.x = Math.max(-PI_2, Math.min(PI_2, self.euler.x));
 

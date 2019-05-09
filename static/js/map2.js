@@ -152,26 +152,16 @@ function setupSnow(scene) {
 function setupTrees(scene) {
     const treeGroup = new THREE.Group();
     let collisions = [];
-    for (let z = -10; z < 10; z++) {
-        for (let x = -10; x < 10; x++) {
-            const tree = new Tree();
-            const variation = (Math.random() - 0.5) * 0.50;
-            tree.position.z = (z * (Math.random() * 0.51 + 2.50)) - (8.00) + variation;
-            tree.position.x = (x * (Math.random() * 0.51 + 2.50)) - (6.40) + variation;
-            tree.matrixAutoUpdate = false;
-            if (tree.position.x > -19 && tree.position.x < -7 && tree.position.z > -19 && tree.position.z < -7) {
-                tree.position.x += 30;
-                tree.position.z += 30;
-                tree.updateMatrix();
-                treeGroup.add(tree);
-                collisions = collisions.concat(calculateCollisionPoints(tree));
+    const treePositions = getTreePositions();
+    for (let i = 0; i < treePositions['treeScales'].length; i++) {
+        const tree = new Tree(treePositions['treeScales'][i]);
+        tree.matrixAutoUpdate = false;
+        tree.position.x = treePositions['treeXPositions'][i];
+        tree.position.z = treePositions['treeZPositions'][i];
+        collisions = collisions.concat(calculateCollisionPoints(tree));
+        tree.updateMatrix();
+        treeGroup.add(tree);
 
-            } else {
-                tree.updateMatrix();
-                treeGroup.add(tree);
-                collisions = collisions.concat(calculateCollisionPoints(tree));
-            }
-        }
     }
     const box = new THREE.Box3().setFromObject(treeGroup);
     treeGroup.position.x += box.getSize().x / 4;

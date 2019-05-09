@@ -105,7 +105,7 @@ function setupCameraAndControls() {
     scene.fog = new THREE.FogExp2(0x5C646C, 0.09);
 
     controls.movementSpeed = 2.50;
-    controls.lookSpeed = 0.2;
+    controls.lookSpeed = 0.002;
     controls.lookVertical = true;
     controls.activeLook = false;
     controls.constrainVertical = true;
@@ -312,9 +312,7 @@ function beginGame(username) {
         for (let i = 0; i < enemyKeys.length; i++) {
             if (!(enemyKeys[i] in usersSeen)) {
                 infoMessages.push(enemies[enemyKeys[i]].username, '', 'has left the game', '');
-
-                scene.remove(enemies[enemyKeys[i]]);
-                enemies[enemyKeys[i]].material.dispose(); // todo also geometry?
+                scene.remove(enemies[enemyKeys[i]]); // todo dispose of geometry and material ? .dispose()
                 delete enemies[enemyKeys[i]];
             } else {
                 collidableEnemies = collidableEnemies.concat(calculateCollisionPoints(enemies[enemyKeys[i]]));
@@ -344,7 +342,7 @@ function beginGame(username) {
                 if (death) { // TODO missing packets because this is on an interval (can miss a killed by or damage) -- use queue for damage --
                     infoMessages.push(username, enemy.username, 'killed by', '');
                     userHandler.send(userCharacter.position.x, userCharacter.position.y, userCharacter.position.z, userCharacter.rotation.y, userCharacter.gun.rotation.x, userCharacter.health, {}, enemy.username, shooting);
-                    camera.position.set(3, 0.70, 4);
+                    camera.position.set(3 - Math.random(), 0.70, 4 - Math.random());
                 }
                 attacks[enemy.attack.uuid] = true;
             }
@@ -390,7 +388,7 @@ function beginGame(username) {
 
     handleHealth();
 
-    const damageAmount = 10;
+    const damageAmount = 40;
 
     function handleKills() {
         let kills = '';
@@ -482,19 +480,23 @@ function beginGame(username) {
     let zoomingOut = false;
     let zoomInTimeout;
     let zoomOutTimeout;
-
+    const scopeSelector = document.getElementById('scope');
+    const crosshair = document.getElementById('crosshair');
     function zoomIn() {
-        camera.zoom = 1.5;
-
+        controls.lookSpeed = 0.001;
+        scopeSelector.hidden = false;
+        crosshair.hidden = true;
+        camera.zoom = 6;
         camera.updateProjectionMatrix();
         // if (camera.zoom < 1.5) {
             // zoomInTimeout = window.requestIdleCallback(zoomIn, {'timeout': 1}); // TODO smooth zoom lags
         // }
     }
-
     function zoomOut() {
+        controls.lookSpeed = 0.002;
+        scopeSelector.hidden = true;
+        crosshair.hidden = false;
         camera.zoom = 1;
-
         camera.updateProjectionMatrix();
         // if (camera.zoom > 1) {
             // zoomOutTimeout = window.requestIdleCallback(zoomOut, {'timeout': 1}); // TODO smooth zoom lags
