@@ -408,6 +408,10 @@ function beginGame(username) {
         reflectivity: 0.04,
         color: 0xff0000,
     });
+    const bulletHoleGeometry =new THREE.BoxGeometry(0.03, 0.03, 0.03);
+    const bulletHoleMaterial =new THREE.MeshMatcapMaterial({
+        color: 0x4e555b,
+    });
     // TODO: terrible way to handle shooting - timing will be messed up...
     function handleShooting() {
         lineOfSight = detectBullets(camera.position, vector, collidableMeshList.concat(collidableEnemies));
@@ -459,9 +463,7 @@ function beginGame(username) {
             const collisionObject = lineOfSight[0];
             const point = collisionObject.point;
 
-            const bulletHole = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.03), new THREE.MeshMatcapMaterial({
-                color: 0x4e555b,
-            }));
+            const bulletHole = new THREE.Mesh(bulletHoleGeometry, bulletHoleMaterial);
             bulletHole.position.set(point.x, point.y, point.z);
 
             function removeBulletHole() {
@@ -661,10 +663,10 @@ function beginGame(username) {
         userCharacter.position.z = camera.position.z;
         userCharacter.position.y = camera.position.y - 0.37;
 
-        // var t0 = performance.now();
+        var t0 = performance.now();
         renderer.render(scene, camera);
-        // var t1 = performance.now();
-        // console.log("Call to loop took " + (t1 - t0) + " milliseconds.")
+        var t1 = performance.now();
+        console.log("Call to loop took " + (t1 - t0) + " milliseconds.")
 
         requestAnimationFrame(loop);
     }

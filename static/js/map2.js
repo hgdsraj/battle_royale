@@ -196,36 +196,42 @@ function setupClouds(scene) {
 
 function createBuilding(scene, width, height, x, y, z) {
     let walls = [];
-    const wall = new Wall(width, height, 0x4e555b);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x4e555b,
+        flatShading: THREE.FlatShading,
+        metalness: 0,
+        roughness: 0.8,
+    });
+    const wall = new Wall(width, height, false,false,  material);
     wall.position.z += width;
     wall.rotation.y = radians(90);
     wall.position.set(x, y, z - width / 2);
     scene.add(wall);
     walls = walls.concat(calculateCollisionPoints(wall));
 
-    const wall2 = new Wall(width, height, 0x4e555b, door = true);
+    const wall2 = new Wall(width, height, door = true, false, material);
     wall2.position.set(x - width / 2, y, z);
     scene.add(wall2);
     walls = walls.concat(calculateCollisionPoints(wall2));
 
-    const wall3 = new Wall(width, height, 0x4e555b);
+    const wall3 = new Wall(width, height, false, false, material);
     wall3.position.set(x, y, z + width / 2);
     wall3.rotation.y = radians(90);
     scene.add(wall3);
     walls = walls.concat(calculateCollisionPoints(wall3));
 
-    const wall4 = new Wall(width, height, 0x4e555b);
+    const wall4 = new Wall(width, height, false, false, material);
     wall4.position.set(width / 2 + x, y, z);
     scene.add(wall4);
     walls = walls.concat(calculateCollisionPoints(wall4));
 
-    const ceiling = new Ceiling(width, width, 0x4e555b);
+    const ceiling = new Ceiling(width, width, material);
     ceiling.position.set(x, y + height, z);
     ceiling.rotation.x = -Math.PI / 2;
     scene.add(ceiling);
     walls = walls.concat(calculateCollisionPoints(ceiling));
 
-    const floor = new Ceiling(width, width, 0x4e555b);
+    const floor = new Ceiling(width, width, material);
     floor.position.set(x, y + 0.05, z);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;

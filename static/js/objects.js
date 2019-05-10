@@ -38,17 +38,20 @@ class Mirror extends THREE.Group {
 }
 
 class Wall extends THREE.Group {
-    constructor(width, height, color, door = false, windows = false) {
+    constructor(width, height, door = false, windows = false, material = null) {
+        if (material === null || material === undefined) {
+            material = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                flatShading: THREE.FlatShading,
+                metalness: 0,
+                roughness: 0.8,
+            });
+        }
         super();
         if (door === false) {
             const wall = new THREE.Mesh(
                 new THREE.BoxGeometry(width, height, 0.03),
-                new THREE.MeshStandardMaterial({
-                    color: color,
-                    flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                }),
+                material,
             );
             wall.receiveShadow = true;
             wall.castShadow = true;
@@ -62,12 +65,7 @@ class Wall extends THREE.Group {
             const doorWidthDividedBy2 = doorWidth / 2;
             const wall = new THREE.Mesh(
                 new THREE.BoxGeometry(width / 2 - doorWidthDividedBy2, doorHeight, 0.03),
-                new THREE.MeshStandardMaterial({
-                    color: color,
-                    flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                }),
+                material,
             );
             wall.receiveShadow = true;
             wall.castShadow = true;
@@ -81,12 +79,7 @@ class Wall extends THREE.Group {
 
             const wall2 = new THREE.Mesh(
                 new THREE.BoxGeometry(width / 2 - doorWidthDividedBy2, doorHeight, 0.03),
-                new THREE.MeshStandardMaterial({
-                    color: color,
-                    flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                }),
+                material,
             );
             wall2.position.z += width / 4 + doorWidth / 4;
             wall2.receiveShadow = true;
@@ -98,10 +91,7 @@ class Wall extends THREE.Group {
 
             const wall3 = new THREE.Mesh(
                 new THREE.BoxGeometry(width, height - doorHeight, 0.03),
-                new THREE.MeshStandardMaterial({
-                    color: color,
-                    flatShading: THREE.FlatShading,
-                }),
+                material,
             );
             wall3.receiveShadow = true;
             wall3.castShadow = true;
@@ -115,9 +105,9 @@ class Wall extends THREE.Group {
 }
 
 class Ceiling extends THREE.Group {
-    constructor(width, length, color) {
+    constructor(width, length, material) {
         super();
-        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 0.01, 1), new THREE.MeshPhongMaterial({color: color}));
+        const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width, length, 0.01, 1), material);
         ceiling.receiveShadow = true;
         ceiling.castShadow = true;
         this.add(ceiling);
@@ -185,6 +175,102 @@ class Ramp extends THREE.Group {
     }
 }
 
+class Gun extends THREE.Group {
+    constructor(width, height, length, zOffset) {
+        super();
+        this.recoilAmount = radians(20);
+
+        this.zOffset = zOffset;
+        this.gun = new THREE.Group();
+        this.makeGun(width, height, length, zOffset);
+        this.add(this.gun)
+        this.gun.position.z -= zOffset;
+
+    }
+
+    makeGun(width, height, length) {
+        const underbarrel = new THREE.Mesh(new THREE.BoxGeometry(width, height / 5, length, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
+        this.gun.add(underbarrel);
+        const barrel = new THREE.Mesh(new THREE.CylinderGeometry(width, width, length*2), new THREE.MeshPhongMaterial({color: 0x000000}));
+        barrel.rotation.x = radians(90);
+        barrel.position.y += underbarrel.position.y + width;
+        barrel.position.z -= length/2;
+        this.gun.add(barrel);
+
+        const scopeBack = new THREE.Mesh(new THREE.CylinderGeometry(width*2, width, length/2), new THREE.MeshPhongMaterial({color: 0x000000}));
+        scopeBack.rotation.x = radians(90);
+        scopeBack.position.y += barrel.position.y + 4*width;
+        scopeBack.position.z += length/2 - 0.1;
+        this.gun.add(scopeBack);
+
+        const scopeFront = new THREE.Mesh(new THREE.CylinderGeometry(width, width*1.5, length/2), new THREE.MeshPhongMaterial({color: 0x000000}));
+        scopeFront.rotation.x = radians(90);
+        scopeFront.position.y += barrel.position.y + 4*width;
+        scopeFront.position.z -= 0.1;
+
+        this.gun.add(scopeFront);
+
+        const scopeMount = new THREE.Mesh(new THREE.BoxGeometry(width, height/3, length/3, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
+        scopeMount.position.y += barrel.position.y + 2*width;
+        scopeMount.position.z -= 0.1/2;
+
+        this.gun.add(scopeMount);
+
+        // scopeFront.position.z -= length;
+
+        const handleHeight = 4 * height / 5;
+        const handleLength = length / 10;
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(width, handleHeight, handleLength, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
+        handle.position.y = underbarrel.position.y - (handleHeight) / 2;
+        handle.position.z += length / 2 - handleLength / 2;
+        this.gun.add(handle);
+        this.underbarrel = underbarrel;
+        this.barrel = barrel;
+        this.handle = handle;
+
+    }
+
+    recoil(timeout) {
+        this.gun.position.z += this.zOffset;
+        this.gun.rotation.x = this.recoilAmount;
+        this.gun.position.z -= this.zOffset;
+        setTimeout(() => {
+            this.gun.rotation.x = 0
+        }, timeout)
+    }
+}
+
+const snowMaterial = new THREE.MeshPhysicalMaterial({
+    color: globalColors.snowman,
+    flatShading: THREE.FlatShading,
+    metalness: 0,
+    reflectivity: 1,
+    roughness: 0.8,
+    refractionRatio: 0.25,
+
+});
+const snowmanBottomGeometry = addNoise(new THREE.OctahedronGeometry(0.17, 1), 0.02, 0.02, 0.02);
+const snowmanBodyGeometry = addNoise(new THREE.OctahedronGeometry(0.10, 1), 0.02, 0.02, 0.02);
+const snowmanHeadGeometry = addNoise(new THREE.OctahedronGeometry(0.07, 1), 0.02,0.02, 0.02);
+const snowmanNoseGeometry = new THREE.ConeGeometry(0.02, 0.10);
+const snowmanNoseMaterial = new THREE.MeshStandardMaterial({
+    color: globalColors.carrot,
+    flatShading: THREE.FlatShading,
+    metalness: 0,
+    roughness: 0.8,
+    refractionRatio: 0.25,
+
+});
+const snowmanEyeGeometry = new THREE.SphereGeometry(0.02, 10, 32);
+const snowmanEyeMaterial = new THREE.MeshStandardMaterial({
+    color: globalColors.eye,
+    flatShading: THREE.FlatShading,
+    metalness: 0,
+    roughness: 0.8,
+    refractionRatio: 0.25,
+
+})
+
 class Character extends THREE.Group {
     constructor(username, noFace = false, isMainCharacter = false) {
         super();
@@ -193,17 +279,8 @@ class Character extends THREE.Group {
         this.damage = 0;
         const colors = ['#ff0051', '#f56762', '#a53c6c', '#f19fa0', '#72bdbf', '#47689b'];
         // The main bauble is an Octahedron
-        const snowMaterial = new THREE.MeshPhysicalMaterial({
-            color: globalColors.snowman,
-            flatShading: THREE.FlatShading,
-            metalness: 0,
-            reflectivity: 1,
-            roughness: 0.8,
-            refractionRatio: 0.25,
-
-        });
         const bottom = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(0.17, 1), 0.02, 0.02, 0.02),
+            snowmanBottomGeometry,
             snowMaterial,
         );
         bottom.castShadow = true;
@@ -215,7 +292,7 @@ class Character extends THREE.Group {
 
         // A Torus to represent the top hook
         const body = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(0.10, 1), 0.02, 0.02, 0.02),
+            snowmanBodyGeometry,
             snowMaterial,
         );
         body.position.y += 0.22;
@@ -227,7 +304,7 @@ class Character extends THREE.Group {
         this.add(body);
         // A Torus to represent the top hook
         const head = new THREE.Mesh(
-            addNoise(new THREE.OctahedronGeometry(0.07, 1), 0.02,0.02, 0.02),
+            snowmanHeadGeometry,
             snowMaterial,
         );
         head.name = 'head';
@@ -242,15 +319,8 @@ class Character extends THREE.Group {
         this.add(this.head);
         if (!noFace) {
             const nose = new THREE.Mesh(
-                new THREE.ConeGeometry(0.02, 0.10),
-                new THREE.MeshStandardMaterial({
-                    color: globalColors.carrot,
-                    flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                    refractionRatio: 0.25,
-
-                }),
+                snowmanNoseGeometry,
+                snowmanNoseMaterial,
             );
             nose.position.y += 0.37;
             nose.castShadow = true;
@@ -263,15 +333,8 @@ class Character extends THREE.Group {
             this.add(nose);
 
             const eye1 = new THREE.Mesh(
-                new THREE.SphereGeometry(0.02, 10, 32),
-                new THREE.MeshStandardMaterial({
-                    color: globalColors.eye,
-                    flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                    refractionRatio: 0.25,
-
-                }),
+                snowmanEyeGeometry,
+                snowmanEyeMaterial,
             );
             eye1.position.y += 0.40;
             eye1.castShadow = true;
@@ -283,17 +346,9 @@ class Character extends THREE.Group {
 
             this.add(eye1);
             const eye2 = new THREE.Mesh(
-                new THREE.SphereGeometry(0.02, 10, 32),
-                new THREE.MeshStandardMaterial({
-                    color: globalColors.eye,
-                    flatShading: THREE.FlatShading,
-                    metalness: 0,
-                    roughness: 0.8,
-                    refractionRatio: 0.25,
-
-                }),
+                snowmanEyeGeometry,
+                snowmanEyeMaterial,
             );
-            console.log(username)
 
             eye2.position.y += 0.40;
             eye2.castShadow = true;
@@ -386,55 +441,53 @@ class Character extends THREE.Group {
     }
 }
 
+const treeColors = ['#4d9e3a', '#36662b', '#2a7519', '#367727', '#d9e0d7'];
+
+const treeMaterials = [];
+
+for (let i = 0; i < treeColors.length; i++) {
+    treeMaterials.push(new THREE.MeshPhongMaterial({
+        color: treeColors[i],
+        flatShading: THREE.FlatShading,
+        refractionRatio: 0.25,
+        reflectivity: 0.1,
+    }));
+}
+const treeTopGeometry = addNoise(new THREE.CylinderGeometry(0, 0.30, 0.80, 14), 0.11, 0.11, 0.11);
+const treeMidGeometry = addNoise(new THREE.CylinderGeometry(0, 0.40, 1.00, 17), 0.11, 0.11, 0.11);
+const treeBottomGeometry = addNoise(new THREE.CylinderGeometry(0, 0.50, 1.20, 18), 0.11, 0.11, 0.11);
+const trunkColor = '#ffaa00';
+const trunkMaterial = new THREE.MeshPhongMaterial({
+    color: trunkColor,
+    flatShading: THREE.FlatShading,
+    refractionRatio: 0.25,
+
+});
+const trunkGeometry = addNoise(new THREE.CylinderGeometry(0.20, 0.20, 0.20, 4), 0.002, 0.002, 0.002);
 class Tree extends THREE.Group {
     constructor(scaleVariation) {
         super();
         this.scaleVariation = scaleVariation;
-        const trunkColor = '#ffaa00';
-        const treeColors = ['#4d9e3a', '#36662b', '#2a7519', '#367727', '#d9e0d7'];
-        const treeMaterial = new THREE.MeshPhongMaterial({
-            color: treeColors[Math.floor(Math.random() * treeColors.length)],
-            flatShading: THREE.FlatShading,
-            refractionRatio: 0.25,
-            reflectivity: 0.1,
-        });
-
+        const material = treeMaterials[Math.floor(Math.random() * treeMaterials.length)];
         const trunk = new THREE.Mesh(
-            addNoise(new THREE.CylinderGeometry(0.20, 0.20, 0.20, 4), 0.002, 0.002, 0.002),
-            new THREE.MeshPhongMaterial({
-                color: trunkColor,
-                flatShading: THREE.FlatShading,
-                refractionRatio: 0.25,
-
-            }),
+            trunkGeometry,
+            trunkMaterial,
         );
-        // const body = new THREE.Mesh(
-        //     addNoise(new THREE.OctahedronGeometry(10, 1), 2),
-        //     new THREE.MeshStandardMaterial({
-        //         color: colors[Math.floor(Math.random() * colors.length)],
-        //         flatShading: THREE.FlatShading,
-        //         metalness: 0,
-        //         roughness: 0.8,
-        //         refractionRatio: 0.25
-        //
-        //     })
-        // );
-
         trunk.position.y = 0.10;
         trunk.castShadow = true;
         trunk.receiveShadow = true;
         this.add(trunk);
-        const bottom = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 0.50, 1.20, 18), 0.11, 0.11, 0.11), treeMaterial);
+        const bottom = new THREE.Mesh(treeBottomGeometry, material);
         bottom.position.y = 0.80;
         bottom.castShadow = true;
         bottom.receiveShadow = true;
         this.add(bottom);
-        const mid = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 0.40, 1.00, 17), 0.11, 0.11, 0.11), treeMaterial);
+        const mid = new THREE.Mesh(treeMidGeometry, material);
         mid.position.y = 1.10;
         mid.castShadow = true;
         mid.receiveShadow = true;
         this.add(mid);
-        const top = new THREE.Mesh(addNoise(new THREE.CylinderGeometry(0, 0.30, 0.80, 14), 0.11, 0.11, 0.11), treeMaterial);
+        const top = new THREE.Mesh(treeTopGeometry, material);
         top.position.y = 1.40;
         top.castShadow = true;
         top.receiveShadow = true;
@@ -449,67 +502,3 @@ class Tree extends THREE.Group {
 }
 
 
-class Gun extends THREE.Group {
-    constructor(width, height, length, zOffset) {
-        super();
-        this.recoilAmount = radians(20);
-
-        this.zOffset = zOffset;
-        this.gun = new THREE.Group();
-        this.makeGun(width, height, length, zOffset);
-        this.add(this.gun)
-        this.gun.position.z -= zOffset;
-
-    }
-
-    makeGun(width, height, length) {
-        const underbarrel = new THREE.Mesh(new THREE.BoxGeometry(width, height / 5, length, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
-        this.gun.add(underbarrel);
-        const barrel = new THREE.Mesh(new THREE.CylinderGeometry(width, width, length*2), new THREE.MeshPhongMaterial({color: 0x000000}));
-        barrel.rotation.x = radians(90);
-        barrel.position.y += underbarrel.position.y + width;
-        barrel.position.z -= length/2;
-        this.gun.add(barrel);
-
-        const scopeBack = new THREE.Mesh(new THREE.CylinderGeometry(width*2, width, length/2), new THREE.MeshPhongMaterial({color: 0x000000}));
-        scopeBack.rotation.x = radians(90);
-        scopeBack.position.y += barrel.position.y + 4*width;
-        scopeBack.position.z += length/2 - 0.1;
-        this.gun.add(scopeBack);
-
-        const scopeFront = new THREE.Mesh(new THREE.CylinderGeometry(width, width*1.5, length/2), new THREE.MeshPhongMaterial({color: 0x000000}));
-        scopeFront.rotation.x = radians(90);
-        scopeFront.position.y += barrel.position.y + 4*width;
-        scopeFront.position.z -= 0.1;
-
-        this.gun.add(scopeFront);
-
-        const scopeMount = new THREE.Mesh(new THREE.BoxGeometry(width, height/3, length/3, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
-        scopeMount.position.y += barrel.position.y + 2*width;
-        scopeMount.position.z -= 0.1/2;
-
-        this.gun.add(scopeMount);
-
-        // scopeFront.position.z -= length;
-
-        const handleHeight = 4 * height / 5;
-        const handleLength = length / 10;
-        const handle = new THREE.Mesh(new THREE.BoxGeometry(width, handleHeight, handleLength, 1, 1), new THREE.MeshPhongMaterial({color: 0x8a9a5b}));
-        handle.position.y = underbarrel.position.y - (handleHeight) / 2;
-        handle.position.z += length / 2 - handleLength / 2;
-        this.gun.add(handle);
-        this.underbarrel = underbarrel;
-        this.barrel = barrel;
-        this.handle = handle;
-
-    }
-
-    recoil(timeout) {
-        this.gun.position.z += this.zOffset;
-        this.gun.rotation.x = this.recoilAmount;
-        this.gun.position.z -= this.zOffset;
-        setTimeout(() => {
-            this.gun.rotation.x = 0
-        }, timeout)
-    }
-}

@@ -1210,19 +1210,18 @@ function getTreePositions() {
 }
 
 
-function generateTreePositions() {
+function generateTreePositions(min, max) {
     let treeXPositions = [];
     let treeZPositions = [];
     let treeScales = [];
+    const variation = (Math.random() - 0.5) * 0.5;
 
-    for (let z = -10; z < 10; z++) {
-        for (let x = -10; x < 10; x++) {
+    for (let z = min; z < max; z++) {
+        for (let x = min; x < max; x++) {
             treeXPositions.push((x * (Math.random() * 0.51 + 2.50)) - (6.40) + variation);
             treeZPositions.push((z * (Math.random() * 0.51 + 2.50)) - (8.00) + variation);
             treeScales.push((Math.random() - 0.5) - 0.1);
         }
     }
-    console.log(treeXPositions);
-    console.log(treeZPositions);
-    console.log(treeScales);
+    return {'treeXPositions': treeXPositions, 'treeZPositions': treeZPositions, 'treeScales': treeScales}
 }
